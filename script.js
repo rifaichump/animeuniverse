@@ -71,17 +71,14 @@ setInterval(async() => {
       <p class="server-status">Status: Online</p>
       <p class="server-status">Players: ${data.players.online}/${data.players.max}</p>
       `;
-      document.getElementById("text-menunggu-section").textContent = "";
     } else {
       aternos.innerHTML = `
       <p class="server-status">Status: Offline</p>
       `;
-      document.getElementById("text-menunggu-section").textContent = "";
     }
   } catch (e) {
     aternos.innerHTML = `
     <p class="server-status">Status: Unknown</p>
     `;
-    document.getElementById("text-menunggu-section").textContent = "";
   }
 }, 0)
