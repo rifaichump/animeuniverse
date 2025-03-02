@@ -41,7 +41,15 @@ function tampilkanMedia() {
         const img = document.createElement("img");
         img.src = src;
         img.alt = "Gambar Historis";
+<<<<<<< HEAD
         img.onclick = `imgWindow(src)`;
+=======
+<<<<<<< HEAD
+        img.onclick = `imgWindow(src)`;
+=======
+        img.onclick = imgWindow(src);
+>>>>>>> 980a9c8 (Dudu)
+>>>>>>> 3848974 (Uaauuaua)
         img.classList.add("media-item");
         
         mediaBox.appendChild(img);
