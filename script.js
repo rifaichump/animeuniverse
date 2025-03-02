@@ -41,7 +41,6 @@ function tampilkanMedia() {
         const img = document.createElement("img");
         img.src = src;
         img.alt = "Gambar Historis";
-        img.onclick = imgWindow(src);
         img.classList.add("media-item");
         
         mediaBox.appendChild(img);
