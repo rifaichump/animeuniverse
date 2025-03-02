@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Universe S3</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Konten Utama -->
+    <main>
+        <!-- Status Server Minecraft -->
+        <section id="server" class="container">
+            <h2>Server Minecraft</h2>
+            <p class="server-status" id="text-menunggu-section">Checking status...</p>
+            <div id="aternos"></div>
+            <button onclick="location.href='https://add.aternos.org/AnimeUnicraft'">Add Server</button>
+        </section>
+
+        <!-- Foto / Video Historis -->
+        <section id="history" class="container">
+            <p>Foto Foto Kenangan</p>
+            <button onclick="tampilkanMedia()">Tampilkan</button>
+            <div id="media-container"></div>
+        </section>
+
+        <!-- Pilih Waifu -->
+        <section id="waifu" class="container">
+            <h2>Pilih Waifu</h2>
+            <select id="waifu-list">
+                <option value="Rem">Rem</option>
+                <option value="Asuna">Asuna</option>
+                <option value="Zero Two">Zero Two</option>
+                <option value="Kurisu">Kurisu</option>
+            </select>
+            <button onclick="pilihWaifu()">Pilih</button>
+            <p id="waifu-terpilih"></p>
+        </section>
+
+        <!-- WhatsApp Section -->
+        <section id="whatsapp" class="container">
+            <h2>Gabung ke WhatsApp</h2>
+            <p>Bergabunglah dengan komunitas kami di WhatsApp:</p>
+            <button onclick="bukaGroup()">Group WhatsApp</button>
+            <button onclick="bukaChannel()">Channel WhatsApp</button>
+            <button onclick="bukaChannelSticker()">Channel Sticker WA</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2021 Website Anime Universe</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
