@@ -1,248 +1,177 @@
-body {
-    font-family: 'Arial', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    background: linear-gradient(45deg, #232125, #1f1321, #9e7cd4);
-    background-size: 400% 400%;
-    animation: gradientAnimation 10s ease infinite;
-    overflow-y: auto;
-}
-
-@keyframes gradientAnimation {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-.logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-title {
-    font-size: 32px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-    animation: textAnimation 3s infinite alternate;
-}
-
-.logo {
-    width: 120px;
-    height: 120px;
-    background-image: url('images/logo.jpg');
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    border: 4px solid #f0f5fa;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    transition: transform 0.1s ease-in-out, border 0.1s ease;
-}
-
-@keyframes textAnimation {
-    0% {
-        transform: translateY(0);
-        color: #be75e6;
-    }
-    50% {
-        transform: translateY(-10px);
-        color: #e9d1f6;
-    }
-    100% {
-        transform: translateY(0);
-        color: #9781ef;
-    }
-}
-
-
-.logo:hover {
-    transform: rotate(360deg);
-    background-image: url('images/logo_1.jpg');
-    border-color: #8600e4;
-    border-width: 4px;
-}
-
-.video-wrapper {
-    position: relative;
-    width: 100%;
-    padding-top: 100%;
-    overflow: hidden;
-}
-
-.carousel-item video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.btn-custom {
-    width: 250px;
-    padding: 15px;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: bold;
-    margin: 15px 0;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.btn-primary-custom {
-    background-color: #007bff;
-    border: none;
-    color: white;
-}
-
-.btn-primary-custom:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-}
-
-.btn-danger-custom {
-    background-color: #dc3545;
-    border: none;
-    color: white;
-}
-
-.btn-danger-custom:hover {
-    background-color: #c82333;
-    transform: scale(1.05);
-}
-
-.btn-success-custom {
-    background-color: #28a745;
-    border: none;
-    color: white;
-}
-
-.btn-success-custom:hover {
-    background-color: #218838;
-    transform: scale(1.05);
-}
-
-.image-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #f2e695;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.animated-border {
-    position: relative;
-    color: white;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.animated-border::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 4px solid transparent;
-    border-image: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff00ff);
-    border-image-slice: 1;
-    animation: borderMove 4s infinite linear;
-    z-index: 1;
+/* Reset & Global */
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
-    border-radius: 0px;
+    font-family: Arial, sans-serif;
 }
 
-@keyframes borderMove {
-    0% { border-image-source: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff00ff); }
-    25% { border-image-source: linear-gradient(45deg, #00ff00, #0000ff, #ff00ff, #ff0000); }
-    50% { border-image-source: linear-gradient(45deg, #0000ff, #ff00ff, #ff0000, #00ff00); }
-    75% { border-image-source: linear-gradient(45deg, #ff00ff, #ff0000, #00ff00, #0000ff); }
-    100% { border-image-source: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff00ff); }
-}
-
-.image-result img {
-    border: 4px solid #d6b5e4;
-    border-radius: 4%;
-    background-size: cover;
-}
-
-.carousel-inner img {
-    max-height: 400px;
-    object-fit: cover;
-}
-
-.carousel {
-    width: 100%;
-    max-width: 600px;
-    margin-top: 50px;
-    padding: 14px;
-    background-color: rgba(0,0,0,0.8);
-    border-radius: 10px;
-}
-
-.carousel-control-prev, .carousel-control-next {
-    color: #fff;
-    font-size: 30px;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-}
-
-.form-container {
-    width: 100%;
-    max-width: 600px;
-    margin-top: 50px;
-    padding: 30px;
-    background-color: rgb(0,0,0);
-    border-radius: 10px;
-}
-
-.form-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #a4dce6;
-}
-
-.form-select {
-    border-radius: 10px;
-    margin-bottom: 15px;
-    padding: 15px;
-    font-size: 16px;
-}
-
-.form-control {
-    border-radius: 10px;
-    margin-bottom: 15px;
-    padding: 15px;
-    font-size: 16px;
-}
-
-.form-submit {
-    width: 100%;
-    padding: 15px;
-    border-radius: 30px;
-    font-size: 18px;
-    font-weight: bold;
-    background-color: #28a745;
-    border: none;
+body {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
     color: white;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
 }
 
-.form-submit:hover {
-    background-color: #218838;
+/* Beri Ruang untuk Header */
+main {
+    width: 100%;
+    max-width: 800px; /* Batasi lebar agar tidak terlalu besar */
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Pusatkan isinya */
+    justify-content: center;
+}
+
+/* Section Containers */
+.container {
+    width: 100%;
+    max-width: 700px; /* Batasi lebar agar lebih rapi */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Pusatkan isi dalam setiap container */
+}
+
+/* Status Server */
+.server-status {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+/* Foto & Video Historis - Scrollable */
+#media-container {
+    max-width: 700px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: center; /* Pusatkan media di dalam */
+}
+
+/* Wrapper untuk menyusun kotak */
+.media-wrapper {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    scroll-snap-type: x mandatory;
+    justify-content: center; /* Pusatkan kontennya */
+}
+
+/* Kotak pembungkus gambar */
+.media-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 220px;
+    height: 180px;
+}
+
+/* Gambar dalam kotak */
+.media-item {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Scroll bar (opsional) */
+#media-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+#media-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+
+#media-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+
+
+img, video {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+/* Pilih Waifu */
+select {
+    padding: 10px;
+    font-size: 1rem;
+    margin: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+#waifu-terpilih {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Tombol */
+button {
+    background: #ff9800;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background: #e68900;
     transform: scale(1.05);
+}
+
+/* Footer */
+footer {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    main {
+        max-width: 95%;
+    }
+
+    .container {
+        max-width: 90%;
+    }
+
+    #media-container {
+        max-width: 90%;
+    }
 }
