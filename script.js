@@ -44,17 +44,15 @@ async function tampilkanMedia() {
     
     if(!sources.length) {
       console.log("Mana fotonya jir");
+      document.getElementById('tampilkanMediaBeton').disabled = true;
+      document.getElementById('tampilkanMediaBeton').textContent = `Media Kosong`;
       return;
     };
     
     let images = [];
     for(let nameImg of sources) {
-      const result = await fetch(`https://api.github.com/repos/rifaichump/database/contents/${nameImg}?ref=main`, {
-        headers: {
-          "Authorization": `Bearer ${TOKEN}`
-        }
-      }).then(data => data.json())
-      images.push(result.download_url)
+      const result = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${BRANCH}/${nameImg}`
+      images.push(result)
     };
     
     console.log(images)

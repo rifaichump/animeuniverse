@@ -3,22 +3,52 @@
 <head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Github</title>
+    <title>Upload Foto</title>
     <link rel="stylesheet" href="css/login.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
 </head>
 <body>
-  <form onsubmit="uploadGithub(event)">
-    <h2>Upload Foto <pre id="limitCheck">Checking limit...</pre></h2>
-    <div class="input-group mb-3">
-      <input id="pw" type="text" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+  <form onsubmit="uploadGithub(event)" class="was-validated">
+    <h2>Upload Foto</h2>
+    <div class="col-md-4">
+      <input id="pw" placeholder="Password" type="text" class="form-control" id="validationCustom01" required>
     </div>
-    <div class="input-group mb-3">
-      <input id="filename" type="text" class="form-control" placeholder="Filename" aria-label="Filename" aria-describedby="basic-addon1">
+    <div id="divfilename" class="col-md-4">
+      <input id="filename" placeholder="Filename" type="text" class="form-control" id="validationCustom01" required>
     </div>
-    <input class="form-control" id="image" type="file" accept="image/png, image/jpeg">
-    <button id="beton" type="submit" class="btn btn-outline-info">Upload</button>
-    <div id="status"></div>
+    <div class="mb-3 mt-10px">
+      <input id="image" type="file" accept="image/png, image/jpeg" class="form-control" aria-label="file example" required>
+      <div class="invalid-feedback">Pilih foto yang mau di upload</div>
+    </div>
+    <button id="uploadBeton" type="submit" class="btn btn-outline-info">Upload</button>
+   <p id="status"></p>
+  </form>
+  
+ <!--  <form onsubmit="uploadGithub(event)">
+   <h2>Upload Foto <pre id="limitCheck">Checking limit...</pre></h2>
+   <div class="input-group mb-3">
+     <input id="pw" type="text" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+   </div>
+   <div class="input-group mb-3">
+     <input id="filename" type="text" class="form-control" placeholder="Filename" aria-label="Filename" aria-describedby="basic-addon1">
+     <div class="alert alert-secondary" role="alert">
+       sjnsnssnsnsnsnsnenenneenenenebennebw
+     </div>
+   </div>
+   <input class="form-control" id="image" type="file" accept="image/png, image/jpeg">
+   <button id="uploadBeton" type="submit" class="btn btn-outline-info">Upload</button>
+   <p id="status"></p>
+ </form> -->
+ 
+  <form onsubmit="deleteFileGithub(event)">
+    <h2>Hapus Foto</h2>
+    <div class="input-group mb-3">
+      <input id="pwdel" type="text" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+    </div>
+    <select id="formListImage" class="form-select">
+    </select>
+    <button id="deleteBeton" type="submit" class="btn btn-outline-danger">Delete</button>
+    <p id="delstatus"></p>
   </form>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
