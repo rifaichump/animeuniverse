@@ -7,34 +7,50 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="cobala"></div>
+    <div class="background-overlay"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="profile-icon">
+            <img src="profile.jpg" alt="Profil" />
+        </div>
+        <div class="header-content">
+            <h1 class="title">Anime Universe S4</h1>
+            <p class="subtitle">Anime Universe adalah group komunitas pecinta anime dan manga yang masih aktif hingga saat ini.</p>
+        </div>
+    </header>
+
     <!-- Konten Utama -->
     <main>
+        <!-- WhatsApp Section -->
+        <section id="whatsapp" class="container card">
+            <h2 class="title">Gabung ke WhatsApp</h2>
+            <p style="color:#ffffff;">Bergabunglah dengan komunitas kami di WhatsApp:</p>
+            <div class="btn-group">
+                <button onclick="bukaGroup()">Group WhatsApp</button>
+                <button onclick="bukaChannel()">Channel WhatsApp</button>
+                <button onclick="bukaChannelSticker()">Channel Sticker WA</button>
+            </div>
+        </section>
+
         <!-- Status Server Minecraft -->
-        <section id="server" class="container">
-            <h2>Server Minecraft</h2>
+        <section id="server" class="container card">
+            <h2 class="title">Server Minecraft</h2>
             <div id="aternos"></div>
             <button id="dudu" onclick="location.href='https://add.aternos.org/AnimeUnicraft'">Add Server</button>
         </section>
-
+        
         <!-- Foto / Video Historis -->
-        <section id="history" class="container">
-            <h2>Foto Foto Kenangan</h2>
-            <button id="tampilkanMediaBeton" onclick="tampilkanMedia()">Tampilkan Foto</button>
+        <section id="history" class="container card">
+            <h2 class="title">Foto Historis</h2>
+            <p>Foto foto bersejarah di masa lampau</p>
+            <button id="tampilkanMediaBeton" onclick="tampilkanMedia()">Lihat</button>
             <div id="media-container"></div>
             <a href="login.html">Upload Foto</a>
         </section>
-
-        <!-- WhatsApp Section -->
-        <section id="whatsapp" class="container">
-            <h2>Gabung ke WhatsApp</h2>
-            <p>Bergabunglah dengan komunitas kami di WhatsApp:</p>
-            <button onclick="bukaGroup()">Group WhatsApp</button>
-            <button onclick="bukaChannel()">Channel WhatsApp</button>
-            <button onclick="bukaChannelSticker()">Channel Sticker WA</button>
-        </section>
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>&copy; 2025 Website Anime Universe</p>
     </footer>
