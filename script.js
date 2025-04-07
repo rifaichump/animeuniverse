@@ -63,6 +63,7 @@ async function tampilkanMedia() {
       const label = document.createElement("p");
       label.textContent = fileName;
       label.classList.add("media-label");
+      label.style.color = "#31f5f8";
 
       const link = document.createElement("a");
       link.href = src;
@@ -111,7 +112,7 @@ setInterval(async () => {
 }, 100);
 
 // DOM Loaded biar enak
-document.addEventListener("DOMContentLoaded", tampilkanMedia);
+// document.addEventListener("DOMContentLoaded", tampilkanMedia);
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('aternos').innerHTML = "<p style='color:#ffffff;'>Memuat...</p>"
