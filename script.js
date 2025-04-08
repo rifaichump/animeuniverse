@@ -115,5 +115,6 @@ setInterval(async () => {
 // document.addEventListener("DOMContentLoaded", tampilkanMedia);
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById('aternos').innerHTML = "<p style='color:#ffffff;'>Memuat...</p>"
+  const aternos = document.getElementById('aternos');
+  aternos.innerHTML = "<p style='color:#ffffff;'>Memuat...</p>";
 });
