@@ -30,10 +30,10 @@ function bukaChannelSticker() {
 // Tampilkan Media dari GitHub Aku
 async function tampilkanMedia() {
   const mediaContainer = document.getElementById("media-container");
-  const btn = document.getElementById('tampilkanMediaBeton');
+  //const btn = document.getElementById('tampilkanMediaBeton');
 
   mediaContainer.innerHTML = "<p style='opacity: 0.8;'>Memuat media...</p>";
-  btn.disabled = true;
+  //btn.disabled = true;
 
   try {
     const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents?ref=${BRANCH}`, {
@@ -49,7 +49,9 @@ async function tampilkanMedia() {
       mediaContainer.innerHTML = "<p style='color:red;'>Tidak ada media ditemukan. Silakan upload foto terlebih dahulu.</p>";
       return;
     }
-
+    
+    console.log(files)
+    
     const mediaWrapper = document.createElement("div");
     mediaWrapper.classList.add("media-wrapper");
 
@@ -91,8 +93,9 @@ async function tampilkanMedia() {
 }
 
 // Minecraft Server AU
+const aternos = document.getElementById('aternos');
+aternos.innerHTML = "<p style='color:#ffffff;'>Memuat...</p>";
 setInterval(async () => {
-  const aternos = document.getElementById("aternos");
   try {
     const res = await fetch("https://api.mcstatus.io/v2/status/bedrock/AnimeUnicraft.aternos.me:12698");
     const data = await res.json();
@@ -112,9 +115,4 @@ setInterval(async () => {
 }, 1000);
 
 // DOM Loaded biar enak
-// document.addEventListener("DOMContentLoaded", tampilkanMedia);
-
-document.addEventListener("DOMContentLoaded", () => {
-  const aternos = document.getElementById('aternos');
-  aternos.innerHTML = "<p style='color:#ffffff;'>Memuat...</p>";
-});
+document.addEventListener("DOMContentLoaded", tampilkanMedia);
