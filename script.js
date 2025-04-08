@@ -50,8 +50,6 @@ async function tampilkanMedia() {
       return;
     }
     
-    console.log(files)
-    
     const mediaWrapper = document.createElement("div");
     mediaWrapper.classList.add("media-wrapper");
 
@@ -90,7 +88,8 @@ async function tampilkanMedia() {
     console.error("Gagal memuat media:", error);
     mediaContainer.innerHTML = "<p style='color:red;'>Gagal memuat media.</p>";
   }
-}
+};
+tampilkanMedia();
 
 // Minecraft Server AU
 const aternos = document.getElementById('aternos');
@@ -115,4 +114,4 @@ setInterval(async () => {
 }, 1000);
 
 // DOM Loaded biar enak
-document.addEventListener("DOMContentLoaded", tampilkanMedia);
+//document.addEventListener("DOMContentLoaded", tampilkanMedia);
