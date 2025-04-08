@@ -69,7 +69,7 @@ async function uploadGithub(event) {
   
   const file = gambar.files[0];
   if(pw.value !== pwnya) {
-    status.innerHTML = "Password salah!, Silahkan minta Password ke Rifai.";
+    status.textContent = "Password salah!, Silahkan minta Password ke Rifai.";
     return;
   }
   

@@ -109,7 +109,7 @@ setInterval(async () => {
   } catch {
     aternos.innerHTML = `<p class="server-status">Status: Unknown</p>`;
   }
-}, 500);
+}, 1000);
 
 // DOM Loaded biar enak
 // document.addEventListener("DOMContentLoaded", tampilkanMedia);
