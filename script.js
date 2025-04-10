@@ -63,7 +63,7 @@ async function tampilkanMedia() {
       const label = document.createElement("p");
       label.textContent = fileName;
       label.classList.add("media-label");
-      label.style.color = "#31f5f8";
+      label.style.color = "#a435ff";
 
       const link = document.createElement("a");
       link.href = src;
