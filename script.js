@@ -52,6 +52,8 @@ async function tampilkanMedia() {
     
     const mediaWrapper = document.createElement("div");
     mediaWrapper.classList.add("media-wrapper");
+    
+    const arrColor = ['#a435ff','#3700ef','#ac0395','#faff2f'];
 
     files.forEach(name => {
       const src = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${BRANCH}/${name}`;
@@ -63,7 +65,7 @@ async function tampilkanMedia() {
       const label = document.createElement("p");
       label.textContent = fileName;
       label.classList.add("media-label");
-      label.style.color = "#a435ff";
+      label.style.color = pickRandom(arrColor);
 
       const link = document.createElement("a");
       link.href = src;
@@ -115,3 +117,7 @@ setInterval(async () => {
 
 // DOM Loaded biar enak
 //document.addEventListener("DOMContentLoaded", tampilkanMedia);
+
+function pickRandom(a) {
+  return a[Math.floor(Math.random() * a.length)];
+};
