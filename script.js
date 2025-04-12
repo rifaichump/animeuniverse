@@ -27,8 +27,8 @@ function bukaChannelSticker() {
   window.open(linkChSticker, "_blank");
 }
 
-// Tampilkan Media dari GitHub Aku
-async function tampilkanMedia() {
+// Tampilkan Media dari GitHub: Branch main
+async function tampilkanMedia(repo) {
   const mediaContainer = document.getElementById("media-container");
   //const btn = document.getElementById('tampilkanMediaBeton');
 
@@ -56,7 +56,7 @@ async function tampilkanMedia() {
     const arrColor = ['#a435ff','#3700ef','#ac0395','#faff2f'];
 
     files.forEach(name => {
-      const src = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${BRANCH}/${name}`;
+      const src = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${repo}/${BRANCH}/${name}`;
       const fileName = name.replace(/\.(jpg|png|jpeg|gif)$/i, "");
 
       const mediaBox = document.createElement("div");
@@ -91,7 +91,73 @@ async function tampilkanMedia() {
     mediaContainer.innerHTML = "<p style='color:red;'>Gagal memuat media.</p>";
   }
 };
-tampilkanMedia();
+tampilkanMedia(REPO_NAME);
+
+// Tampilkan Media dari GitHub: Branch random
+async function tampilkanMediaRandom(repo) {
+  const mediaContainer = document.getElementById("media-random");
+  //const btn = document.getElementById('tampilkanMediaBeton');
+
+  mediaContainer.innerHTML = "<p style='opacity: 0.8;'>Memuat media...</p>";
+  //btn.disabled = true;
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo}/contents?ref=${BRANCH}`, {
+      headers: {
+        "Authorization": `Bearer ${TOKEN}`
+      }
+    });
+
+    const data = await response.json();
+    const files = Array.isArray(data) ? data.map(item => item.name) : [];
+
+    if (files.length === 0) {
+      mediaContainer.innerHTML = "<p style='color:red;'>Tidak ada media ditemukan. Silakan upload foto terlebih dahulu.</p>";
+      return;
+    }
+    
+    const mediaWrapper = document.createElement("div");
+    mediaWrapper.classList.add("media-wrapper");
+    
+    const arrColor = ['#a435ff','#3700ef','#ac0395','#faff2f'];
+
+    files.forEach(name => {
+      const src = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${repo}/${BRANCH}/${name}`;
+      const fileName = name.replace(/\.(jpg|png|jpeg|gif)$/i, "");
+
+      const mediaBox = document.createElement("div");
+      mediaBox.classList.add("media-box");
+
+      const label = document.createElement("p");
+      label.textContent = fileName;
+      label.classList.add("media-label");
+      label.style.color = pickRandom(arrColor);
+
+      const link = document.createElement("a");
+      link.href = src;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = fileName;
+      img.classList.add("media-item");
+      img.onerror = () => img.src = "profile.jpg";
+
+      link.appendChild(img);
+      mediaBox.appendChild(label);
+      mediaBox.appendChild(link);
+      mediaWrapper.appendChild(mediaBox);
+    });
+
+    mediaContainer.innerHTML = "";
+    mediaContainer.appendChild(mediaWrapper);
+  } catch (error) {
+    console.error("Gagal memuat media:", error);
+    mediaContainer.innerHTML = "<p style='color:red;'>Gagal memuat media.</p>";
+  }
+};
+tampilkanMediaRandom('database2');
 
 // Minecraft Server AU
 const aternos = document.getElementById('aternos');
