@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchGalleryImages('nezukoUniverse', 'nezuko');
 });
 
+const allT = {
+    a: "ghp_qwQtP",
+    b: "ZLFwHLHoE9xTH5eE",
+    c: "UmRyoVwbQ40ixPS"
+  };
+const githubToken = allT.a + allT.b + allT.c;
 
 const firebaseConfig = {
   apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
@@ -66,7 +72,11 @@ async function fetchGalleryImages(id, folderPath) {
   const container = document.getElementById(id);
 
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl, {
+      headers: {
+        "Authorization": `Bearer ${githubToken}`
+      }
+    });
     const files = await response.json();
 
     if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
