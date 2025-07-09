@@ -18,6 +18,45 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
+  authDomain: "visitorwebauv4.firebaseapp.com",
+  databaseURL: "https://visitorwebauv4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "visitorwebauv4",
+  storageBucket: "visitorwebauv4.firebasestorage.app",
+  messagingSenderId: "323012132107",
+  appId: "1:323012132107:web:269ac2eb2c1f139a4b360e",
+  measurementId: "G-TLVS3CB9K3"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ref = db.ref("visitors");
+
+const visitedKey = "hasVisitedAnimeAU";
+
+function updateVisitorCount() {
+  ref.once("value").then(snapshot => {
+    let count = snapshot.val() || 0;
+    document.getElementById("visitorCount").textContent = count.toLocaleString("id-ID");
+  });
+}
+
+if (!localStorage.getItem(visitedKey)) {
+  ref.once("value").then(snapshot => {
+    let count = snapshot.val() || 0;
+    count += 1;
+    ref.set(count).then(() => {
+      document.getElementById("visitorCount").textContent = count.toLocaleString("id-ID");
+      localStorage.setItem(visitedKey, "true");
+    });
+  });
+} else {
+  updateVisitorCount();
+}
+
+if (window.lucide) lucide.createIcons();
+
 const githubUsername = "rifaichump";
 const repo = "database";
 
