@@ -12,8 +12,22 @@
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center relative">
+  <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
+    <h1 class="text-lg font-semibold">🔰 Group Whatsapp & Social Community 🔰</h1>
+    <div class="relative">
+      <button id="menuBtn" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-md">
+        ☰
+      </button>
+      <div id="menuDropdown" class="hidden absolute right-0 mt-2 bg-[#2a2a2a] rounded-md shadow-lg w-40 z-10 text-sm">
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./index.html'">🏠 Home</button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./upload.html'">⬆️ Upload Foto</button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./comingsoon.html'">🚮 Hapus Foto</button>
+      </div>
+    </div>
+  </nav>
 
-  <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-sm">
+
+  <!-- <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-sm">
     <h1 class="text-base font-semibold truncate max-w-[60%]">🔰 Group Whatsapp & Social Community 🔰</h1>
     <div class="relative">
       <button id="menuBtn" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-md text-xs">
@@ -25,7 +39,7 @@
         <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./comingsoon.html'">🚮 Hapus Foto</button>
       </div>
     </div>
-  </nav>
+  </nav> -->
 
   <section class="bg-[#1e1e1e] p-5 mt-2 shadow-lg flex items-center gap-4 max-w-sm w-full mb-6">
     <img src="./profile.jpg" class="w-20 h-20 rounded-full border-2 border-gray-700" />
