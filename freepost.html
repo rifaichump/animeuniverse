@@ -88,7 +88,6 @@
 
           if (res.ok) {
             statusText.textContent = "✅ Berhasil diunggah!";
-            fetchFreepostGallery();
             uploadForm.reset();
           } else {
             const err = await res.json();
