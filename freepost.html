@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Freepost</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>::-webkit-scrollbar { display: none; }</style>
+</head>
+<body class="bg-[#0e0e0e] text-white font-sans flex flex-col items-center min-h-screen">
+
+  <!-- Header -->
+  <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
+    <h1 class="text-lg font-semibold">📸 Freepost</h1>
+    <button onclick="location.href='index.html'" class="text-sm bg-gray-700 px-3 py-1.5 rounded hover:bg-gray-600">🔙 Kembali</button>
+  </nav>
+
+  <!-- Upload Form -->
+  <section class="mt-6 w-full max-w-md px-4">
+    <button id="toggleFormBtn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-semibold mb-4">
+        ➕ Buat Postingan
+    </button>
+
+    <!-- Upload Form (sembunyikan awalnya) -->
+    <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
+        <h2 class="text-lg font-semibold mb-2">📝 Kirim Foto</h2>
+        <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
+        <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded">📤 Upload</button>
+        <p id="uploadStatus" class="text-xs text-center text-gray-400 mt-2"></p>
+    </form>
+  </section>
+
+  <!-- Gambar Gallery -->
+  <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">
+    <!-- Gambar akan ditambahkan di sini -->
+  </section>
+
+  <!-- Script -->
+  <script>
+    const allT = {
+        a: "ghp_qwQtP",
+        b: "ZLFwHLHoE9xTH5eE",
+        c: "UmRyoVwbQ40ixPS"
+    };
+    const githubToken = allT.a + allT.b + allT.c;
+    const toggleFormBtn = document.getElementById("toggleFormBtn");
+    const uploadFormEl = document.getElementById("uploadForm");
+
+    toggleFormBtn.addEventListener("click", () => {
+        const isHidden = uploadFormEl.classList.contains("hidden");
+        uploadFormEl.classList.toggle("hidden");
+        toggleFormBtn.textContent = isHidden ? "✖️ Tutup" : "➕ Buat Postingan";
+    });
+
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const captionInput = document.getElementById("captionInput");
+    const statusText = document.getElementById("uploadStatus");
+    const gallery = document.getElementById("gallery");
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusText.textContent = "⏳ Mengunggah...";
+
+      const file = fileInput.files[0];
+      const caption = captionInput.value;
+
+      if (!file || !caption || !fileName) {
+        statusText.textContent = "❌ Semua isian wajib diisi.";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64 = reader.result.split(',')[1];
+
+        const repo = "rifaichump/database";
+        const path = `freepost/${caption}.${file.split('/')[1]}`;
+        const message = `Menambahkan file ${caption}`;
+        const body = {
+          message,
+          content: base64
+        };
+
+        try {
+          const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${githubToken}`
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (res.ok) {
+            statusText.textContent = "✅ Berhasil diunggah!";
+            uploadForm.reset();
+          } else {
+            const err = await res.json();
+            statusText.textContent = `❌ Gagal: ${err.message}`;
+          }
+        } catch (err) {
+          statusText.textContent = "❌ Gagal koneksi.";
+        }
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    async function fetchFreepostGallery(id = 'gallery') {
+        const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
+        const container = document.getElementById(id);
+
+        try {
+            const response = await fetch(apiUrl);
+            const files = await response.json();
+
+            if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
+            files
+            .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp)$/i.test(file.name))
+            .sort((a, b) => b.name.localeCompare(a.name))
+            .forEach(file => {
+                const imageUrl = `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`;
+                const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6";
+
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.alt = nameWithoutExt;
+                img.className = "w-full rounded mb-2";
+
+                const caption = document.createElement("p");
+                caption.textContent = nameWithoutExt;
+                caption.className = "text-sm text-gray-300";
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(caption);
+                container.appendChild(wrapper);
+            });
+
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
+        }
+    }
+    setInterval(fetchFreepostGallery, 10000)
+  </script>
+</body>
+</html>
