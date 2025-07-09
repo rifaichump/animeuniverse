@@ -84,7 +84,7 @@ async function fetchMCStatsStatus() {
     console.error(err);
   }
 };
-setInterval(fetchMCStatsStatus, 1000);
+setInterval(fetchMCStatsStatus, 5000);
 
 function cleanMotd(input) {
   return input.replace(/\n\S*/,'');
