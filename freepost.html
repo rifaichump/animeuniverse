@@ -10,7 +10,7 @@
 <body class="bg-[#0e0e0e] text-white font-sans flex flex-col items-center min-h-screen">
 
   <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
-    <h1 class="text-lg font-semibold">📸 Freepost</h1>
+    <h1 class="text-lg font-semibold">Freepost</h1>
     <button onclick="location.href='index.html'" class="text-sm bg-gray-700 px-3 py-1.5 rounded hover:bg-gray-600">🔙 Kembali</button>
   </nav>
 
@@ -19,7 +19,7 @@
         ➕ Buat Postingan
     </button>
     <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
-        <h2 class="text-lg font-semibold mb-2">📝 Kirim Foto</h2>
+        <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
         <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
         <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded">📤 Upload</button>
@@ -59,7 +59,7 @@
       const file = fileInput.files[0];
       const caption = captionInput.value;
 
-      if (!file || !caption || !fileName) {
+      if (!file || !caption) {
         statusText.textContent = "❌ Semua isian wajib diisi.";
         return;
       }

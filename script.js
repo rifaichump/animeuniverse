@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Gallery
   fetchGalleryImages('minecraftFotbar', 'minecraft');
   fetchGalleryImages('gambarRandom', 'random');
+  fetchGalleryImages('nezukoUniverse', 'nezuko');
 });
 
 
@@ -86,7 +87,7 @@ async function fetchGalleryImages(id, folderPath) {
         container.appendChild(slide);
       });
   } catch (err) {
-    container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar.</p>`;
+    container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar. Upload terlebih dahulu</p>`;
   }
 }
 
