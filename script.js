@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// Ganti dengan username dan repo kamu
 const githubUsername = "rifaichump";
 const repo = "database";
 

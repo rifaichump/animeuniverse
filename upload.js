@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Tampilkan "Mengunggah..." & disable tombol
     loadingText.textContent = "Mengupload gambar...";
     loadingText.classList.remove("hidden");
     submitBtn.disabled = true;
