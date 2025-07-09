@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DarkConnect Sosial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center relative">
+
+  <nav class="w-full px-4 py-3 flex justify-between items-center bg-[#1a1a1a] shadow-md relative text-base">
+    <h1 class="text-xl font-bold">🔰 Group Whatsapp & Social Community 🔰</h1>
+    <div class="relative">
+      <button id="menuBtn" class="bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-lg">
+        ☰ Menu
+      </button>
+      <div id="menuDropdown" class="hidden absolute right-0 mt-2 bg-[#2a2a2a] rounded-lg shadow-lg w-40 z-10">
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./index.html'">🏠 Home</button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./upload.html'">⬆️ Upload Foto</button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./comingsoon.html'">🚮 Hapus Foto</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="bg-[#1e1e1e] p-5 mt-2 shadow-lg flex items-center gap-4 max-w-sm w-full mb-6">
+    <img src="./profile.jpg" class="w-20 h-20 rounded-full border-2 border-gray-700" />
+    <div>
+      <h3 class="text-xl font-semibold">Anime Universe S4</h3>
+      <p class="text-gray-400 text-sm">Group social</p>
+    </div>
+  </section>
+
+  <section class="flex gap-8 mt-4 mb-8 text-sm">
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="./comingsoon.html">🔍 Status</a>
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="minecraft://?addExternalServer=AnimeUnicraft|AnimeUnicraft.aternos.me:12698">🕹️ Server MC</a>
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="https://chat.whatsapp.com/FMFBe4kJwao4xJIBWYzdy0">➕ Gabung</a>
+  </section>
+
+  <section class="w-full flex flex-col items-center px-4 mb-20">
+    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Server Minecraft</h2>
+      <div id="mcStatus" class="bg-[#2a2a2a] p-4 rounded-lg text-sm space-y-2 text-gray-300">
+        <p>Memuat server...</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="w-full flex flex-col items-center px-4 mb-20">
+    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Minecraft Fotbar</h2>
+      <div id="minecraftFotbar" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4">
+      </div>
+    </div>
+  </section>
+
+  <section class="w-full flex flex-col items-center px-4 mb-20">
+    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Gambar Random</h2>
+      <div id="gambarRandom" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4">
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-gray-500 text-xs py-4">
+    &copy; 2025 Built by Rifai.
+  </footer>
+
+  <!-- JS -->
+  <script src="script.js" defer></script>
+</body>
+</html>
