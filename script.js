@@ -77,10 +77,10 @@ async function fetchMCStatsStatus() {
       <p><span class="font-semibold text-green-400">Status:</span> 🟢 Online</p>
       <p><span class="font-semibold text-blue-400">Pemain:</span> ${playersOnline} / ${playersMax}</p>
       <p><span class="font-semibold text-yellow-400">Versi:</span> ${version}</p>
-      <p><span class="font-semibold text-purple-400">Deskripsi:</span> ${description}</p>
+      <p><span class="font-semibold text-purple-400">Motd:</span> ${description}</p>
     `;
   } catch (err) {
-    statusBox.innerHTML = `<p class="text-red-400">Gagal mengambil data dari mcstats.io</p>`;
+    statusBox.innerHTML = `<p class="text-red-400">Gagal mengambil data</p>`;
     console.error(err);
   }
 };
