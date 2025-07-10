@@ -16,48 +16,131 @@
 
   <section class="mt-6 w-full max-w-md px-4">
     <button id="toggleFormBtn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-semibold mb-4">
-        ➕ Buat Postingan
+      ➕ Buat Postingan
     </button>
     <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
-        <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
-        <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
-        <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded">📤 Upload</button>
-        <p id="uploadStatus" class="text-xs text-center text-gray-400 mt-2"></p>
+      <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
+      <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
+      <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded">📤 Upload</button>
+      <p id="uploadStatus" class="text-xs text-center text-gray-400 mt-2"></p>
     </form>
   </section>
 
+  <div class="w-full max-w-md px-4 mt-4">
+    <label class="block text-sm mb-1">Sort by:</label>
+    <select id="sortSelect" class="w-full bg-gray-800 text-white text-sm px-3 py-2 rounded">
+      <option value="date">Sort by Date</option>
+      <option value="name">Sort by Name</option>
+    </select>
+  </div>
+
   <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">
+    ⏳ Memuat...
   </section>
 
   <script>
     const allT = {
-        a: "ghp_qwQtP",
-        b: "ZLFwHLHoE9xTH5eE",
-        c: "UmRyoVwbQ40ixPS"
+      a: "ghp_qwQtP",
+      b: "ZLFwHLHoE9xTH5eE",
+      c: "UmRyoVwbQ40ixPS"
     };
     const githubToken = allT.a + allT.b + allT.c;
+
     const toggleFormBtn = document.getElementById("toggleFormBtn");
     const uploadFormEl = document.getElementById("uploadForm");
-
-    toggleFormBtn.addEventListener("click", () => {
-        const isHidden = uploadFormEl.classList.contains("hidden");
-        uploadFormEl.classList.toggle("hidden");
-        toggleFormBtn.textContent = isHidden ? "✖️ Tutup" : "➕ Buat Postingan";
-    });
-
     const uploadForm = document.getElementById("uploadForm");
     const fileInput = document.getElementById("fileInput");
     const captionInput = document.getElementById("captionInput");
     const statusText = document.getElementById("uploadStatus");
     const gallery = document.getElementById("gallery");
 
+    toggleFormBtn.addEventListener("click", () => {
+      const isHidden = uploadFormEl.classList.contains("hidden");
+      uploadFormEl.classList.toggle("hidden");
+      toggleFormBtn.textContent = isHidden ? "✖️ Tutup" : "➕ Buat Postingan";
+    });
+
+    function formatDateFromTimestamp(timestamp) {
+      const date = new Date(Number(timestamp));
+      return isNaN(date) ? "Tanggal tidak valid" : date.toLocaleString("id-ID");
+    }
+
+    async function fetchFreepostGallery(id = 'gallery', sortBy = "date") {
+      const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
+      const container = document.getElementById(id);
+      container.innerHTML = "⏳ Memuat...";
+
+      try {
+        const response = await fetch(apiUrl, {
+          headers: {
+            "Authorization": `Bearer ${githubToken}`
+          }
+        });
+        const files = await response.json();
+
+        if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
+
+        const validImages = files.filter(file =>
+          file.type === "file" && /\.(jpg|jpeg|png|webp)$/i.test(file.name)
+        ).map(file => {
+          const [caption, timestampWithExt] = file.name.split("|");
+          const [timestamp] = timestampWithExt.split(".");
+          return {
+            url: `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`,
+            caption,
+            timestamp,
+            fullName: file.name
+          };
+        });
+
+        if (sortBy === "name") {
+          validImages.sort((a, b) => a.caption.localeCompare(b.caption));
+        } else {
+          validImages.sort((a, b) => b.timestamp - a.timestamp); // terbaru duluan
+        }
+
+        container.innerHTML = "";
+
+        validImages.forEach(item => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6";
+
+          const img = document.createElement("img");
+          img.src = item.url;
+          img.alt = item.caption;
+          img.className = "w-full rounded mb-2";
+
+          const caption = document.createElement("p");
+          caption.textContent = item.caption;
+          caption.className = "text-sm text-gray-300";
+
+          const date = document.createElement("p");
+          date.textContent = formatDateFromTimestamp(item.timestamp);
+          date.className = "text-xs text-gray-500";
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(caption);
+          wrapper.appendChild(date);
+          container.appendChild(wrapper);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById("sortSelect").addEventListener("change", function () {
+      fetchFreepostGallery("gallery", this.value);
+    });
+
     uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       statusText.textContent = "⏳ Mengunggah...";
 
       const file = fileInput.files[0];
-      const caption = captionInput.value;
+      const caption = captionInput.value.trim();
 
       if (!file || !caption) {
         statusText.textContent = "❌ Semua isian wajib diisi.";
@@ -67,9 +150,12 @@
       const reader = new FileReader();
       reader.onload = async function () {
         const base64 = reader.result.split(',')[1];
+        const ext = file.type.split('/')[1];
+        const timestamp = Date.now();
+        const filename = `${caption}|${timestamp}.${ext}`;
 
         const repo = "rifaichump/database";
-        const path = `freepost/${caption}.${file.type.split('/')[1]}`;
+        const path = `freepost/${filename}`;
         const message = `Menambahkan file ${caption}`;
         const body = {
           message,
@@ -89,6 +175,7 @@
           if (res.ok) {
             statusText.textContent = "✅ Berhasil diunggah!";
             uploadForm.reset();
+            fetchFreepostGallery();
           } else {
             const err = await res.json();
             statusText.textContent = `❌ Gagal: ${err.message}`;
@@ -101,48 +188,6 @@
       reader.readAsDataURL(file);
     });
 
-    async function fetchFreepostGallery(id = 'gallery') {
-        const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
-        const container = document.getElementById(id);
-
-        try {
-            const response = await fetch(apiUrl, {
-              headers: {
-                "Authorization": `Bearer ${githubToken}`
-              }
-            });
-            const files = await response.json();
-
-            if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
-            files
-            .filter(file => file.type === "file" && /\.(jpg|jpeg|png|webp)$/i.test(file.name))
-            .sort((a, b) => b.name.localeCompare(a.name))
-            .forEach(file => {
-                const imageUrl = `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`;
-                const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-
-                const wrapper = document.createElement("div");
-                wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6";
-
-                const img = document.createElement("img");
-                img.src = imageUrl;
-                img.alt = nameWithoutExt;
-                img.className = "w-full rounded mb-2";
-
-                const caption = document.createElement("p");
-                caption.textContent = nameWithoutExt;
-                caption.className = "text-sm text-gray-300";
-
-                wrapper.appendChild(img);
-                wrapper.appendChild(caption);
-                container.appendChild(wrapper);
-            });
-
-        } catch (err) {
-            console.error(err);
-            container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
-        }
-    }
     fetchFreepostGallery();
   </script>
 </body>
