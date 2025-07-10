@@ -106,14 +106,14 @@ async function fetchGalleryImages(id, folderPath) {
 const statusBox = document.getElementById("mcStatus");
 async function fetchMCStatsStatus() {
   try {
-    const response = await fetch(`https://api.mcstatus.io/v2/status/bedrock/AnimeUnicraft.aternos.me:12698`);
+    const response = await fetch(`https://api.mcsrvstat.us/bedrock/2/AnimeUnicraft.aternos.me:12698`);
     const data = await response.json();
 
     const online = data?.online;
     const playersOnline = data?.players?.online ?? 0;
     const playersMax = data?.players?.max ?? "??";
-    const version = data?.version?.name ?? "Tidak diketahui";
-    const description = cleanMotd(data?.motd?.clean ?? "Tidak ada deskripsi.");
+    const version = data?.version ?? "Tidak diketahui";
+    const description = data?.motd?.clean.join(` `) ?? "Tidak ada deskripsi.";
 
     if (!online) {
       statusBox.innerHTML = `
