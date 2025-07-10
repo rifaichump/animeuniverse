@@ -29,10 +29,18 @@
         ☰
       </button>
       <div id="menuDropdown" class="hidden absolute right-0 mt-2 bg-[#2a2a2a] rounded-md shadow-lg w-40 z-10 text-sm">
-        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./index.html'">Home</button>
-        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./upload.html'">Upload Foto</button>
-        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./delete.html'">Hapus Foto</button>
-        <button class="w-full text-left px-4 py-2 hover:bg-gray-700" onclick="location.href='./freepost.html'">Freepost</button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./index.html'">
+          <i data-lucide="home" class="w-4 h-4"></i> Home
+        </button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./upload.html'">
+          <i data-lucide="upload" class="w-4 h-4"></i> Upload Foto
+        </button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./delete.html'">
+          <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Foto
+        </button>
+        <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./freepost.html'">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> Freepost
+        </button>
       </div>
     </div>
   </nav>
@@ -60,10 +68,17 @@
   </section>
 
   <section class="flex gap-8 mt-0 mb-8 text-sm">
-    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="https://chat.whatsapp.com/FMFBe4kJwao4xJIBWYzdy0">Gabung</a>
-    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="./infogrup.html">Info</a>
-    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition" href="minecraft://?addExternalServer=AnimeUnicraft|AnimeUnicraft.aternos.me:12698">Server MC</a>
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition flex items-center gap-2" href="https://chat.whatsapp.com/FMFBe4kJwao4xJIBWYzdy0">
+      <i data-lucide="users" class="w-4 h-4"></i> Gabung
+    </a>
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition flex items-center gap-2" href="./infogrup.html">
+      <i data-lucide="info" class="w-4 h-4"></i> Info
+    </a>
+    <a class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition flex items-center gap-2" href="minecraft://?addExternalServer=AnimeUnicraft|AnimeUnicraft.aternos.me:12698">
+      <i data-lucide="server" class="w-4 h-4"></i> Server MC
+    </a>
   </section>
+
 
   <section class="w-full flex flex-col items-center px-4 mb-10">
     <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
