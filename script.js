@@ -117,14 +117,14 @@ async function fetchMCStatsStatus() {
 
     if (!online) {
       statusBox.innerHTML = `
-        <p><span class="font-semibold text-red-400">Status:</span> 🔴 Offline</p>
+        <p><span class="font-semibold text-red-400">Status:</span> Offline</p>
         <p>Server tidak aktif saat ini.</p>
       `;
       return;
     }
 
     statusBox.innerHTML = `
-      <p><span class="font-semibold text-green-400">Status:</span> 🟢 Online</p>
+      <p><span class="font-semibold text-green-400">Status:</span> Online</p>
       <p><span class="font-semibold text-blue-400">Pemain:</span> ${playersOnline} / ${playersMax}</p>
       <p><span class="font-semibold text-yellow-400">Versi:</span> ${version}</p>
       <p><span class="font-semibold text-purple-400">Motd:</span> ${description}</p>
