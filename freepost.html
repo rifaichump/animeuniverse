@@ -136,8 +136,7 @@
     });
 
     function isCaptionValid(caption) {
-      const forbidden = /[\\\/:*?"<>|#%&{}+`~[\]=@]/g;
-      return !forbidden.test(caption);
+      return !/[|/]/.test(caption);
     }
 
     uploadForm.addEventListener("submit", async (e) => {
