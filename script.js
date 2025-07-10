@@ -1,16 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById('menuBtn');
+  const menuIcon = document.getElementById('menuIcon');
   const menuDropdown = document.getElementById('menuDropdown');
 
+  let isOpen = false;
+
   menuBtn.addEventListener('click', () => {
+    isOpen = !isOpen;
     menuDropdown.classList.toggle('hidden');
+
+    // Ganti ikon menu ↔ x
+    menuIcon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+    lucide.createIcons(); // render ulang ikon
   });
 
-  window.addEventListener('click', (e) => {
+  // (Opsional) Klik di luar akan nutup menu
+  window.addEventListener('click', function(e) {
     if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
-      menuDropdown.classList.add('hidden');
+      if (isOpen) {
+        isOpen = false;
+        menuDropdown.classList.add('hidden');
+        menuIcon.setAttribute('data-lucide', 'menu');
+        lucide.createIcons();
+      }
     }
   });
+
 
   // Gallery
   fetchGalleryImages('minecraftFotbar', 'minecraft');
