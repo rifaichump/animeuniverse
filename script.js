@@ -101,6 +101,23 @@ async function fetchGalleryImages(id, folderPath) {
   }
 }
 
+// profile
+async function loadProfileData() {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/${githubUsername}/${repo}/main/infogrup/data.json`);
+    const { profileUrl, subject, size } = await res.json();
+
+    document.getElementById("profileImage").src = profileUrl;
+    document.getElementById("profileTitle").textContent = subject;
+    document.getElementById("profileDesc").textContent = `Memiliki ${size} anggota aktif`;
+  } catch (error) {
+    document.getElementById("profileTitle").textContent = "Undefined";
+    document.getElementById("profileDesc").textContent = "Undefined";
+  }
+}
+
+loadProfileData();
+
 
 // Minecraft Server
 const statusBox = document.getElementById("mcStatus");
