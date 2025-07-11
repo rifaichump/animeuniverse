@@ -1,28 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const menuBtn = document.getElementById('menuBtn');
-  const menuDropdown = document.getElementById('menuDropdown');
-
-  menuBtn.addEventListener('click', () => {
-    menuDropdown.classList.toggle('hidden');
-  });
-
-  window.addEventListener('click', (e) => {
-    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
-      menuDropdown.classList.add('hidden');
-    }
-  });
-
-  // Gallery
-  fetchGalleryImages('minecraftFotbar', 'minecraft');
-  fetchGalleryImages('gambarRandom', 'random');
-  fetchGalleryImages('nezukoUniverse', 'nezuko');
-});
 
 const allT = {
-    a: "ghp_qwQtP",
-    b: "ZLFwHLHoE9xTH5eE",
-    c: "UmRyoVwbQ40ixPS"
-  };
+  a: "ghp_qwQtP",
+  b: "ZLFwHLHoE9xTH5eE",
+  c: "UmRyoVwbQ40ixPS"
+};
 const githubToken = allT.a + allT.b + allT.c;
 
 const firebaseConfig = {
@@ -30,7 +11,7 @@ const firebaseConfig = {
   authDomain: "visitorwebauv4.firebaseapp.com",
   databaseURL: "https://visitorwebauv4-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "visitorwebauv4",
-  storageBucket: "visitorwebauv4.firebasestorage.app",
+  storageBucket: "visitorwebauv4.appspot.com",
   messagingSenderId: "323012132107",
   appId: "1:323012132107:web:269ac2eb2c1f139a4b360e",
   measurementId: "G-TLVS3CB9K3"
@@ -61,8 +42,6 @@ if (!localStorage.getItem(visitedKey)) {
 } else {
   updateVisitorCount();
 }
-
-if (window.lucide) lucide.createIcons();
 
 const githubUsername = "rifaichump";
 const repo = "database";
@@ -101,7 +80,6 @@ async function fetchGalleryImages(id, folderPath) {
   }
 }
 
-// profile
 async function loadProfileData() {
   try {
     const res = await fetch(`https://raw.githubusercontent.com/${githubUsername}/${repo}/main/infogrup/data.json`);
@@ -111,16 +89,14 @@ async function loadProfileData() {
     document.getElementById("profileTitle").textContent = subject;
     document.getElementById("profileDesc").textContent = `Memiliki ${size} anggota aktif`;
   } catch (error) {
-    document.getElementById("profileTitle").textContent = "Undefined";
-    document.getElementById("profileDesc").textContent = "Undefined";
+    document.getElementById("profileImage").src = "./profile.jpg";
+    document.getElementById("profileTitle").textContent = "Anime Universe";
+    document.getElementById("profileDesc").textContent = "Grup sosial";
   }
 }
 
-loadProfileData();
-
-
-// Minecraft Server
 const statusBox = document.getElementById("mcStatus");
+
 async function fetchMCStatsStatus() {
   try {
     const response = await fetch(`https://api.mcsrvstat.us/bedrock/2/AnimeUnicraft.aternos.me:12698`);
@@ -150,9 +126,52 @@ async function fetchMCStatsStatus() {
     statusBox.innerHTML = `<p class="text-red-400">Gagal mengambil data</p>`;
     console.error(err);
   }
-};
+}
 setInterval(fetchMCStatsStatus, 5000);
 
-function cleanMotd(input) {
-  return input.replace(/\n\S*/,'');
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const menuBtn = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+  const userName = document.getElementById('username');
+
+  menuBtn.addEventListener('click', () => {
+    menuDropdown.classList.toggle('hidden');
+  });
+
+  window.addEventListener('click', (e) => {
+    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+      menuDropdown.classList.add('hidden');
+    }
+  });
+
+  if (localStorage.getItem("loginStatus") === "loggedIn") {
+    const logoutBtn = document.createElement("button");
+    const myProfile = document.createElement("button");
+    
+    logoutBtn.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
+    logoutBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4"></i> Logout`;
+    logoutBtn.onclick = () => {
+      localStorage.removeItem("loginStatus");
+      localStorage.removeItem("username");
+      location.reload();
+    };
+
+    myProfile.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
+    myProfile.innerHTML = `<i data-lucide="user-pen" class="w-4 h-4"></i> Profile Saya`;
+    myProfile.onclick = () => {
+      window.location.href = "./profile.html"
+    };
+
+    const nomor = localStorage.getItem("username");
+    userName.textContent = nomor;
+    menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
+    menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
+    menuDropdown.querySelector("button[onclick*='login']").remove();
+  }
+
+  fetchGalleryImages('minecraftFotbar', 'minecraft');
+  fetchGalleryImages('gambarRandom', 'random');
+  fetchGalleryImages('nezukoUniverse', 'nezuko');
+  loadProfileData();
+  if (window.lucide) lucide.createIcons();
+});

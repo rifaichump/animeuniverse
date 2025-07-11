@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     if (passwordInput.value !== 'animeuniverse2021') {
-      statusText.textContent = "Password salah ❌";
+      statusText.textContent = "Password salah";
       statusText.classList.remove("hidden");
       setTimeout(() => {
         statusText.classList.add("hidden");
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.ok) {
-        statusText.textContent = "Berhasil dihapus ✅";
+        statusText.textContent = "Berhasil dihapus";
         folderInput.dispatchEvent(new Event("change"));
         form.reset();
         fileNameSelect.innerHTML = `<option value="">Pilih folder terlebih dahulu</option>`;
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(result.message || "Gagal menghapus.");
       }
     } catch (err) {
-      statusText.textContent = "Gagal ❌ " + err.message;
+      statusText.textContent = "Gagal" + err.message;
     }
 
     deleteBtn.disabled = false;

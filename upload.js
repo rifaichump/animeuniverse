@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     if (password.value != 'animeuniverse2021') {
-      loadingText.textContent = "Password salah ❌";
+      loadingText.textContent = "Password salah";
       loadingText.classList.remove("hidden");
       setTimeout(() => {
         loadingText.classList.add("hidden");
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .then(data => {
             uploadCount++;
             if (uploadCount === files.length) {
-              loadingText.textContent = "Selesai ✅";
+              loadingText.textContent = "Selesai";
               form.reset();
               submitBtn.disabled = false;
               submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           })
           .catch(err => {
-            loadingText.textContent = "Gagal ❌";
+            loadingText.textContent = "Gagal";
             submitBtn.disabled = false;
             submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
           });

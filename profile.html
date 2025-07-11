@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil Saya</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center p-4">
+  <div class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6">
+    <h1 class="text-xl font-bold text-center flex items-center justify-center gap-2">
+      <i data-lucide="user" class="w-6 h-6"></i> Profil Saya
+    </h1>
+
+    <div class="space-y-2">
+      <p><strong>Nomor:</strong> <span id="userNomor"></span></p>
+      <p><strong>Nama:</strong> <span id="userNama"></span></p>
+    </div>
+
+    <div class="space-y-3">
+      <input type="text" id="newNamaInput" placeholder="Nama baru" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+      <input type="password" id="verifPassword" placeholder="Password akun" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+      <button id="updateBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+        <i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama
+      </button>
+      <button id="hapusBtn" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+        <i data-lucide="trash" class="w-4 h-4"></i> Hapus Akun
+      </button>
+      <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+      </button>
+    </div>
+
+    <p id="statusMessage" class="text-sm text-center hidden mt-2"></p>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
+      authDomain: "visitorwebauv4.firebaseapp.com",
+      databaseURL: "https://visitorwebauv4-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "visitorwebauv4",
+      storageBucket: "visitorwebauv4.appspot.com",
+      messagingSenderId: "323012132107",
+      appId: "1:323012132107:web:269ac2eb2c1f139a4b360e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const userNomor = localStorage.getItem("nomor");
+    const userNama = localStorage.getItem("username");
+
+    const userNomorSpan = document.getElementById("userNomor");
+    const userNamaSpan = document.getElementById("userNama");
+    const newNamaInput = document.getElementById("newNamaInput");
+    const verifPassword = document.getElementById("verifPassword");
+    const updateBtn = document.getElementById("updateBtn");
+    const hapusBtn = document.getElementById("hapusBtn");
+    const statusMessage = document.getElementById("statusMessage");
+
+    if (!userNomor || !userNama || localStorage.getItem("loginStatus") !== "loggedIn") {
+      window.location.href = "login.html";
+    }
+
+    userNomorSpan.textContent = userNomor;
+    userNamaSpan.textContent = userNama;
+
+    updateBtn.addEventListener("click", async () => {
+      const namaBaru = newNamaInput.value.trim();
+      const passwordInput = verifPassword.value.trim();
+
+      if (!namaBaru || !passwordInput) {
+        tampilkanStatus("Semua input wajib diisi.", "red");
+        return;
+      }
+
+      const userRef = db.ref("users/" + userNomor);
+      const snap = await userRef.once("value");
+
+      if (!snap.exists()) {
+        tampilkanStatus("Akun tidak ditemukan.", "red");
+        return;
+      }
+
+      const data = snap.val();
+      if (data.password !== passwordInput) {
+        tampilkanStatus("Password salah.", "red");
+        return;
+      }
+
+      const allUsersSnap = await db.ref("users").once("value");
+      let namaSudahDipakai = false;
+
+      allUsersSnap.forEach((childSnap) => {
+        const nomor = childSnap.key;
+        const user = childSnap.val();
+        if (
+          user.nama &&
+          user.nama.toLowerCase() === namaBaru.toLowerCase() &&
+          nomor !== userNomor
+        ) {
+          namaSudahDipakai = true;
+        }
+      });
+
+      if (namaSudahDipakai) {
+        tampilkanStatus("Username sudah digunakan.", "red");
+        return;
+      }
+
+      userRef.update({ nama: namaBaru }, () => {
+        localStorage.setItem("username", namaBaru);
+        userNamaSpan.textContent = namaBaru;
+        newNamaInput.value = "";
+        verifPassword.value = "";
+        tampilkanStatus("Nama berhasil diperbarui.", "green");
+      });
+    });
+
+    hapusBtn.addEventListener("click", () => {
+      const konfirmasi = confirm("Yakin ingin menghapus akun? Data tidak bisa dikembalikan.");
+      if (!konfirmasi) return;
+
+      db.ref("users/" + userNomor).remove(() => {
+        localStorage.clear();
+        window.location.href = "login.html";
+      });
+    });
+
+    function tampilkanStatus(pesan, warna) {
+      statusMessage.textContent = pesan;
+      statusMessage.className = `text-sm text-center mt-2 text-${warna}-400`;
+      statusMessage.classList.remove("hidden");
+      setTimeout(() => statusMessage.classList.add("hidden"), 3000);
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>

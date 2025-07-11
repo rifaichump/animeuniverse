@@ -43,7 +43,7 @@
   </div>
 
   <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">
-    ⏳ Memuat...
+    Memuat...
   </section>
 
   <script>
@@ -168,7 +168,7 @@
 
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
+        container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar: ${err.message}</p>`;
       }
     }
 
@@ -182,7 +182,7 @@
 
     uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      statusText.textContent = "⏳ Mengunggah...";
+      statusText.textContent = "Mengunggah...";
       submitBtn.disabled = true;
       submitBtn.classList.add("opacity-50", "cursor-not-allowed");
 
@@ -190,14 +190,14 @@
       const caption = captionInput.value.trim();
 
       if (!file || !caption) {
-        statusText.textContent = "❌ Semua isian wajib diisi.";
+        statusText.textContent = "Semua isian wajib diisi.";
         submitBtn.disabled = false;
         submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         return;
       }
 
       if (!isCaptionValid(caption)) {
-        statusText.textContent = "❌ Caption mengandung karakter tidak diperbolehkan.";
+        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
         submitBtn.disabled = false;
         submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         return;
@@ -229,15 +229,15 @@
           });
 
           if (res.ok) {
-            statusText.textContent = "✅ Berhasil diunggah!";
+            statusText.textContent = "Berhasil diunggah!";
             uploadForm.reset();
             fetchFreepostGallery();
           } else {
             const err = await res.json();
-            statusText.textContent = `❌ Gagal: ${err.message}`;
+            statusText.textContent = `Gagal: ${err.message}`;
           }
         } catch (err) {
-          statusText.textContent = "❌ Gagal koneksi.";
+          statusText.textContent = "Gagal koneksi.";
         }
 
         submitBtn.disabled = false;
