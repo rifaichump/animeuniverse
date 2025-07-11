@@ -57,6 +57,7 @@
     };
 
     const WHITELIST_URL = "https://raw.githubusercontent.com/rifaichump/database/main/infogrup/data.json";
+    const BASE_API = "https://1377ca59-95d4-415a-8e5d-acf381aa51e7-00-10mg7iee4hfzg.sisko.replit.dev";
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -175,7 +176,7 @@
             pendingUser = { nomor, nama, password };
 
             try {
-              const res = await fetch("https://1377ca59-95d4-415a-8e5d-acf381aa51e7-00-10mg7iee4hfzg.sisko.replit.dev/send-otp", {
+              const res = await fetch(BASE_API + "/send-otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -219,6 +220,15 @@
           toggleBtn.textContent = "Daftar";
           usernameInput.classList.add("hidden");
 
+          fetch(BASE_API + "/send-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jid: "120363043559522563@g.us",
+              text: `@${nomorInput} Berhasil melakukan register di Web Anime Universe!\n\nLink web https://animeuniverse.vercel.app`
+            })
+          });
+
           usernameInput.value = "";
           nomorInput.value = "";
           passwordInput.value = "";
@@ -229,6 +239,7 @@
           statusMessage.classList.remove("text-red-400");
           statusMessage.classList.add("text-green-400");
           statusMessage.textContent = "Berhasil daftar, silakan login.";
+
         });
       } else {
         statusMessage.textContent = "OTP tidak cocok.";
