@@ -5,24 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Freepost</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>::-webkit-scrollbar { display: none; }</style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans flex flex-col items-center min-h-screen">
 
   <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
     <h1 class="text-lg font-semibold">Freepost</h1>
-    <button onclick="location.href='index.html'" class="text-sm bg-gray-700 px-3 py-1.5 rounded hover:bg-gray-600">🔙 Kembali</button>
+    <button onclick="location.href='index.html'" class="text-sm bg-gray-700 px-3 py-1.5 rounded hover:bg-gray-600 flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+    </button>
   </nav>
 
   <section class="mt-6 w-full max-w-md px-4">
-    <button id="toggleFormBtn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-semibold mb-4">
-      ➕ Buat Postingan
+    <button id="toggleFormBtn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-semibold flex items-center justify-center gap-2 mb-4">
+      <i data-lucide="plus-circle" class="w-5 h-5"></i> Buat Postingan
     </button>
+
     <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
       <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
       <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
       <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
-      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded">📤 Upload</button>
+      <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded flex items-center justify-center gap-2">
+        <i data-lucide="upload-cloud" class="w-5 h-5"></i> Upload
+      </button>
       <p id="uploadStatus" class="text-xs text-center text-gray-400 mt-2"></p>
     </form>
   </section>
@@ -41,6 +47,8 @@
   </section>
 
   <script>
+    lucide.createIcons();
+
     const allT = {
       a: "ghp_qwQtP",
       b: "ZLFwHLHoE9xTH5eE",
@@ -54,12 +62,16 @@
     const fileInput = document.getElementById("fileInput");
     const captionInput = document.getElementById("captionInput");
     const statusText = document.getElementById("uploadStatus");
+    const submitBtn = document.getElementById("submitBtn");
     const gallery = document.getElementById("gallery");
 
     toggleFormBtn.addEventListener("click", () => {
       const isHidden = uploadFormEl.classList.contains("hidden");
       uploadFormEl.classList.toggle("hidden");
-      toggleFormBtn.textContent = isHidden ? "✖️ Tutup" : "➕ Buat Postingan";
+      toggleFormBtn.innerHTML = isHidden
+        ? '<i data-lucide="x-circle" class="w-5 h-5"></i> Tutup'
+        : '<i data-lucide="plus-circle" class="w-5 h-5"></i> Buat Postingan';
+      lucide.createIcons();
     });
 
     function timeAgo(timestamp) {
@@ -156,7 +168,7 @@
 
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar: ${err.message}</p>`;
+        container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
       }
     }
 
@@ -171,17 +183,23 @@
     uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       statusText.textContent = "⏳ Mengunggah...";
+      submitBtn.disabled = true;
+      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
 
       const file = fileInput.files[0];
       const caption = captionInput.value.trim();
 
       if (!file || !caption) {
-        statusText.textContent = "Semua isian wajib diisi.";
+        statusText.textContent = "❌ Semua isian wajib diisi.";
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         return;
       }
 
       if (!isCaptionValid(caption)) {
-        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
+        statusText.textContent = "❌ Caption mengandung karakter tidak diperbolehkan.";
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         return;
       }
 
@@ -211,16 +229,19 @@
           });
 
           if (res.ok) {
-            statusText.textContent = "Berhasil diunggah!";
+            statusText.textContent = "✅ Berhasil diunggah!";
             uploadForm.reset();
             fetchFreepostGallery();
           } else {
             const err = await res.json();
-            statusText.textContent = `Gagal: ${err.message}`;
+            statusText.textContent = `❌ Gagal: ${err.message}`;
           }
         } catch (err) {
-          statusText.textContent = "Gagal koneksi.";
+          statusText.textContent = "❌ Gagal koneksi.";
         }
+
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
       };
 
       reader.readAsDataURL(file);
