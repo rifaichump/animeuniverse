@@ -15,9 +15,9 @@
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
 
   <div class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4">
-    <img src="./profile.jpg" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4" />
+    <img id="profileImage" src="./profile.jpg" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4" />
 
-    <h1 class="text-2xl font-bold text-gray-100">Anime Universe S4</h1>
+    <h1 id="profileTitle" class="text-2xl font-bold text-gray-100">...</h1>
     <p class="text-sm text-gray-400">
       Selamat datang di Anime Universe Season 4!<br />
       Komunitas pecinta anime, manga, dan game. Di sini kamu bisa:
@@ -47,6 +47,20 @@
   </div>
 
   <script>
+    async function loadProfileData() {
+      try {
+        const res = await fetch(`https://raw.githubusercontent.com/rifaichump/database/main/infogrup/data.json`);
+        const { profileUrl, subject, size } = await res.json();
+
+        document.getElementById("profileImage").src = profileUrl;
+        document.getElementById("profileTitle").textContent = subject;
+      } catch (error) {
+        document.getElementById("profileImage").src = "./profile.jpg";
+        document.getElementById("profileTitle").textContent = "Anime Universe";
+      }
+    }
+
+    loadProfileData();
     lucide.createIcons();
   </script>
 </body>
