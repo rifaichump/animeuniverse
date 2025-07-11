@@ -28,10 +28,11 @@
   </section>
 
   <div class="w-full max-w-md px-4 mt-4">
-    <label class="block text-sm mb-1">Sort by:</label>
     <select id="sortSelect" class="w-full bg-gray-800 text-white text-sm px-3 py-2 rounded">
-      <option value="date">Sort by Date</option>
-      <option value="name">Sort by Name</option>
+      <option value="baru">Terbaru</option>
+      <option value="lama">Terlama</option>
+      <option value="az">Dari A-Z</option>
+      <option value="za">Dari Z-A</option>
     </select>
   </div>
 
@@ -61,12 +62,36 @@
       toggleFormBtn.textContent = isHidden ? "✖️ Tutup" : "➕ Buat Postingan";
     });
 
-    function formatDateFromTimestamp(timestamp) {
-      const date = new Date(Number(timestamp));
-      return isNaN(date) ? "Tanggal tidak valid" : date.toLocaleString("id-ID");
+    function timeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      const units = [
+        { label: "tahun", seconds: 31536000 },
+        { label: "bulan", seconds: 2592000 },
+        { label: "minggu", seconds: 604800 },
+        { label: "hari", seconds: 86400 },
+        { label: "jam", seconds: 3600 },
+        { label: "menit", seconds: 60 },
+        { label: "detik", seconds: 1 }
+      ];
+
+      for (const unit of units) {
+        const count = Math.floor(seconds / unit.seconds);
+        if (count > 0) {
+          return `${count} ${unit.label} yang lalu`;
+        }
+      }
+      return "baru saja";
     }
 
-    async function fetchFreepostGallery(id = 'gallery', sortBy = "date") {
+    function formatDateFromTimestamp(timestamp) {
+      const date = new Date(Number(timestamp));
+      if (isNaN(date)) return "Tanggal tidak valid";
+      const waktu = date.toLocaleString("id-ID");
+      const relatif = timeAgo(Number(timestamp));
+      return `${waktu} (${relatif})`;
+    }
+
+    async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
       const container = document.getElementById(id);
       container.innerHTML = "⏳ Memuat...";
@@ -94,10 +119,14 @@
           };
         });
 
-        if (sortBy === "name") {
+        if (sortBy === "baru") {
+          validImages.sort((a, b) => b.timestamp - a.timestamp);
+        } else if (sortBy === "lama") {
+          validImages.sort((a, b) => a.timestamp - b.timestamp);
+        } else if (sortBy === "az") {
           validImages.sort((a, b) => a.caption.localeCompare(b.caption));
-        } else {
-          validImages.sort((a, b) => b.timestamp - a.timestamp); // terbaru duluan
+        } else if (sortBy === "za") {
+          validImages.sort((a, b) => b.caption.localeCompare(a.caption));
         }
 
         container.innerHTML = "";
@@ -127,7 +156,7 @@
 
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<p class="text-red-400 text-center">❌ Gagal memuat gambar: ${err.message}</p>`;
+        container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar: ${err.message}</p>`;
       }
     }
 
@@ -147,12 +176,12 @@
       const caption = captionInput.value.trim();
 
       if (!file || !caption) {
-        statusText.textContent = "❌ Semua isian wajib diisi.";
+        statusText.textContent = "Semua isian wajib diisi.";
         return;
       }
 
       if (!isCaptionValid(caption)) {
-        statusText.textContent = "❌ Caption mengandung karakter tidak diperbolehkan.";
+        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
         return;
       }
 
@@ -182,15 +211,15 @@
           });
 
           if (res.ok) {
-            statusText.textContent = "✅ Berhasil diunggah!";
+            statusText.textContent = "Berhasil diunggah!";
             uploadForm.reset();
             fetchFreepostGallery();
           } else {
             const err = await res.json();
-            statusText.textContent = `❌ Gagal: ${err.message}`;
+            statusText.textContent = `Gagal: ${err.message}`;
           }
         } catch (err) {
-          statusText.textContent = "❌ Gagal koneksi.";
+          statusText.textContent = "Gagal koneksi.";
         }
       };
 
