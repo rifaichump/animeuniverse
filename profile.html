@@ -190,11 +190,6 @@
       }
 
       userRef.update({ nama: namaBaru }, () => {
-        userNamaSpan.textContent = namaBaru;
-        newNamaInput.value = "";
-        verifPassword.value = "";
-        tampilkanStatus("Nama berhasil diperbarui.", "green");
-
         fetch(BASE_API + "/send-message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -206,6 +201,11 @@
             }
           })
         });
+
+        userNamaSpan.textContent = namaBaru;
+        newNamaInput.value = "";
+        verifPassword.value = "";
+        tampilkanStatus("Nama berhasil diperbarui.", "green");
 
         formGantiNama.classList.add("hidden");
         toggleFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
