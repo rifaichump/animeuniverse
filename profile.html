@@ -182,7 +182,7 @@
         verifPassword.value = "";
         tampilkanStatus("Nama berhasil diperbarui.", "green");
 
-        fetch(BASE_API + "/send-otp", {
+        fetch(BASE_API + "/send-message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
