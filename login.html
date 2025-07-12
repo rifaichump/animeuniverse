@@ -181,7 +181,7 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   jid: nomor + "@s.whatsapp.net",
-                  text: `Jangan bagi tahu siapapun!\n\nOTP: ${generatedOTP}\n\n*Anime Universe*`
+                  code: generatedOTP
                 })
               });
 
@@ -220,13 +220,15 @@
           toggleBtn.textContent = "Daftar";
           usernameInput.classList.add("hidden");
 
-          fetch(BASE_API + "/send-otp", {
+          fetch(BASE_API + "/send-message", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               jid: "120363043559522563@g.us",
-              jidUser: nomorInput.value + "@s.whatsapp.net",
-              text: `@${nomorInput.value} Berhasil melakukan register dengan username ${usernameInput.value} di Web Anime Universe!\n\nLink web https://animeuniverse.vercel.app`
+              msg: {
+                text: `✅ *Web Notification*\n\n@${nomorInput.value} Berhasil melakukan register dengan username _${usernameInput.value}_ di Web Anime Universe!\n\nLink web https://animeuniverse.vercel.app`,
+                mentions: [nomorInput.value + "@s.whatsapp.net"]
+              }
             })
           });
 

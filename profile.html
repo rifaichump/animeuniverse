@@ -187,8 +187,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             jid: "120363043559522563@g.us",
-            jidUser: userNomor + "@s.whatsapp.net",
-            text: `@${userNomor} mengganti username dari ${userNama} menjadi ${namaBaru}.`
+            msg: {
+              text: `✅ *Web Notification*\n\n@${userNomor} Mengganti username dari _${userNama}_ menjadi _${namaBaru}_.`,
+              mentions: [userNomor + "@s.whatsapp.net"]
+            }
           })
         });
 
