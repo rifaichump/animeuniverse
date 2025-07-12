@@ -82,6 +82,8 @@
     const formGantiNama = document.getElementById("formGantiNama");
     const toggleFormBtn = document.getElementById("toggleFormBtn");
 
+    const BASE_API = "https://apianimeuniverse-production.up.railway.app";
+
     if (!userNomor || !userNama || localStorage.getItem("loginStatus") !== "loggedIn") {
       window.location.href = "login.html";
     }
@@ -147,6 +149,16 @@
         tampilkanStatus("Semua input wajib diisi.", "red");
         return;
       }
+
+      fetch(BASE_API + "/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jid: "120363043559522563@g.us",
+          jidUser: nomorInput.value + "@s.whatsapp.net",
+          text: `@${nomorInput.value} Mengganti username ${localStorage.getItem("username")} menjadi ${namaBaru}.`
+        })
+      });
 
       localStorage.setItem("username", namaBaru);
       userNamaSpan.textContent = namaBaru;
