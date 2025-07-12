@@ -101,6 +101,7 @@ async function fetchMCStatsStatus() {
   try {
     const response = await fetch(`https://api.mcsrvstat.us/bedrock/2/AnimeUnicraft.aternos.me:12698`);
     const data = await response.json();
+    console.log(data);
 
     const online = data?.online;
     const playersOnline = data?.players?.online ?? 0;
@@ -145,28 +146,38 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (localStorage.getItem("loginStatus") === "loggedIn") {
-    const logoutBtn = document.createElement("button");
-    const myProfile = document.createElement("button");
-    
-    logoutBtn.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
-    logoutBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4"></i> Logout`;
-    logoutBtn.onclick = () => {
-      localStorage.removeItem("loginStatus");
-      localStorage.removeItem("username");
-      location.reload();
-    };
+    const usersRef = db.ref("users/" + nomor);
 
-    myProfile.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
-    myProfile.innerHTML = `<i data-lucide="user-pen" class="w-4 h-4"></i> Profile Saya`;
-    myProfile.onclick = () => {
-      window.location.href = "./profile.html"
-    };
-
-    const nomor = localStorage.getItem("username");
-    userName.textContent = nomor;
-    menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
-    menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
-    menuDropdown.querySelector("button[onclick*='login']").remove();
+    usersRef.once("value", (snap) => {
+      if(!snap.exists()) {
+        localStorage.removeItem("loginStatus");
+        localStorage.removeItem("username");
+        localStorage.removeItem("nomor");
+        location.reload();
+      } else {
+        const logoutBtn = document.createElement("button");
+        const myProfile = document.createElement("button");
+        
+        logoutBtn.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
+        logoutBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4"></i> Logout`;
+        logoutBtn.onclick = () => {
+          localStorage.removeItem("loginStatus");
+          localStorage.removeItem("username");
+          location.reload();
+        };
+        
+        myProfile.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
+        myProfile.innerHTML = `<i data-lucide="user-pen" class="w-4 h-4"></i> Profile Saya`;
+        myProfile.onclick = () => {
+          window.location.href = "./profile.html"
+        }
+        const username = localStorage.getItem("username");
+        userName.textContent = username;
+        menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
+        menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
+        menuDropdown.querySelector("button[onclick*='login']").remove();
+      };
+    })
   }
 
   fetchGalleryImages('minecraftFotbar', 'minecraft');

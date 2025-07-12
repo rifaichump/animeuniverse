@@ -126,7 +126,9 @@
       if (!konfirmasi) return;
 
       db.ref("users/" + userNomor).remove(() => {
-        localStorage.clear();
+        localStorage.removeItem("loginStatus");
+        localStorage.removeItem("username");
+        localStorage.removeItem("nomor");
         window.location.href = "login.html";
       });
     });
