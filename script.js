@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "./profile.html"
         }
         const username = localStorage.getItem("username");
-        userName.textContent = username;
+        userName.textContent = "Hai, " + username;
         menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
         menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
         menuDropdown.querySelector("button[onclick*='login']").remove();
