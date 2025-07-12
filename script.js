@@ -1,4 +1,3 @@
-
 const allT = {
   a: "ghp_qwQtP",
   b: "ZLFwHLHoE9xTH5eE",
@@ -49,6 +48,7 @@ const repo = "database";
 async function fetchGalleryImages(id, folderPath) {
   const apiUrl = `https://api.github.com/repos/${githubUsername}/${repo}/contents/${folderPath}`;
   const container = document.getElementById(id);
+  container.innerHTML = `<p id="loading" class="text-yellow-200 text-center">Memuat gambar...</p>`
 
   try {
     const response = await fetch(apiUrl, {
@@ -57,6 +57,7 @@ async function fetchGalleryImages(id, folderPath) {
       }
     });
     const files = await response.json();
+    document.getElementById('loading').classList.add("hidden")
 
     if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
 
@@ -148,22 +149,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (localStorage.getItem("loginStatus") === "loggedIn") {
     const usersRef = db.ref("users/" + localStorage.getItem("nomor"));
+    localStorage.removeItem("username");
 
     usersRef.once("value", (snap) => {
       if(!snap.exists()) {
         localStorage.removeItem("loginStatus");
-        localStorage.removeItem("username");
         localStorage.removeItem("nomor");
         location.reload();
       } else {
         const logoutBtn = document.createElement("button");
         const myProfile = document.createElement("button");
+        let username = snap.val().nama;
         
         logoutBtn.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
         logoutBtn.innerHTML = `<i data-lucide="log-out" class="w-4 h-4"></i> Logout`;
         logoutBtn.onclick = () => {
           localStorage.removeItem("loginStatus");
-          localStorage.removeItem("username");
+          localStorage.removeItem("nomor");
           location.reload();
         };
         
@@ -172,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
         myProfile.onclick = () => {
           window.location.href = "./profile.html"
         }
-        const username = localStorage.getItem("username");
+
         userName.textContent = "Hai, " + username;
         menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
         menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);

@@ -8,7 +8,17 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <style>::-webkit-scrollbar { display: none; }</style>
+  <style>
+    ::-webkit-scrollbar { display: none; }
+    @keyframes borderColorChange {
+      0% { border-color: #3b82f6; }
+      25% { border-color: #10b981; }
+      100% { border-color: #3b82f6; }
+    }
+    .animated-border {
+      animation: borderColorChange 5s infinite;
+    }
+  </style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center relative">
 
@@ -43,7 +53,7 @@
 
   <section id="profileSection" class="px-4 mt-4 w-full flex justify-center">
     <div class="bg-[#1e1e1e] p-5 rounded-3xl shadow-lg flex items-center gap-4 max-w-sm w-full">
-      <img id="profileImage" src="" class="w-20 h-20 rounded-full border-2 border-gray-700 object-cover" />
+      <img id="profileImage" src="" class="w-20 h-20 rounded-full border-2 border-gray-700 object-cover animated-border" />
       <div>
         <h3 id="profileTitle" class="text-xl font-semibold">...</h3>
         <p id="profileDesc" class="text-gray-400 text-sm">...</p>

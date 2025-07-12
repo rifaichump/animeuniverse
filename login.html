@@ -45,6 +45,8 @@
   </div>
 
   <script>
+    localStorage.removeItem("nomor");
+    
     const firebaseConfig = {
       apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
       authDomain: "visitorwebauv4.firebaseapp.com",
@@ -139,7 +141,6 @@
             const data = snap.val();
             if (data.password === password) {
               localStorage.setItem("loginStatus", "loggedIn");
-              localStorage.setItem("username", data.nama);
               localStorage.setItem("nomor", nomor);
               statusMessage.textContent = "Login berhasil!";
               statusMessage.classList.add("text-green-400");

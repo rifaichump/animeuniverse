@@ -22,24 +22,33 @@
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center p-4">
-  <div class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6">
+
+  <div id="loadingScreen" class="absolute inset-0 bg-[#0e0e0e] flex flex-col items-center justify-center z-50">
+    <svg class="animate-spin h-10 w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+    <p class="text-sm text-gray-300">Memuat profil...</p>
+  </div>
+
+  <div id="profilContainer" class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6 container-profil hidden">
     <h1 class="text-xl font-bold text-center flex items-center justify-center gap-2">
       <i data-lucide="user" class="w-6 h-6"></i> Profil Saya
     </h1>
 
     <div class="flex justify-center">
-      <img id="fotoProfil" alt="Foto Profil" class="w-24 h-24 rounded-full border-4 animated-border" />
+      <img id="fotoProfil" src="./none.png" class="w-24 h-24 rounded-full border-4 animated-border" />
     </div>
 
     <div class="space-y-2">
-      <p><strong>Nomor:</strong> <span id="userNomor"></span></p>
-      <p><strong>Nama:</strong> <span id="userNama"></span></p>
+      <p><strong>Nomor:</strong> <span id="userNomor">...</span></p>
+      <p><strong>Nama:</strong> <span id="userNama">...</span></p>
     </div>
 
     <div class="border-t border-gray-700 pt-4 space-y-2">
-      <p><strong>Uang:</strong> <span id="userUang">Rp0</span></p>
-      <p><strong>Koin:</strong> <span id="userKoin">0</span></p>
-      <p><strong>Limit:</strong> <span id="userLimit">0</span></p>
+      <p><strong>Uang:</strong> <span id="userUang">RP...</span></p>
+      <p><strong>Koin:</strong> <span id="userKoin">...</span></p>
+      <p><strong>Limit:</strong> <span id="userLimit">...</span></p>
     </div>
 
     <button id="toggleFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
@@ -62,6 +71,8 @@
   </div>
 
   <script>
+    localStorage.removeItem("username");
+
     const firebaseConfig = {
       apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
       authDomain: "visitorwebauv4.firebaseapp.com",
@@ -77,7 +88,7 @@
     const BASE_API = "https://apianimeuniverse-production.up.railway.app";
 
     const userNomor = localStorage.getItem("nomor");
-    const userNama = localStorage.getItem("username");
+    const userRef = db.ref("users/" + userNomor);
 
     const userNomorSpan = document.getElementById("userNomor");
     const userNamaSpan = document.getElementById("userNama");
@@ -91,13 +102,12 @@
     const statusMessage = document.getElementById("statusMessage");
     const formGantiNama = document.getElementById("formGantiNama");
     const toggleFormBtn = document.getElementById("toggleFormBtn");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const profilContainer = document.getElementById("profilContainer");
 
-    if (!userNomor || !userNama || localStorage.getItem("loginStatus") !== "loggedIn") {
+    if (!userNomor || localStorage.getItem("loginStatus") !== "loggedIn") {
       window.location.href = "login.html";
     }
-
-    userNomorSpan.textContent = userNomor;
-    userNamaSpan.textContent = userNama;
 
     fetch(BASE_API + "/info-user", {
       method: "POST",
@@ -109,10 +119,23 @@
       if (res.status && res.data) {
         const { profileUrl, money, coin, limit } = res.data;
 
-        if (profileUrl) fotoProfil.src = profileUrl;
-        userUangSpan.textContent = "Rp" + (money ?? 0).toLocaleString();
-        userKoinSpan.textContent = coin ?? 0;
-        userLimitSpan.textContent = limit ?? 0;
+        userRef.once("value").then(snap => {
+          if (!snap.exists()) {
+            tampilkanStatus("Akun tidak ditemukan.", "red");
+            window.location.href = "login.html";
+            return;
+          }
+
+          if (profileUrl) fotoProfil.src = profileUrl;
+          userNomorSpan.textContent = userNomor;
+          userNamaSpan.textContent = snap.val().nama;
+          userUangSpan.textContent = "Rp" + (money ?? 0).toLocaleString();
+          userKoinSpan.textContent = coin ?? 0;
+          userLimitSpan.textContent = limit ?? 0;
+
+          loadingScreen.classList.add("hidden");
+          profilContainer.classList.remove("hidden");
+        });
 
         if (money === undefined && coin === undefined && limit === undefined) {
           tampilkanStatus("Nomor kamu tidak terdaftar di bot kami.", "yellow");
@@ -137,16 +160,10 @@
       const namaBaru = newNamaInput.value.trim();
       const passwordInput = verifPassword.value.trim();
 
-      if (!namaBaru || !passwordInput) {
-        tampilkanStatus("Semua input wajib diisi.", "red");
-        return;
-      }
-
-      const userRef = db.ref("users/" + userNomor);
       const snap = await userRef.once("value");
 
-      if (!snap.exists()) {
-        tampilkanStatus("Akun tidak ditemukan.", "red");
+      if (!namaBaru || !passwordInput) {
+        tampilkanStatus("Semua input wajib diisi.", "red");
         return;
       }
 
@@ -157,26 +174,22 @@
       }
 
       const allUsersSnap = await db.ref("users").once("value");
-      let namaSudahDipakai = false;
+      let alreadyName = false;
 
       allUsersSnap.forEach((childSnap) => {
         const nomor = childSnap.key;
         const user = childSnap.val();
-        if (
-          user.nama &&
-          user.nama.toLowerCase() === namaBaru.toLowerCase()
-        ) {
-          namaSudahDipakai = true;
+        if (user.nama && user.nama.toLowerCase() === namaBaru.toLowerCase()) {
+          alreadyName = true;
         }
       });
 
-      if (namaSudahDipakai) {
+      if (alreadyName) {
         tampilkanStatus("Username sudah digunakan.", "red");
         return;
       }
 
       userRef.update({ nama: namaBaru }, () => {
-        localStorage.setItem("username", namaBaru);
         userNamaSpan.textContent = namaBaru;
         newNamaInput.value = "";
         verifPassword.value = "";
@@ -188,7 +201,7 @@
           body: JSON.stringify({
             jid: "120363043559522563@g.us",
             msg: {
-              text: `✅ *Web Notification*\n\n@${userNomor} Mengganti username dari _${userNama}_ menjadi _${namaBaru}_.`,
+              text: `✅ *Web Notification*\n\n@${userNomor} Mengganti username dari _${userNamaSpan.textContent}_ menjadi _${namaBaru}_.`,
               mentions: [userNomor + "@s.whatsapp.net"]
             }
           })

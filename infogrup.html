@@ -10,12 +10,24 @@
     ::-webkit-scrollbar {
       display: none;
     }
+
+    @keyframes borderColorChange {
+      0% { border-color: #3b82f6; }
+      25% { border-color: #10b981; }
+      50% { border-color: #f59e0b; }
+      75% { border-color: #ef4444; }
+      100% { border-color: #3b82f6; }
+    }
+    .animated-border {
+      animation: borderColorChange 5s infinite;
+    }
+
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
 
   <div class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4">
-    <img id="profileImage" src="./profile.jpg" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4" />
+    <img id="profileImage" src="./profile.jpg" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4 animated-border" />
 
     <h1 id="profileTitle" class="text-2xl font-bold text-gray-100">...</h1>
     <p class="text-sm text-gray-400">
@@ -59,7 +71,6 @@
         document.getElementById("profileTitle").textContent = "Anime Universe";
       }
     }
-
     loadProfileData();
     lucide.createIcons();
   </script>
