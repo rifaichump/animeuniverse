@@ -20,21 +20,21 @@
       <p><strong>Nama:</strong> <span id="userNama"></span></p>
     </div>
 
-    <!-- Tombol Ganti Nama -->
-    <button id="showFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+    <!-- Tombol Ganti Nama / Batalkan -->
+    <button id="toggleFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
       <i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama
     </button>
 
     <!-- Form Ganti Nama (disembunyikan dulu) -->
-    <div id="formGantiNama" class="space-y-3 hidden">
-      <input type="text" id="newNamaInput" placeholder="Nama baru" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
-      <input type="password" id="verifPassword" placeholder="Password akun" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
-      <button id="updateBtn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+    <div id="formGantiNama" class="space-y-2 hidden">
+      <input type="text" id="newNamaInput" placeholder="Nama baru" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
+      <input type="password" id="verifPassword" placeholder="Password akun" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
+      <button id="updateBtn" class="w-full bg-green-600 hover:bg-green-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
         <i data-lucide="check" class="w-4 h-4"></i> Konfirmasi
       </button>
     </div>
 
-    <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+    <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
       <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
     </button>
 
@@ -65,7 +65,7 @@
     const updateBtn = document.getElementById("updateBtn");
     const statusMessage = document.getElementById("statusMessage");
     const formGantiNama = document.getElementById("formGantiNama");
-    const showFormBtn = document.getElementById("showFormBtn");
+    const toggleFormBtn = document.getElementById("toggleFormBtn");
 
     if (!userNomor || !userNama || localStorage.getItem("loginStatus") !== "loggedIn") {
       window.location.href = "login.html";
@@ -74,10 +74,17 @@
     userNomorSpan.textContent = userNomor;
     userNamaSpan.textContent = userNama;
 
-    // Tampilkan form saat tombol "Ganti Nama" ditekan
-    showFormBtn.addEventListener("click", () => {
-      formGantiNama.classList.remove("hidden");
-      showFormBtn.classList.add("hidden");
+    let formTerbuka = false;
+
+    toggleFormBtn.addEventListener("click", () => {
+      formTerbuka = !formTerbuka;
+      formGantiNama.classList.toggle("hidden");
+
+      toggleFormBtn.innerHTML = formTerbuka
+        ? `<i data-lucide="x" class="w-4 h-4"></i> Batalkan`
+        : `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
+
+      lucide.createIcons();
     });
 
     updateBtn.addEventListener("click", async () => {
@@ -130,7 +137,9 @@
         verifPassword.value = "";
         tampilkanStatus("Nama berhasil diperbarui.", "green");
         formGantiNama.classList.add("hidden");
-        showFormBtn.classList.remove("hidden");
+        toggleFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
+        formTerbuka = false;
+        lucide.createIcons();
       });
     });
 
