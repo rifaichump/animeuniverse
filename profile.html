@@ -155,8 +155,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jid: "120363043559522563@g.us",
-          jidUser: nomorInput.value + "@s.whatsapp.net",
-          text: `@${nomorInput.value} Mengganti username ${localStorage.getItem("username")} menjadi ${namaBaru}.`
+          jidUser: localStorage.getItem("nomor") + "@s.whatsapp.net",
+          text: `@${localStorage.getItem("nomor")} Mengganti username ${localStorage.getItem("username")} menjadi ${namaBaru}.`
         })
       });
 
