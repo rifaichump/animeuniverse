@@ -46,7 +46,7 @@
 
   <script>
     localStorage.removeItem("nomor");
-    
+
     const firebaseConfig = {
       apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
       authDomain: "visitorwebauv4.firebaseapp.com",
@@ -83,6 +83,17 @@
     const otpInput = document.getElementById("otpInput");
     const verifOtpBtn = document.getElementById("verifOtpBtn");
 
+    function tampilkanStatus(pesan, warna) {
+      statusMessage.textContent = pesan;
+      statusMessage.className = "text-center text-sm";
+      statusMessage.classList.add(warna, "block");
+
+      setTimeout(() => {
+        statusMessage.classList.add("hidden");
+        statusMessage.textContent = "";
+      }, 2000);
+    }
+
     toggleBtn.addEventListener("click", () => {
       isLogin = !isLogin;
       formTitle.textContent = isLogin ? "Login" : "Register";
@@ -117,45 +128,37 @@
       const nama = usernameInput.value.trim();
       const usersRef = db.ref("users/" + nomor);
 
-      statusMessage.classList.remove("hidden", "text-red-400", "text-green-400");
-
       if (!nomor || !password || (!isLogin && !nama)) {
-        statusMessage.textContent = "Semua data wajib diisi.";
-        statusMessage.classList.add("text-red-400");
+        tampilkanStatus("Semua data wajib diisi.", "text-red-400");
         return;
       }
 
       const diWhitelist = await isNomorDiWhitelist(nomor);
       if (!diWhitelist) {
-        statusMessage.textContent = "Gabung ke grup Anime Universe dulu.";
-        statusMessage.classList.add("text-red-400");
+        tampilkanStatus("Gabung ke grup Anime Universe dulu.", "text-red-400");
         return;
       }
 
       if (isLogin) {
         usersRef.once("value", (snap) => {
           if (!snap.exists()) {
-            statusMessage.textContent = "Nomor belum terdaftar.";
-            statusMessage.classList.add("text-red-400");
+            tampilkanStatus("Nomor belum terdaftar.", "text-red-400");
           } else {
             const data = snap.val();
             if (data.password === password) {
               localStorage.setItem("loginStatus", "loggedIn");
               localStorage.setItem("nomor", nomor);
-              statusMessage.textContent = "Login berhasil!";
-              statusMessage.classList.add("text-green-400");
+              tampilkanStatus("Login berhasil!", "text-green-400");
               setTimeout(() => (window.location.href = "index.html"), 1000);
             } else {
-              statusMessage.textContent = "Password salah.";
-              statusMessage.classList.add("text-red-400");
+              tampilkanStatus("Password salah.", "text-red-400");
             }
           }
         });
       } else {
         usersRef.once("value", async (snap) => {
           if (snap.exists()) {
-            statusMessage.textContent = "Nomor sudah terdaftar.";
-            statusMessage.classList.add("text-red-400");
+            tampilkanStatus("Nomor sudah terdaftar.", "text-red-400");
           } else {
             const allUsersSnap = await db.ref("users").once("value");
             let usernameUsed = false;
@@ -168,8 +171,7 @@
             });
 
             if (usernameUsed) {
-              statusMessage.textContent = "Username sudah digunakan.";
-              statusMessage.classList.add("text-red-400");
+              tampilkanStatus("Username sudah digunakan.", "text-red-400");
               return;
             }
 
@@ -190,19 +192,15 @@
               console.log("OTP Response:", data);
 
               if (res.ok) {
-                statusMessage.textContent = "OTP telah dikirim ke WhatsApp Anda.";
-                statusMessage.classList.remove("text-red-400");
-                statusMessage.classList.add("text-green-400");
+                tampilkanStatus("OTP telah dikirim ke WhatsApp Anda.", "text-green-400");
                 otpSection.classList.remove("hidden");
                 submitBtn.classList.add("hidden");
               } else {
                 throw new Error(data.message || "Gagal mengirim OTP");
               }
-
             } catch (err) {
               console.error("Gagal kirim OTP:", err);
-              statusMessage.textContent = "Gagal mengirim OTP.";
-              statusMessage.classList.add("text-red-400");
+              tampilkanStatus("Gagal mengirim OTP.", "text-red-400");
             }
           }
         });
@@ -240,14 +238,10 @@
           otpSection.classList.add("hidden");
           submitBtn.classList.remove("hidden");
 
-          statusMessage.classList.remove("text-red-400");
-          statusMessage.classList.add("text-green-400");
-          statusMessage.textContent = "Berhasil daftar, silakan login.";
-
+          tampilkanStatus("Berhasil daftar, silakan login.", "text-green-400");
         });
       } else {
-        statusMessage.textContent = "OTP tidak cocok.";
-        statusMessage.classList.add("text-red-400");
+        tampilkanStatus("OTP tidak cocok.", "text-red-400");
       }
     });
 
