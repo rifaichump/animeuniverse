@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (localStorage.getItem("loginStatus") === "loggedIn") {
-    const usersRef = db.ref("users/" + nomor);
+    const usersRef = db.ref("users/" + localStorage.getItem("nomor"));
 
     usersRef.once("value", (snap) => {
       if(!snap.exists()) {
