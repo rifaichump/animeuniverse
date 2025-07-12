@@ -128,9 +128,10 @@ async function fetchMCStatsStatus() {
     console.error(err);
   }
 }
-setInterval(fetchMCStatsStatus, 60_000);
 
 document.addEventListener("DOMContentLoaded", () => {
+  fetchMCStatsStatus();
+  setInterval(fetchMCStatsStatus, 60_000);
   const menuBtn = document.getElementById('menuBtn');
   const menuDropdown = document.getElementById('menuDropdown');
   const userName = document.getElementById('username');
