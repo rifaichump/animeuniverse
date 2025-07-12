@@ -176,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
         menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
         menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
         menuDropdown.querySelector("button[onclick*='login']").remove();
+        if (window.lucide) lucide.createIcons();
       };
     })
   }
