@@ -17,22 +17,20 @@
 
     <div class="space-y-2">
       <p><strong>Nomor:</strong> <span id="userNomor"></span></p>
-      <p><strong>Nama:</strong> <span id="userNama"></span></p>
+      <p><strong>Nama:</strong> <span id="userNama" class="cursor-pointer text-blue-400 underline" title="Klik untuk ganti nama"></span></p>
     </div>
 
-    <div class="space-y-3">
+    <div id="formGantiNama" class="space-y-3 hidden">
       <input type="text" id="newNamaInput" placeholder="Nama baru" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
       <input type="password" id="verifPassword" placeholder="Password akun" class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
       <button id="updateBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
         <i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama
       </button>
-      <button id="hapusBtn" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
-        <i data-lucide="trash" class="w-4 h-4"></i> Hapus Akun
-      </button>
-      <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
-      </button>
     </div>
+
+    <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded font-normal text-sm flex items-center justify-center gap-2">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+    </button>
 
     <p id="statusMessage" class="text-sm text-center hidden mt-2"></p>
   </div>
@@ -59,8 +57,8 @@
     const newNamaInput = document.getElementById("newNamaInput");
     const verifPassword = document.getElementById("verifPassword");
     const updateBtn = document.getElementById("updateBtn");
-    const hapusBtn = document.getElementById("hapusBtn");
     const statusMessage = document.getElementById("statusMessage");
+    const formGantiNama = document.getElementById("formGantiNama");
 
     if (!userNomor || !userNama || localStorage.getItem("loginStatus") !== "loggedIn") {
       window.location.href = "login.html";
@@ -68,6 +66,10 @@
 
     userNomorSpan.textContent = userNomor;
     userNamaSpan.textContent = userNama;
+
+    userNamaSpan.addEventListener("click", () => {
+      formGantiNama.classList.remove("hidden");
+    });
 
     updateBtn.addEventListener("click", async () => {
       const namaBaru = newNamaInput.value.trim();
@@ -117,19 +119,8 @@
         userNamaSpan.textContent = namaBaru;
         newNamaInput.value = "";
         verifPassword.value = "";
+        formGantiNama.classList.add("hidden");
         tampilkanStatus("Nama berhasil diperbarui.", "green");
-      });
-    });
-
-    hapusBtn.addEventListener("click", () => {
-      const konfirmasi = confirm("Yakin ingin menghapus akun? Data tidak bisa dikembalikan.");
-      if (!konfirmasi) return;
-
-      db.ref("users/" + userNomor).remove(() => {
-        localStorage.removeItem("loginStatus");
-        localStorage.removeItem("username");
-        localStorage.removeItem("nomor");
-        window.location.href = "login.html";
       });
     });
 
