@@ -16,19 +16,9 @@
       75% { border-color: #ef4444; }
       100% { border-color: #3b82f6; }
     }
+
     .animated-border {
       animation: borderColorChange 5s infinite;
-    }
-    .open-gift::before {
-      content: "🎉";
-      font-size: 1.5rem;
-      position: absolute;
-      top: -10px;
-      animation: pop 0.5s ease-out;
-    }
-    @keyframes pop {
-      0% { transform: scale(0); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
@@ -44,7 +34,7 @@
 
   <div id="profileContainer" class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6 hidden">
     <h1 class="text-xl font-bold text-center flex items-center justify-center gap-2">
-      <i data-lucide="user" class="w-6 h-6"></i> My Profile
+      <i data-lucide="user" class="w-6 h-6"></i> Profile Saya
     </h1>
 
     <div class="flex justify-center">
@@ -52,36 +42,34 @@
     </div>
 
     <div class="space-y-2 text-left">
-      <p><strong>Number:</strong> <span id="userNumber">...</span></p>
-      <p><strong>Name:</strong> <span id="userName">...</span></p>
+      <p><strong>Nomor:</strong> <span id="userNumber">...</span></p>
+      <p><strong>Username:</strong> <span id="userName">...</span></p>
     </div>
 
     <div class="border-t border-gray-700 pt-4 space-y-2 text-left">
-      <p><strong>Money:</strong> <span id="userMoney">RP...</span></p>
-      <p><strong>Coins:</strong> <span id="userCoins">...</span></p>
+      <p><strong>Uang:</strong> <span id="userMoney">RP...</span></p>
+      <p><strong>Koin:</strong> <span id="userCoins">...</span></p>
       <p><strong>Limit:</strong> <span id="userLimit">...</span></p>
     </div>
 
-    <div class="flex justify-start">
-      <button id="claimButton" class="relative w-12 h-12 bg-pink-600 rounded-full flex items-center justify-center animate-bounce hover:scale-110 transition-transform duration-300" title="Claim Reward">
-        🎁
-      </button>
-    </div>
+    <button id="claimButton" class="w-full bg-yellow-600 hover:bg-yellow-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
+      <i data-lucide="gift" class="w-4 h-4"></i> Claim Sekarang!
+    </button>
 
     <button id="toggleNameFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-      <i data-lucide="edit-3" class="w-4 h-4"></i> Change Name
+      <i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama
     </button>
 
     <div id="nameForm" class="space-y-2 hidden">
       <input type="text" id="newNameInput" placeholder="New name" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
       <input type="password" id="verifyPassword" placeholder="Account password" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
       <button id="confirmNameBtn" class="w-full bg-green-600 hover:bg-green-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-        <i data-lucide="check" class="w-4 h-4"></i> Confirm
+        <i data-lucide="check" class="w-4 h-4"></i> konfirmasi
       </button>
     </div>
 
     <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-      <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> kembali
     </button>
 
     <p id="statusMessage" class="text-sm text-center hidden mt-2"></p>
@@ -101,7 +89,6 @@
     const db = firebase.database();
 
     const BASE_API = "https://apianimeuniverse-production.up.railway.app";
-
     const number = localStorage.getItem("nomor");
     const userRef = db.ref("users/" + number);
 
@@ -137,14 +124,13 @@
     .then(async res => {
       if (res.status && res.data) {
         const { profileUrl, money, coin, limit, lastclaim } = res.data;
-        alreadyClaimed = new Date - lastclaim > 3600000 * 12;
+        alreadyClaimed = !(new Date - lastclaim > 3600000 * 12);
         moneyNow = money ?? 0;
         coinsNow = coin ?? 0;
         limitNow = limit ?? 0;
 
         const snap = await userRef.once("value");
         const userData = snap.val();
-
         if (!userData) return window.location.href = "login.html";
 
         if (profileUrl) profilePhoto.src = profileUrl;
@@ -154,20 +140,20 @@
         userCoins.textContent = coinsNow;
         userLimit.textContent = limitNow;
 
-        if (!alreadyClaimed) {
-          claimButton.classList.remove("animate-bounce");
-          claimButton.classList.add("open-gift");
-          claimButton.textContent = "🎉";
+        if (alreadyClaimed) {
           claimButton.disabled = true;
+          claimButton.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Sudah di claim`;
+          claimButton.classList.replace("bg-yellow-600", "bg-gray-600");
         }
 
         loadingScreen.classList.add("hidden");
         profileContainer.classList.remove("hidden");
+        lucide.createIcons();
       }
     });
 
     claimButton.addEventListener("click", async () => {
-      if (!alreadyClaimed) return showStatus("You already claimed.", "yellow");
+      if (alreadyClaimed) return showStatus("Kamu sudah klaim sebelumnya", "yellow");
 
       const updated = {
         money: 10000,
@@ -182,20 +168,19 @@
         body: JSON.stringify({ nomor: number, ...updated })
       }).then(r => r.json());
 
-      console.log(res)
-
       if (res.status) {
-        showStatus("Reward claimed!", "green");
+        showStatus("Berhasil claim", "green");
         userMoney.textContent = "Rp" + updated.money.toLocaleString();
         userCoins.textContent = updated.coin;
         userLimit.textContent = updated.limit;
+        alreadyClaimed = true;
 
-        claimButton.classList.remove("animate-bounce");
-        claimButton.classList.add("open-gift");
-        claimButton.textContent = "🎉";
         claimButton.disabled = true;
+        claimButton.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Already Claimed`;
+        claimButton.classList.replace("bg-yellow-600", "bg-gray-600");
+        lucide.createIcons();
       } else {
-        showStatus("Failed to claim reward.", "red");
+        showStatus("Gagal claim", "red");
       }
     });
 
@@ -204,25 +189,24 @@
       formOpen = !formOpen;
       nameForm.classList.toggle("hidden");
       toggleNameFormBtn.innerHTML = formOpen
-        ? `<i data-lucide="x" class="w-4 h-4"></i> Cancel`
-        : `<i data-lucide="edit-3" class="w-4 h-4"></i> Change Name`;
+        ? `<i data-lucide="x" class="w-4 h-4"></i> Batalkan`
+        : `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
       lucide.createIcons();
     });
 
     confirmNameBtn.addEventListener("click", async () => {
       const newName = newNameInput.value.trim();
       const password = verifyPassword.value.trim();
-
-      if (!newName || !password) return showStatus("All fields are required.", "red");
+      if (!newName || !password) return showStatus("Semua harus di isi", "red");
 
       const snap = await userRef.once("value");
       const user = snap.val();
-      if (user.password !== password) return showStatus("Wrong password.", "red");
+      if (user.password !== password) return showStatus("Password salah", "red");
 
       const allUsersSnap = await db.ref("users").once("value");
       for (const child of Object.values(allUsersSnap.val() || {})) {
         if (child.nama?.toLowerCase() === newName.toLowerCase()) {
-          return showStatus("Name already taken.", "red");
+          return showStatus("Username sudah di gunakan!", "red");
         }
       }
 
@@ -230,10 +214,10 @@
       userName.textContent = newName;
       newNameInput.value = "";
       verifyPassword.value = "";
-      showStatus("Name updated.", "green");
+      showStatus("Username berhasil di ganti", "green");
 
       nameForm.classList.add("hidden");
-      toggleNameFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Change Name`;
+      toggleNameFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
       formOpen = false;
       lucide.createIcons();
     });
