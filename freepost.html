@@ -138,6 +138,8 @@
 
       if (!croppedBlob || !caption) return statusText.textContent = "Isi semua data";
 
+      statusText.textContent = "Mengupload...";
+
       const reader = new FileReader();
       reader.onload = async () => {
         const base64 = reader.result.split(",")[1];
