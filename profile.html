@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil Saya</title>
+  <title>My Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -19,6 +19,17 @@
     .animated-border {
       animation: borderColorChange 5s infinite;
     }
+    .open-gift::before {
+      content: "🎉";
+      font-size: 1.5rem;
+      position: absolute;
+      top: -10px;
+      animation: pop 0.5s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center p-4">
@@ -28,51 +39,55 @@
       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
     </svg>
-    <p class="text-sm text-gray-300">Memuat profil...</p>
+    <p class="text-sm text-gray-300">Loading profile...</p>
   </div>
 
-  <div id="profilContainer" class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6 container-profil hidden">
+  <div id="profileContainer" class="bg-[#1a1a1a] p-6 rounded-xl shadow-lg w-full max-w-sm space-y-6 hidden">
     <h1 class="text-xl font-bold text-center flex items-center justify-center gap-2">
-      <i data-lucide="user" class="w-6 h-6"></i> Profil Saya
+      <i data-lucide="user" class="w-6 h-6"></i> My Profile
     </h1>
 
     <div class="flex justify-center">
-      <img id="fotoProfil" src="./none.png" class="w-24 h-24 rounded-full border-2 animated-border" />
+      <img id="profilePhoto" src="./none.png" class="w-24 h-24 rounded-full border-2 animated-border" />
     </div>
 
-    <div class="space-y-2">
-      <p><strong>Nomor:</strong> <span id="userNomor">...</span></p>
-      <p><strong>Nama:</strong> <span id="userNama">...</span></p>
+    <div class="space-y-2 text-left">
+      <p><strong>Number:</strong> <span id="userNumber">...</span></p>
+      <p><strong>Name:</strong> <span id="userName">...</span></p>
     </div>
 
-    <div class="border-t border-gray-700 pt-4 space-y-2">
-      <p><strong>Uang:</strong> <span id="userUang">RP...</span></p>
-      <p><strong>Koin:</strong> <span id="userKoin">...</span></p>
+    <div class="border-t border-gray-700 pt-4 space-y-2 text-left">
+      <p><strong>Money:</strong> <span id="userMoney">RP...</span></p>
+      <p><strong>Coins:</strong> <span id="userCoins">...</span></p>
       <p><strong>Limit:</strong> <span id="userLimit">...</span></p>
     </div>
 
-    <button id="toggleFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-      <i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama
+    <div class="flex justify-start">
+      <button id="claimButton" class="relative w-12 h-12 bg-pink-600 rounded-full flex items-center justify-center animate-bounce hover:scale-110 transition-transform duration-300" title="Claim Reward">
+        🎁
+      </button>
+    </div>
+
+    <button id="toggleNameFormBtn" class="w-full bg-blue-600 hover:bg-blue-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
+      <i data-lucide="edit-3" class="w-4 h-4"></i> Change Name
     </button>
 
-    <div id="formGantiNama" class="space-y-2 hidden">
-      <input type="text" id="newNamaInput" placeholder="Nama baru" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
-      <input type="password" id="verifPassword" placeholder="Password akun" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
-      <button id="updateBtn" class="w-full bg-green-600 hover:bg-green-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-        <i data-lucide="check" class="w-4 h-4"></i> Konfirmasi
+    <div id="nameForm" class="space-y-2 hidden">
+      <input type="text" id="newNameInput" placeholder="New name" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
+      <input type="password" id="verifyPassword" placeholder="Account password" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
+      <button id="confirmNameBtn" class="w-full bg-green-600 hover:bg-green-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
+        <i data-lucide="check" class="w-4 h-4"></i> Confirm
       </button>
     </div>
 
     <button onclick="window.location.href='index.html'" class="w-full bg-gray-700 hover:bg-gray-600 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
-      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
     </button>
 
     <p id="statusMessage" class="text-sm text-center hidden mt-2"></p>
   </div>
 
   <script>
-    localStorage.removeItem("username");
-
     const firebaseConfig = {
       apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
       authDomain: "visitorwebauv4.firebaseapp.com",
@@ -87,136 +102,145 @@
 
     const BASE_API = "https://apianimeuniverse-production.up.railway.app";
 
-    const userNomor = localStorage.getItem("nomor");
-    const userRef = db.ref("users/" + userNomor);
+    const number = localStorage.getItem("nomor");
+    const userRef = db.ref("users/" + number);
 
-    const userNomorSpan = document.getElementById("userNomor");
-    const userNamaSpan = document.getElementById("userNama");
-    const userUangSpan = document.getElementById("userUang");
-    const userKoinSpan = document.getElementById("userKoin");
-    const userLimitSpan = document.getElementById("userLimit");
-    const fotoProfil = document.getElementById("fotoProfil");
-    const newNamaInput = document.getElementById("newNamaInput");
-    const verifPassword = document.getElementById("verifPassword");
-    const updateBtn = document.getElementById("updateBtn");
+    const profileContainer = document.getElementById("profileContainer");
+    const profilePhoto = document.getElementById("profilePhoto");
+    const userNumber = document.getElementById("userNumber");
+    const userName = document.getElementById("userName");
+    const userMoney = document.getElementById("userMoney");
+    const userCoins = document.getElementById("userCoins");
+    const userLimit = document.getElementById("userLimit");
+    const claimButton = document.getElementById("claimButton");
+    const toggleNameFormBtn = document.getElementById("toggleNameFormBtn");
+    const nameForm = document.getElementById("nameForm");
+    const newNameInput = document.getElementById("newNameInput");
+    const verifyPassword = document.getElementById("verifyPassword");
+    const confirmNameBtn = document.getElementById("confirmNameBtn");
     const statusMessage = document.getElementById("statusMessage");
-    const formGantiNama = document.getElementById("formGantiNama");
-    const toggleFormBtn = document.getElementById("toggleFormBtn");
     const loadingScreen = document.getElementById("loadingScreen");
-    const profilContainer = document.getElementById("profilContainer");
 
-    if (!userNomor || localStorage.getItem("loginStatus") !== "loggedIn") {
+    if (!number || localStorage.getItem("loginStatus") !== "loggedIn") {
       window.location.href = "login.html";
     }
+
+    let alreadyClaimed = false;
+    let moneyNow = 0, coinsNow = 0, limitNow = 0;
 
     fetch(BASE_API + "/info-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nomor: userNomor })
+      body: JSON.stringify({ nomor: number, profile: true })
     })
     .then(res => res.json())
-    .then(res => {
+    .then(async res => {
       if (res.status && res.data) {
-        const { profileUrl, money, coin, limit } = res.data;
+        const { profileUrl, money, coin, limit, lastclaim } = res.data;
+        alreadyClaimed = new Date - lastclaim > 3600000 * 12;
+        moneyNow = money ?? 0;
+        coinsNow = coin ?? 0;
+        limitNow = limit ?? 0;
 
-        userRef.once("value").then(snap => {
-          if (!snap.exists()) {
-            tampilkanStatus("Akun tidak ditemukan.", "red");
-            window.location.href = "login.html";
-            return;
-          }
+        const snap = await userRef.once("value");
+        const userData = snap.val();
 
-          if (profileUrl) fotoProfil.src = profileUrl;
-          userNomorSpan.textContent = userNomor;
-          userNamaSpan.textContent = snap.val().nama;
-          userUangSpan.textContent = "Rp" + (money ?? 0).toLocaleString();
-          userKoinSpan.textContent = coin ?? 0;
-          userLimitSpan.textContent = limit ?? 0;
+        if (!userData) return window.location.href = "login.html";
 
-          loadingScreen.classList.add("hidden");
-          profilContainer.classList.remove("hidden");
-        });
+        if (profileUrl) profilePhoto.src = profileUrl;
+        userNumber.textContent = number;
+        userName.textContent = userData.nama;
+        userMoney.textContent = "Rp" + moneyNow.toLocaleString();
+        userCoins.textContent = coinsNow;
+        userLimit.textContent = limitNow;
 
-        if (money === undefined && coin === undefined && limit === undefined) {
-          tampilkanStatus("Nomor kamu tidak terdaftar di bot kami.", "yellow");
+        if (!alreadyClaimed) {
+          claimButton.classList.remove("animate-bounce");
+          claimButton.classList.add("open-gift");
+          claimButton.textContent = "🎉";
+          claimButton.disabled = true;
         }
-      } else {
-        tampilkanStatus("Gagal mengambil data.", "red");
-      }
-    })
-    .catch(() => tampilkanStatus("Koneksi ke server gagal.", "red"));
 
-    let formTerbuka = false;
-    toggleFormBtn.addEventListener("click", () => {
-      formTerbuka = !formTerbuka;
-      formGantiNama.classList.toggle("hidden");
-      toggleFormBtn.innerHTML = formTerbuka
-        ? `<i data-lucide="x" class="w-4 h-4"></i> Batalkan`
-        : `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
+        loadingScreen.classList.add("hidden");
+        profileContainer.classList.remove("hidden");
+      }
+    });
+
+    claimButton.addEventListener("click", async () => {
+      if (!alreadyClaimed) return showStatus("You already claimed.", "yellow");
+
+      const updated = {
+        money: 10000,
+        coin: 1,
+        limit: 5,
+        lastclaim: Date.now()
+      };
+
+      const res = await fetch(BASE_API + "/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nomor: number, ...updated })
+      }).then(r => r.json());
+
+      console.log(res)
+
+      if (res.status) {
+        showStatus("Reward claimed!", "green");
+        userMoney.textContent = "Rp" + updated.money.toLocaleString();
+        userCoins.textContent = updated.coin;
+        userLimit.textContent = updated.limit;
+
+        claimButton.classList.remove("animate-bounce");
+        claimButton.classList.add("open-gift");
+        claimButton.textContent = "🎉";
+        claimButton.disabled = true;
+      } else {
+        showStatus("Failed to claim reward.", "red");
+      }
+    });
+
+    let formOpen = false;
+    toggleNameFormBtn.addEventListener("click", () => {
+      formOpen = !formOpen;
+      nameForm.classList.toggle("hidden");
+      toggleNameFormBtn.innerHTML = formOpen
+        ? `<i data-lucide="x" class="w-4 h-4"></i> Cancel`
+        : `<i data-lucide="edit-3" class="w-4 h-4"></i> Change Name`;
       lucide.createIcons();
     });
 
-    updateBtn.addEventListener("click", async () => {
-      const namaBaru = newNamaInput.value.trim();
-      const passwordInput = verifPassword.value.trim();
+    confirmNameBtn.addEventListener("click", async () => {
+      const newName = newNameInput.value.trim();
+      const password = verifyPassword.value.trim();
+
+      if (!newName || !password) return showStatus("All fields are required.", "red");
 
       const snap = await userRef.once("value");
-
-      if (!namaBaru || !passwordInput) {
-        tampilkanStatus("Semua input wajib diisi.", "red");
-        return;
-      }
-
-      const data = snap.val();
-      if (data.password !== passwordInput) {
-        tampilkanStatus("Password salah.", "red");
-        return;
-      }
+      const user = snap.val();
+      if (user.password !== password) return showStatus("Wrong password.", "red");
 
       const allUsersSnap = await db.ref("users").once("value");
-      let alreadyName = false;
-
-      allUsersSnap.forEach((childSnap) => {
-        const nomor = childSnap.key;
-        const user = childSnap.val();
-        if (user.nama && user.nama.toLowerCase() === namaBaru.toLowerCase()) {
-          alreadyName = true;
+      for (const child of Object.values(allUsersSnap.val() || {})) {
+        if (child.nama?.toLowerCase() === newName.toLowerCase()) {
+          return showStatus("Name already taken.", "red");
         }
-      });
-
-      if (alreadyName) {
-        tampilkanStatus("Username sudah digunakan.", "red");
-        return;
       }
 
-      userRef.update({ nama: namaBaru }, () => {
-        fetch(BASE_API + "/send-message", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jid: "120363043559522563@g.us",
-            msg: {
-              text: `✅ *Web Notification*\n\n@${userNomor} Mengganti username dari _${userNamaSpan.textContent}_ menjadi _${namaBaru}_.`,
-              mentions: [userNomor + "@s.whatsapp.net"]
-            }
-          })
-        });
+      await userRef.update({ nama: newName });
+      userName.textContent = newName;
+      newNameInput.value = "";
+      verifyPassword.value = "";
+      showStatus("Name updated.", "green");
 
-        userNamaSpan.textContent = namaBaru;
-        newNamaInput.value = "";
-        verifPassword.value = "";
-        tampilkanStatus("Nama berhasil diperbarui.", "green");
-
-        formGantiNama.classList.add("hidden");
-        toggleFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Ganti Nama`;
-        formTerbuka = false;
-        lucide.createIcons();
-      });
+      nameForm.classList.add("hidden");
+      toggleNameFormBtn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i> Change Name`;
+      formOpen = false;
+      lucide.createIcons();
     });
 
-    function tampilkanStatus(pesan, warna) {
-      statusMessage.textContent = pesan;
-      statusMessage.className = `text-sm text-center mt-2 text-${warna}-400`;
+    function showStatus(message, color) {
+      statusMessage.textContent = message;
+      statusMessage.className = `text-sm text-center mt-2 text-${color}-400`;
       statusMessage.classList.remove("hidden");
       setTimeout(() => statusMessage.classList.add("hidden"), 4000);
     }
