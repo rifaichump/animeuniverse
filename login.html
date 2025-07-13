@@ -133,6 +133,11 @@
         return;
       }
 
+      if (nama.length > 20) {
+        tampilkanStatus("Username maksimal 20 Karakter", "text-red-400");
+        return;
+      }
+
       const diWhitelist = await isNomorDiWhitelist(nomor);
       if (!diWhitelist) {
         tampilkanStatus("Gabung ke grup Anime Universe dulu.", "text-red-400");

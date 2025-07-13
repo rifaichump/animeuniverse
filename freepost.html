@@ -19,6 +19,13 @@
       margin-left: auto;
       margin-right: auto;
     }
+    .lazy-img {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .lazy-img.loaded {
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans flex flex-col items-center min-h-screen">
@@ -85,10 +92,8 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const BASE_API = "https://apianimeuniverse-production.up.railway.app";
-
-    const token = "ghp_qwQtPZLFwHLHoE9" + "xTH5eEUmRyoVwbQ40ixPS"
+    const token = "ghp_qwQtPZLFwHLHoE9" + "xTH5eEUmRyoVwbQ40ixPS";
     const githubToken = token;
     const gallery = document.getElementById("gallery");
 
@@ -190,13 +195,14 @@
           if (parts.length === 3) [caption, nomor, timestamp] = parts;
           else if (parts.length === 2) [caption, timestamp] = parts;
           timestamp = timestamp.split(".")[0];
-          let username = "ANONYMOUS";
+          let username = "Anonymous";
           let profileUrl = "./none.png";
+          let isAdmin = false;
           if (nomor) {
             try {
               const snap = await db.ref("users/" + nomor).once("value");
               if (snap.exists()) {
-                username = snap.val()?.nama || "ANONYMOUS";
+                username = snap.val()?.nama || "Anonymous";
                 const res = await fetch(BASE_API + "/info-user", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -204,6 +210,7 @@
                 });
                 const data = await res.json();
                 if (data?.data?.profileUrl) profileUrl = data.data.profileUrl;
+                if (data?.data?.isAdmin) isAdmin = data.data.isAdmin;
               }
             } catch (e) {
               console.error("Gagal ambil profil:", e.message);
@@ -214,7 +221,8 @@
             caption,
             timestamp,
             username,
-            profileUrl
+            profileUrl,
+            isAdmin
           };
         }));
 
@@ -227,12 +235,13 @@
 
         validImages.forEach(item => {
           const wrapper = document.createElement("div");
-          wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6";
+          wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6 post-item";
 
           const img = document.createElement("img");
-          img.src = item.url;
+          img.setAttribute("data-src", item.url);
           img.alt = item.caption;
-          img.className = "w-full rounded mb-2";
+          img.className = "w-full rounded mb-2 lazy-img";
+          img.loading = "lazy";
 
           const caption = document.createElement("p");
           caption.textContent = item.caption;
@@ -243,12 +252,12 @@
 
           const avatar = document.createElement("img");
           avatar.src = item.profileUrl;
-          avatar.alt = item.username;
+          avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
           avatar.className = "w-4 h-4 rounded-full object-cover";
           avatar.onerror = () => "./none.png";
 
           const userName = document.createElement("span");
-          userName.textContent = item.username;
+          userName.innerHTML = item.username + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
           userName.className = "text-xs text-gray-400";
 
           profileWrapper.appendChild(avatar);
@@ -266,9 +275,27 @@
           container.appendChild(wrapper);
         });
 
+        lazyLoadImages();
+
       } catch (err) {
         container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
       }
+    }
+
+    function lazyLoadImages() {
+      const lazyImages = document.querySelectorAll('.lazy-img');
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.onload = () => img.classList.add('loaded');
+            obs.unobserve(img);
+          }
+        });
+      }, { rootMargin: "200px" });
+
+      lazyImages.forEach(img => observer.observe(img));
     }
 
     function formatDateFromTimestamp(timestamp) {

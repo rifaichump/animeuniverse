@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>My Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -61,7 +61,7 @@
     </button>
 
     <div id="nameForm" class="space-y-2 hidden">
-      <input type="text" id="newNameInput" placeholder="New name" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
+      <input type="text" id="newNameInput" placeholder="New username" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
       <input type="password" id="verifyPassword" placeholder="Account password" class="w-full bg-gray-800 px-3 py-1.5 rounded text-sm" />
       <button id="confirmNameBtn" class="w-full bg-green-600 hover:bg-green-500 py-1.5 rounded text-xs font-normal flex items-center justify-center gap-2">
         <i data-lucide="check" class="w-4 h-4"></i> konfirmasi
@@ -123,7 +123,7 @@
     .then(res => res.json())
     .then(async res => {
       if (res.status && res.data) {
-        const { profileUrl, money, coin, limit, lastclaim } = res.data;
+        const { profileUrl, money, coin, limit, lastclaim, isAdmin } = res.data;
         alreadyClaimed = !(new Date - lastclaim > 3600000 * 12);
         moneyNow = money ?? 0;
         coinsNow = coin ?? 0;
@@ -135,7 +135,7 @@
 
         if (profileUrl) profilePhoto.src = profileUrl;
         userNumber.textContent = number;
-        userName.textContent = userData.nama;
+        userName.textContent = userData.nama + ` ${isAdmin ? '(Admin)' : ''}`;
         userMoney.textContent = "Rp" + moneyNow.toLocaleString();
         userCoins.textContent = coinsNow;
         userLimit.textContent = limitNow;
@@ -200,6 +200,7 @@
       const newName = newNameInput.value.trim();
       const password = verifyPassword.value.trim();
       if (!newName || !password) return showStatus("Semua harus di isi", "red");
+      if (newName.length > 20) return showStatus("Username maksimal 20 karakter", "red");
 
       const snap = await userRef.once("value");
       const user = snap.val();
