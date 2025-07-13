@@ -6,7 +6,18 @@
   <title>Freepost</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <style>::-webkit-scrollbar { display: none; }</style>
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { display: none; }
+    .crop-container img {
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans flex flex-col items-center min-h-screen">
 
@@ -42,22 +53,29 @@
     </select>
   </div>
 
-  <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">
-    Memuat...
-  </section>
+  <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">Memuat...</section>
+
+  <!-- Modal Crop -->
+  <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="bg-[#1a1a1a] p-4 rounded-lg max-w-md w-full">
+      <h3 class="text-center text-lg font-semibold mb-3">Crop Foto</h3>
+      <div class="crop-container">
+        <img id="cropImage" class="rounded" />
+      </div>
+      <div class="mt-4 flex justify-center gap-4">
+        <button id="cancelCrop" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded text-sm">Batal</button>
+        <button id="confirmCrop" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm">Simpan</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     lucide.createIcons();
 
-    const allT = {
-      a: "ghp_qwQtP",
-      b: "ZLFwHLHoE9xTH5eE",
-      c: "UmRyoVwbQ40ixPS"
-    };
+    const allT = { a: "ghp_qwQtP", b: "ZLFwHLHoE9xTH5eE", c: "UmRyoVwbQ40ixPS" };
     const githubToken = allT.a + allT.b + allT.c;
 
     const toggleFormBtn = document.getElementById("toggleFormBtn");
-    const uploadFormEl = document.getElementById("uploadForm");
     const uploadForm = document.getElementById("uploadForm");
     const fileInput = document.getElementById("fileInput");
     const captionInput = document.getElementById("captionInput");
@@ -65,14 +83,132 @@
     const submitBtn = document.getElementById("submitBtn");
     const gallery = document.getElementById("gallery");
 
+    let cropper;
+    let croppedBlob;
+
     toggleFormBtn.addEventListener("click", () => {
-      const isHidden = uploadFormEl.classList.contains("hidden");
-      uploadFormEl.classList.toggle("hidden");
+      const isHidden = uploadForm.classList.contains("hidden");
+      uploadForm.classList.toggle("hidden");
       toggleFormBtn.innerHTML = isHidden
         ? '<i data-lucide="x-circle" class="w-5 h-5"></i> Tutup'
         : '<i data-lucide="plus-circle" class="w-5 h-5"></i> Buat Postingan';
       lucide.createIcons();
     });
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById("cropImage").src = reader.result;
+          document.getElementById("cropModal").classList.remove("hidden");
+          setTimeout(() => {
+            cropper = new Cropper(document.getElementById("cropImage"), {
+              aspectRatio: NaN,
+              viewMode: 1,
+              autoCropArea: 1,
+              background: false
+            });
+          }, 100);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById("cancelCrop").addEventListener("click", () => {
+      cropper?.destroy();
+      cropper = null;
+      croppedBlob = null;
+      document.getElementById("cropModal").classList.add("hidden");
+      fileInput.value = "";
+    });
+
+    document.getElementById("confirmCrop").addEventListener("click", () => {
+      if (cropper) {
+        cropper.getCroppedCanvas({ fillColor: "#0e0e0e" }).toBlob(blob => {
+          croppedBlob = blob;
+          cropper.destroy();
+          cropper = null;
+          document.getElementById("cropModal").classList.add("hidden");
+        }, fileInput.files[0].type);
+      }
+    });
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusText.textContent = "Tunggu...";
+      submitBtn.disabled = true;
+      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+      const caption = captionInput.value.trim();
+
+      if (!croppedBlob || !caption) {
+        statusText.textContent = "Pastikan foto sudah dicrop dan caption diisi.";
+        hideStatusTextAfterDelay();
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        return;
+      }
+
+      if (!/^[^|/]+$/.test(caption)) {
+        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
+        hideStatusTextAfterDelay();
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64 = reader.result.split(",")[1];
+        const ext = fileInput.files[0].type.split("/")[1];
+        const timestamp = Date.now();
+        const filename = `${caption}|${timestamp}.${ext}`;
+
+        const repo = "rifaichump/database";
+        const path = `freepost/${filename}`;
+        const message = `Menambahkan file ${caption}`;
+        const body = { message, content: base64 };
+
+        try {
+          const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${githubToken}`
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (res.ok) {
+            statusText.textContent = "✅ Berhasil diupload!, Postingan baru akan muncul 15-30 Detik";
+            hideStatusTextAfterDelay();
+            uploadForm.reset();
+            croppedBlob = null;
+            fileInput.value = "";
+            setTimeout(() => fetchFreepostGallery(), 3000);
+          } else {
+            const err = await res.json();
+            statusText.textContent = `❌ Gagal: ${err.message}`;
+            hideStatusTextAfterDelay();
+          }
+        } catch (err) {
+          statusText.textContent = "❌ Gagal koneksi.";
+          hideStatusTextAfterDelay();
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      };
+
+      reader.readAsDataURL(croppedBlob);
+    });
+
+    function hideStatusTextAfterDelay() {
+      setTimeout(() => {
+        statusText.textContent = "";
+      }, 2000);
+    }
 
     function timeAgo(timestamp) {
       const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -88,9 +224,7 @@
 
       for (const unit of units) {
         const count = Math.floor(seconds / unit.seconds);
-        if (count > 0) {
-          return `${count} ${unit.label} yang lalu`;
-        }
+        if (count > 0) return `${count} ${unit.label} yang lalu`;
       }
       return "baru saja";
     }
@@ -110,12 +244,9 @@
 
       try {
         const response = await fetch(apiUrl, {
-          headers: {
-            "Authorization": `Bearer ${githubToken}`
-          }
+          headers: { "Authorization": `Bearer ${githubToken}` }
         });
         const files = await response.json();
-
         if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
 
         const validImages = files.filter(file =>
@@ -131,15 +262,10 @@
           };
         });
 
-        if (sortBy === "baru") {
-          validImages.sort((a, b) => b.timestamp - a.timestamp);
-        } else if (sortBy === "lama") {
-          validImages.sort((a, b) => a.timestamp - b.timestamp);
-        } else if (sortBy === "az") {
-          validImages.sort((a, b) => a.caption.localeCompare(b.caption));
-        } else if (sortBy === "za") {
-          validImages.sort((a, b) => b.caption.localeCompare(a.caption));
-        }
+        if (sortBy === "baru") validImages.sort((a, b) => b.timestamp - a.timestamp);
+        else if (sortBy === "lama") validImages.sort((a, b) => a.timestamp - b.timestamp);
+        else if (sortBy === "az") validImages.sort((a, b) => a.caption.localeCompare(b.caption));
+        else if (sortBy === "za") validImages.sort((a, b) => b.caption.localeCompare(a.caption));
 
         container.innerHTML = "";
 
@@ -174,77 +300,6 @@
 
     document.getElementById("sortSelect").addEventListener("change", function () {
       fetchFreepostGallery("gallery", this.value);
-    });
-
-    function isCaptionValid(caption) {
-      return !/[|/]/.test(caption);
-    }
-
-    uploadForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusText.textContent = "Mengunggah...";
-      submitBtn.disabled = true;
-      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-
-      const file = fileInput.files[0];
-      const caption = captionInput.value.trim();
-
-      if (!file || !caption) {
-        statusText.textContent = "Semua isian wajib diisi.";
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        return;
-      }
-
-      if (!isCaptionValid(caption)) {
-        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = async function () {
-        const base64 = reader.result.split(',')[1];
-        const ext = file.type.split('/')[1];
-        const timestamp = Date.now();
-        const filename = `${caption}|${timestamp}.${ext}`;
-
-        const repo = "rifaichump/database";
-        const path = `freepost/${filename}`;
-        const message = `Menambahkan file ${caption}`;
-        const body = {
-          message,
-          content: base64
-        };
-
-        try {
-          const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${githubToken}`
-            },
-            body: JSON.stringify(body)
-          });
-
-          if (res.ok) {
-            statusText.textContent = "Berhasil diunggah!";
-            uploadForm.reset();
-            fetchFreepostGallery();
-          } else {
-            const err = await res.json();
-            statusText.textContent = `Gagal: ${err.message}`;
-          }
-        } catch (err) {
-          statusText.textContent = "Gagal koneksi.";
-        }
-
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-      };
-
-      reader.readAsDataURL(file);
     });
 
     fetchFreepostGallery();
