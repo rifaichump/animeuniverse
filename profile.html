@@ -175,6 +175,8 @@
         userLimit.textContent = updated.limit;
         alreadyClaimed = true;
 
+        location.reload();
+
         claimButton.disabled = true;
         claimButton.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Already Claimed`;
         claimButton.classList.replace("bg-yellow-600", "bg-gray-600");
