@@ -8,6 +8,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <style>
     ::-webkit-scrollbar { display: none; }
     .crop-container img {
@@ -55,7 +57,6 @@
 
   <section class="w-full max-w-md px-4 mt-8 space-y-6" id="gallery">Memuat...</section>
 
-  <!-- Modal Crop -->
   <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
     <div class="bg-[#1a1a1a] p-4 rounded-lg max-w-md w-full">
       <h3 class="text-center text-lg font-semibold mb-3">Crop Foto</h3>
@@ -71,32 +72,30 @@
 
   <script>
     lucide.createIcons();
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
+      authDomain: "visitorwebauv4.firebaseapp.com",
+      databaseURL: "https://visitorwebauv4-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "visitorwebauv4",
+      storageBucket: "visitorwebauv4.appspot.com",
+      messagingSenderId: "323012132107",
+      appId: "1:323012132107:web:269ac2eb2c1f139a4b360e",
+      measurementId: "G-TLVS3CB9K3"
+    };
 
-    const allT = { a: "ghp_qwQtP", b: "ZLFwHLHoE9xTH5eE", c: "UmRyoVwbQ40ixPS" };
-    const githubToken = allT.a + allT.b + allT.c;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const toggleFormBtn = document.getElementById("toggleFormBtn");
-    const uploadForm = document.getElementById("uploadForm");
-    const fileInput = document.getElementById("fileInput");
-    const captionInput = document.getElementById("captionInput");
-    const statusText = document.getElementById("uploadStatus");
-    const submitBtn = document.getElementById("submitBtn");
+    const BASE_API = "https://apianimeuniverse-production.up.railway.app";
+
+    const token = "ghp_qwQtPZLFwHLHoE9" + "xTH5eEUmRyoVwbQ40ixPS"
+    const githubToken = token;
     const gallery = document.getElementById("gallery");
 
-    let cropper;
-    let croppedBlob;
+    let croppedBlob, cropper;
 
-    toggleFormBtn.addEventListener("click", () => {
-      const isHidden = uploadForm.classList.contains("hidden");
-      uploadForm.classList.toggle("hidden");
-      toggleFormBtn.innerHTML = isHidden
-        ? '<i data-lucide="x-circle" class="w-5 h-5"></i> Tutup'
-        : '<i data-lucide="plus-circle" class="w-5 h-5"></i> Buat Postingan';
-      lucide.createIcons();
-    });
-
-    fileInput.addEventListener("change", () => {
-      const file = fileInput.files[0];
+    document.getElementById("fileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
       if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = () => {
@@ -117,125 +116,57 @@
 
     document.getElementById("cancelCrop").addEventListener("click", () => {
       cropper?.destroy();
-      cropper = null;
       croppedBlob = null;
       document.getElementById("cropModal").classList.add("hidden");
-      fileInput.value = "";
     });
 
     document.getElementById("confirmCrop").addEventListener("click", () => {
       if (cropper) {
-        cropper.getCroppedCanvas({ fillColor: "#0e0e0e" }).toBlob(blob => {
+        cropper.getCroppedCanvas().toBlob(blob => {
           croppedBlob = blob;
           cropper.destroy();
-          cropper = null;
           document.getElementById("cropModal").classList.add("hidden");
-        }, fileInput.files[0].type);
+        });
       }
     });
 
-    uploadForm.addEventListener("submit", async (e) => {
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      statusText.textContent = "Tunggu...";
-      submitBtn.disabled = true;
-      submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+      const caption = document.getElementById("captionInput").value.trim();
+      const statusText = document.getElementById("uploadStatus");
+      const submitBtn = document.getElementById("submitBtn");
 
-      const caption = captionInput.value.trim();
-
-      if (!croppedBlob || !caption) {
-        statusText.textContent = "Pastikan foto sudah dicrop dan caption diisi.";
-        hideStatusTextAfterDelay();
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        return;
-      }
-
-      if (!/^[^|/]+$/.test(caption)) {
-        statusText.textContent = "Caption mengandung karakter tidak diperbolehkan.";
-        hideStatusTextAfterDelay();
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        return;
-      }
+      if (!croppedBlob || !caption) return statusText.textContent = "Isi semua data";
 
       const reader = new FileReader();
-      reader.onload = async function () {
+      reader.onload = async () => {
         const base64 = reader.result.split(",")[1];
-        const ext = fileInput.files[0].type.split("/")[1];
+        const ext = document.getElementById("fileInput").files[0].type.split("/")[1];
         const timestamp = Date.now();
-        const filename = `${caption}|${timestamp}.${ext}`;
-
-        const repo = "rifaichump/database";
-        const path = `freepost/${filename}`;
-        const message = `Menambahkan file ${caption}`;
-        const body = { message, content: base64 };
+        const filename = `${caption}|${timestamp}.${ext}`
+        if(localStorage.getItem("loginStatus") === "loggedIn") {
+          const nomor = localStorage.getItem("nomor");
+          if(localStorage.getItem("nomor")) filename = `${caption}|${nomor}|${timestamp}.${ext}`;
+        }
 
         try {
-          const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+          const res = await fetch(`https://api.github.com/repos/rifaichump/database/contents/freepost/${filename}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${githubToken}`
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({ message: `Upload ${filename}`, content: base64 })
           });
 
-          if (res.ok) {
-            statusText.textContent = "✅ Berhasil diupload!, Postingan baru akan muncul 15-30 Detik";
-            hideStatusTextAfterDelay();
-            uploadForm.reset();
-            croppedBlob = null;
-            fileInput.value = "";
-            setTimeout(() => fetchFreepostGallery(), 3000);
-          } else {
-            const err = await res.json();
-            statusText.textContent = `❌ Gagal: ${err.message}`;
-            hideStatusTextAfterDelay();
-          }
+          statusText.textContent = res.ok ? "✅ Berhasil upload!" : "❌ Upload gagal.";
+          setTimeout(() => fetchFreepostGallery(), 2000);
         } catch (err) {
-          statusText.textContent = "❌ Gagal koneksi.";
-          hideStatusTextAfterDelay();
+          statusText.textContent = "❌ Error koneksi.";
         }
-
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
       };
-
       reader.readAsDataURL(croppedBlob);
     });
-
-    function hideStatusTextAfterDelay() {
-      setTimeout(() => {
-        statusText.textContent = "";
-      }, 2000);
-    }
-
-    function timeAgo(timestamp) {
-      const seconds = Math.floor((Date.now() - timestamp) / 1000);
-      const units = [
-        { label: "tahun", seconds: 31536000 },
-        { label: "bulan", seconds: 2592000 },
-        { label: "minggu", seconds: 604800 },
-        { label: "hari", seconds: 86400 },
-        { label: "jam", seconds: 3600 },
-        { label: "menit", seconds: 60 },
-        { label: "detik", seconds: 1 }
-      ];
-
-      for (const unit of units) {
-        const count = Math.floor(seconds / unit.seconds);
-        if (count > 0) return `${count} ${unit.label} yang lalu`;
-      }
-      return "baru saja";
-    }
-
-    function formatDateFromTimestamp(timestamp) {
-      const date = new Date(Number(timestamp));
-      if (isNaN(date)) return "Tanggal tidak valid";
-      const waktu = date.toLocaleString("id-ID");
-      const relatif = timeAgo(Number(timestamp));
-      return `${waktu} (${relatif})`;
-    }
 
     async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
@@ -247,20 +178,43 @@
           headers: { "Authorization": `Bearer ${githubToken}` }
         });
         const files = await response.json();
-        if (!Array.isArray(files)) throw new Error("Folder tidak ditemukan atau repo private.");
+        if (!Array.isArray(files)) throw new Error("Tidak ada file");
 
-        const validImages = files.filter(file =>
+        const validImages = await Promise.all(files.filter(file =>
           file.type === "file" && /\.(jpg|jpeg|png|webp)$/i.test(file.name)
-        ).map(file => {
-          const [caption, timestampWithExt] = file.name.split("|");
-          const [timestamp] = timestampWithExt.split(".");
+        ).map(async file => {
+          const parts = file.name.split("|");
+          let caption = "Tanpa Caption", nomor = false, timestamp = "";
+          if (parts.length === 3) [caption, nomor, timestamp] = parts;
+          else if (parts.length === 2) [caption, timestamp] = parts;
+          timestamp = timestamp.split(".")[0];
+          let username = "ANONYMOUS";
+          let profileUrl = "./none.png";
+          if (nomor) {
+            try {
+              const snap = await db.ref("users/" + nomor).once("value");
+              if (snap.exists()) {
+                username = snap.val()?.nama || "ANONYMOUS";
+                const res = await fetch(BASE_API + "/info-user", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ nomor, profile: true })
+                });
+                const data = await res.json();
+                if (data?.data?.profileUrl) profileUrl = data.data.profileUrl;
+              }
+            } catch (e) {
+              console.error("Gagal ambil profil:", e.message);
+            }
+          }
           return {
             url: `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`,
             caption,
             timestamp,
-            fullName: file.name
+            username,
+            profileUrl
           };
-        });
+        }));
 
         if (sortBy === "baru") validImages.sort((a, b) => b.timestamp - a.timestamp);
         else if (sortBy === "lama") validImages.sort((a, b) => a.timestamp - b.timestamp);
@@ -282,21 +236,64 @@
           caption.textContent = item.caption;
           caption.className = "text-sm text-gray-300";
 
+          const profileWrapper = document.createElement("div");
+          profileWrapper.className = "flex items-center gap-2 mb-1";
+
+          const avatar = document.createElement("img");
+          avatar.src = item.profileUrl;
+          avatar.alt = item.username;
+          avatar.className = "w-4 h-4 rounded-full object-cover";
+          avatar.onerror = () => "./none.png";
+
+          const userName = document.createElement("span");
+          userName.textContent = item.username;
+          userName.className = "text-xs text-gray-400";
+
+          profileWrapper.appendChild(avatar);
+          profileWrapper.appendChild(userName);
+
           const date = document.createElement("p");
           date.textContent = formatDateFromTimestamp(item.timestamp);
           date.className = "text-xs text-gray-500";
 
           wrapper.appendChild(img);
           wrapper.appendChild(caption);
+          wrapper.appendChild(profileWrapper);
           wrapper.appendChild(date);
+
           container.appendChild(wrapper);
         });
 
       } catch (err) {
-        console.error(err);
-        container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar: ${err.message}</p>`;
+        container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
       }
     }
+
+    function formatDateFromTimestamp(timestamp) {
+      const date = new Date(Number(timestamp));
+      if (isNaN(date)) return "Tanggal tidak valid";
+      const waktu = date.toLocaleString("id-ID");
+      const secondsAgo = Math.floor((Date.now() - timestamp) / 1000);
+      const timeUnits = [
+        { label: "tahun", seconds: 31536000 },
+        { label: "bulan", seconds: 2592000 },
+        { label: "minggu", seconds: 604800 },
+        { label: "hari", seconds: 86400 },
+        { label: "jam", seconds: 3600 },
+        { label: "menit", seconds: 60 },
+        { label: "detik", seconds: 1 }
+      ];
+      for (const unit of timeUnits) {
+        const count = Math.floor(secondsAgo / unit.seconds);
+        if (count > 0) return `${waktu} (${count} ${unit.label} yang lalu)`;
+      }
+      return `${waktu} (baru saja)`;
+    }
+
+    document.getElementById("toggleFormBtn").addEventListener("click", () => {
+      const uploadForm = document.getElementById("uploadForm");
+      uploadForm.classList.toggle("hidden");
+    });
 
     document.getElementById("sortSelect").addEventListener("change", function () {
       fetchFreepostGallery("gallery", this.value);
