@@ -334,7 +334,6 @@ function lazyLoadImages() {
 function formatDateFromTimestamp(timestamp) {
   const date = new Date(Number(timestamp));
   if (isNaN(date)) return "Tanggal tidak valid";
-  const waktu = date.toLocaleString("id-ID");
   const secondsAgo = Math.floor((Date.now() - timestamp) / 1000);
   const timeUnits = [
     { label: "tahun", seconds: 31536000 },
@@ -347,9 +346,9 @@ function formatDateFromTimestamp(timestamp) {
   ];
   for (const unit of timeUnits) {
     const count = Math.floor(secondsAgo / unit.seconds);
-    if (count > 0) return `${waktu} (${count} ${unit.label} yang lalu)`;
+    if (count > 0) return `${count} ${unit.label} yang lalu`;
   }
-  return `${waktu} (baru saja)`;
+  return `Baru saja`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
