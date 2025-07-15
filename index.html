@@ -25,7 +25,7 @@
     #loadingBar {
       width: 0%;
       height: 4px;
-      background-color: #3b82f6;
+      background-color: #00a6ff;
       position: fixed;
       top: 0;
       left: 0;
@@ -43,8 +43,7 @@
       <span id="visitorCount">0</span>
     </div>
 
-    <div class="flex items-center gap-2">
-      <i data-lucide="image" class="w-5 h-5 text-blue-500"></i>
+    <div id="userPicture" class="flex items-center gap-2">
       <h1 id="username" class="text-lg font-semibold"></h1>
     </div>
 
@@ -110,7 +109,7 @@
 
   <div id="berandaSection" class="w-full">
     <section class="w-full flex flex-col items-center px-4 mt-6">
-      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <div class="bg-[#1e1e1e] p-4 rounded-2xl shadow-xl max-w-md w-full">
         <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Server Minecraft</h2>
         <div id="mcStatus" class="bg-[#2a2a2a] p-4 rounded-lg text-sm space-y-2 text-gray-300">
           <p>Memuat server...</p>
@@ -119,21 +118,21 @@
     </section>
 
     <section class="w-full flex flex-col items-center px-4 mt-6">
-      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <div class="bg-[#1e1e1e] p-4 rounded-2xl shadow-xl max-w-md w-full">
         <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Minecraft Fotbar</h2>
         <div id="minecraftFotbar" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
       </div>
     </section>
 
     <section class="w-full flex flex-col items-center px-4 mt-6">
-      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <div class="bg-[#1e1e1e] p-4 rounded-2xl shadow-xl max-w-md w-full">
         <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Gambar Random</h2>
         <div id="gambarRandom" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
       </div>
     </section>
 
     <section class="w-full flex flex-col items-center px-4 mt-6">
-      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+      <div class="bg-[#1e1e1e] p-4 rounded-2xl shadow-xl max-w-md w-full">
         <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Nezuko Universe</h2>
         <div id="nezukoUniverse" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
       </div>
@@ -143,14 +142,14 @@
   <div id="freepostSection" class="w-full hidden flex justify-center">
     <div class="w-full max-w-md">
       <section class="mt-6 px-4">
-        <button id="toggleFormBtn" class="w-full text-green-400 hover:text-green-300 py-2 rounded font-semibold flex items-center justify-center gap-2 mb-4">
+        <button id="toggleFormBtn" class="bg-[#1e1e1e] w-full text-green-400 hover:text-green-300 py-2 rounded font-semibold flex items-center justify-center gap-2 mb-4">
           <i data-lucide="plus-circle" class="w-5 h-5"></i>
           <span id="toggleFormText">Buat Postingan</span>
         </button>
         <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
           <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
-          <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
-          <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+          <input type="file" id="fileInput" accept="image/*" required class="w-full bg-[#1e1e1e] text-sm px-3 py-2 rounded"/>
+          <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-[#1e1e1e] px-3 py-2 rounded text-sm" />
           <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded flex items-center justify-center gap-2">
             <i data-lucide="upload-cloud" class="w-5 h-5"></i> Upload
           </button>
@@ -158,7 +157,7 @@
         </form>
       </section>
       <div class="w-full px-4 mt-4">
-        <select id="sortSelect" class="w-full bg-gray-800 text-white text-sm px-3 py-2 rounded">
+        <select id="sortSelect" class="w-full bg-[#1e1e1e] text-white text-sm px-3 py-2 rounded">
           <option value="baru">Terbaru</option>
           <option value="lama">Terlama</option>
           <option value="az">Dari A-Z</option>

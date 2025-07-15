@@ -326,6 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById('menuBtn');
   const menuDropdown = document.getElementById('menuDropdown');
   const userName = document.getElementById('username');
+  const userPicture = document.getElementById("userPicture");
 
   menuBtn.addEventListener('click', () => {
     menuDropdown.classList.toggle('hidden');
@@ -339,14 +340,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (localStorage.getItem("loginStatus") === "loggedIn") {
     const usersRef = db.ref("users/" + localStorage.getItem("nomor"));
-    usersRef.once("value", (snap) => {
+    usersRef.once("value", async (snap) => {
       if (!snap.exists()) {
         localStorage.removeItem("loginStatus");
         localStorage.removeItem("nomor");
         location.reload();
       } else {
+        const res = await fetch(BASE_API + "/info-user", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nomor: localStorage.getItem("nomor"), profile: true })
+        }).then(data => data.json())
+
         const logoutBtn = document.createElement("button");
         const myProfile = document.createElement("button");
+        const img = document.createElement("img");
+        img.src = res?.data?.profileUrl ?? './none.png';
+        img.alt = "Profile";
+        img.className = "w-7 h-7 rounded-full object-cover border border-gray-600"
+
         const username = snap.val().nama;
 
         logoutBtn.className = "w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2";
@@ -361,12 +375,14 @@ document.addEventListener("DOMContentLoaded", () => {
         myProfile.innerHTML = `<i data-lucide="user-pen" class="w-4 h-4"></i> Profile Saya`;
         myProfile.onclick = () => window.location.href = "./profile.html";
 
-        userName.textContent = "Hai, " + username;
+        userName.textContent = username;
         menuDropdown.insertBefore(myProfile, menuDropdown.firstChild);
         menuDropdown.insertBefore(logoutBtn, menuDropdown.firstChild);
         menuDropdown.querySelector("button[onclick*='login']").remove();
+        userPicture.insertBefore(img, userPicture.firstChild);
         lucide.createIcons();
       }
+      updateLoadingProgress();
     });
   }
 
