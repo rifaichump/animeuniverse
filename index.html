@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Group AU</title>
+  <title>Group AU + Freepost</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
   <style>
     ::-webkit-scrollbar { display: none; }
+    .lazy-img { opacity: 0; transition: opacity 0.5s ease; }
+    .lazy-img.loaded { opacity: 1; }
     @keyframes borderColorChange {
       0% { border-color: #3b82f6; }
       25% { border-color: #10b981; }
@@ -20,7 +24,7 @@
     }
   </style>
 </head>
-<body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center relative">
+<body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center">
 
   <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
     <div class="flex items-center text-sm text-gray-300">
@@ -28,11 +32,14 @@
       <span id="visitorCount">0</span>
     </div>
 
-    <h1 id="username" class="text-lg font-semibold"></h1>
+    <div class="flex items-center gap-2">
+      <i data-lucide="image" class="w-5 h-5 text-blue-500"></i>
+      <h1 id="username" class="text-lg font-semibold"></h1>
+    </div>
 
     <div class="relative">
-      <button id="menuBtn" class="bg-gray-800 hover:bg-gray-700 p-2 rounded-md flex items-center justify-center w-10 h-10">
-        <i id="menuIcon" data-lucide="menu" class="w-5 h-5"></i>
+      <button id="menuBtn" class="p-2 rounded-md flex items-center justify-center w-10 h-10">
+        <i id="menuIcon" data-lucide="menu" class="w-5 h-5 text-gray-300"></i>
       </button>
       <div id="menuDropdown" class="hidden absolute right-0 mt-2 bg-[#2a2a2a] rounded-md shadow-lg w-40 z-10 text-sm">
         <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./login.html'">
@@ -43,9 +50,6 @@
         </button>
         <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./delete.html'">
           <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Foto
-        </button>
-        <button class="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2" onclick="location.href='./freepost.html'">
-          <i data-lucide="message-circle" class="w-4 h-4"></i> Freepost
         </button>
       </div>
     </div>
@@ -60,7 +64,6 @@
       </div>
     </div>
   </section>
-
 
   <section class="flex flex-wrap mt-4 mb-8 px-4 w-full justify-center gap-2">
     <a class="flex-1 min-w-[28%] sm:min-w-[100px] px-[3vw] py-[1.8vw] sm:px-3 sm:py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded-md transition flex items-center justify-center gap-1.5 text-center"
@@ -77,44 +80,93 @@
     </a>
   </section>
 
-  <section class="w-full flex flex-col items-center px-4 mb-10">
-    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
-      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Server Minecraft</h2>
-      <div id="mcStatus" class="bg-[#2a2a2a] p-4 rounded-lg text-sm space-y-2 text-gray-300">
-        <p>Memuat server...</p>
+  <div class="w-full max-w-md flex justify-center gap-2 mt-4">
+    <button id="tabBeranda" class="flex-1 text-white py-2 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-2">
+      <i data-lucide="home" class="w-4 h-4"></i> Beranda
+    </button>
+    <button id="tabFreepost" class="flex-1 text-white py-2 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-2">
+      <i data-lucide="gallery-horizontal" class="w-4 h-4"></i> Freepost
+    </button>
+  </div>
+
+  <div id="berandaSection" class="w-full">
+    <section class="w-full flex flex-col items-center px-4 mt-6">
+      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+        <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Server Minecraft</h2>
+        <div id="mcStatus" class="bg-[#2a2a2a] p-4 rounded-lg text-sm space-y-2 text-gray-300">
+          <p>Memuat server...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full flex flex-col items-center px-4 mt-6">
+      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+        <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Minecraft Fotbar</h2>
+        <div id="minecraftFotbar" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
+      </div>
+    </section>
+
+    <section class="w-full flex flex-col items-center px-4 mt-6">
+      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+        <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Gambar Random</h2>
+        <div id="gambarRandom" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
+      </div>
+    </section>
+
+    <section class="w-full flex flex-col items-center px-4 mt-6">
+      <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
+        <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Nezuko Universe</h2>
+        <div id="nezukoUniverse" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="freepostSection" class="w-full hidden flex justify-center">
+    <div class="w-full max-w-md">
+      <section class="mt-6 px-4">
+        <button id="toggleFormBtn" class="w-full text-green-400 hover:text-green-300 py-2 rounded font-semibold flex items-center justify-center gap-2 mb-4">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+          <span id="toggleFormText">Buat Postingan</span>
+        </button>
+        <form id="uploadForm" class="bg-[#1a1a1a] p-4 rounded-lg shadow space-y-4 hidden">
+          <h2 class="text-lg font-semibold mb-2">Kirim Foto</h2>
+          <input type="file" id="fileInput" accept="image/*" required class="w-full bg-gray-800 text-sm px-3 py-2 rounded"/>
+          <input type="text" id="captionInput" placeholder="Caption..." required class="w-full bg-gray-800 px-3 py-2 rounded text-sm" />
+          <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded flex items-center justify-center gap-2">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i> Upload
+          </button>
+          <p id="uploadStatus" class="text-xs text-center text-gray-400 mt-2"></p>
+        </form>
+      </section>
+      <div class="w-full px-4 mt-4">
+        <select id="sortSelect" class="w-full bg-gray-800 text-white text-sm px-3 py-2 rounded">
+          <option value="baru">Terbaru</option>
+          <option value="lama">Terlama</option>
+          <option value="az">Dari A-Z</option>
+          <option value="za">Dari Z-A</option>
+        </select>
+      </div>
+      <section class="w-full px-4 mt-8 space-y-6" id="gallery">Memuat...</section>
+    </div>
+  </div>
+
+  <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="bg-[#1a1a1a] p-4 rounded-lg max-w-md w-full">
+      <h3 class="text-center text-lg font-semibold mb-3">Crop Foto</h3>
+      <div class="crop-container">
+        <img id="cropImage" class="rounded" />
+      </div>
+      <div class="mt-4 flex justify-center gap-4">
+        <button id="cancelCrop" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded text-sm">Batal</button>
+        <button id="confirmCrop" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm">Simpan</button>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="w-full flex flex-col items-center px-4 mb-10">
-    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
-      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Minecraft Fotbar</h2>
-      <div id="minecraftFotbar" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4">
-      </div>
-    </div>
-  </section>
-
-  <section class="w-full flex flex-col items-center px-4 mb-10">
-    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
-      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Gambar Random</h2>
-      <div id="gambarRandom" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4">
-      </div>
-    </div>
-  </section>
-
-  <section class="w-full flex flex-col items-center px-4 mb-10">
-    <div class="bg-gray-800 p-4 rounded-2xl shadow-xl max-w-md w-full">
-      <h2 class="text-xl font-semibold text-gray-200 mb-4 text-center">Nezuko Universe</h2>
-      <div id="nezukoUniverse" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-4">
-      </div>
-    </div>
-  </section>
-
-  <footer class="text-gray-500 text-xs py-4">
+  <footer class="text-gray-500 text-xs py-4 text-center">
     &copy; 2025 Built by Rifai.
   </footer>
 
-  <!-- JS -->
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
