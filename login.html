@@ -115,7 +115,7 @@
         const res = await fetch(BASE_API + "/info-group", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id })
+          body: JSON.stringify({ id: "120363043559522563@g.us" })
         });
         const data = await res.json();
         return data.data.participants.map(v => v.id.split("@")[0]).includes(nomor);
