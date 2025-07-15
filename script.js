@@ -281,7 +281,11 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       caption.className = "text-sm text-gray-300";
 
       const profileWrapper = document.createElement("div");
-      profileWrapper.className = "flex items-center gap-2 mb-1";
+      profileWrapper.className = "flex items-center justify-between gap-2 mb-1";
+
+      // Kiri: Foto profil + nama
+      const profileLeft = document.createElement("div");
+      profileLeft.className = "flex items-center gap-2";
 
       const avatar = document.createElement("img");
       avatar.src = item.profileUrl;
@@ -293,17 +297,19 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       userName.innerHTML = item.username + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
       userName.className = "text-xs text-gray-400";
 
-      profileWrapper.appendChild(avatar);
-      profileWrapper.appendChild(userName);
+      profileLeft.appendChild(avatar);
+      profileLeft.appendChild(userName);
 
-      const date = document.createElement("p");
+      const date = document.createElement("span");
       date.textContent = formatDateFromTimestamp(item.timestamp);
-      date.className = "text-xs text-gray-500";
+      date.className = "text-xs text-gray-500 ml-auto";
+
+      profileWrapper.appendChild(profileLeft);
+      profileWrapper.appendChild(date);
 
       wrapper.appendChild(img);
       wrapper.appendChild(caption);
       wrapper.appendChild(profileWrapper);
-      wrapper.appendChild(date);
 
       container.appendChild(wrapper);
     });
