@@ -46,14 +46,46 @@ const visitedKey = "hasVisitedAnimeAU";
 const gallery = document.getElementById("gallery");
 
 let croppedBlob, cropper;
+let lastImageURL = null;
 
+document.getElementById("toggleFormBtn").addEventListener("click", () => {
+  document.getElementById("formModal").classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+});
+
+document.getElementById("closeFormBtn").addEventListener("click", () => {
+  document.getElementById("formModal").classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+  document.getElementById("uploadForm").reset();
+  
+  croppedBlob = null;
+  lastImageURL = null;
+  document.getElementById("previewImage").classList.add("hidden");
+  document.getElementById("previewImage").src = "";
+  document.getElementById("recropBtn").classList.add("hidden");
+  document.getElementById("cropModal").classList.add("hidden");
+  cropper?.destroy();
+});
 
 if (document.getElementById("fileInput")) {
   document.getElementById("fileInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
+
+    if (!file) {
+      croppedBlob = null;
+      lastImageURL = null;
+      document.getElementById("previewImage").classList.add("hidden");
+      document.getElementById("previewImage").src = "";
+      document.getElementById("recropBtn").classList.add("hidden");
+      document.getElementById("cropModal").classList.add("hidden");
+      cropper?.destroy();
+      return;
+    }
+
+    if (file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = () => {
+        lastImageURL = reader.result;
         document.getElementById("cropImage").src = reader.result;
         document.getElementById("cropModal").classList.remove("hidden");
         setTimeout(() => {
@@ -73,6 +105,7 @@ if (document.getElementById("fileInput")) {
     cropper?.destroy();
     croppedBlob = null;
     document.getElementById("cropModal").classList.add("hidden");
+    document.getElementById("uploadForm").reset();
   });
 
   document.getElementById("confirmCrop").addEventListener("click", () => {
@@ -81,33 +114,45 @@ if (document.getElementById("fileInput")) {
         croppedBlob = blob;
         cropper.destroy();
         document.getElementById("cropModal").classList.add("hidden");
+
+        const previewURL = URL.createObjectURL(blob);
+        const previewImg = document.getElementById("previewImage");
+        previewImg.src = previewURL;
+        previewImg.classList.remove("hidden");
+        document.getElementById("recropBtn").classList.remove("hidden");
       });
     }
   });
-  
-  document.getElementById("fileInput").addEventListener("click", () => {
-    if (cropper) {
-      cropper.getCroppedCanvas().toBlob(blob => {
-        croppedBlob = blob;
-        cropper.destroy();
-        document.getElementById("cropModal").classList.add("hidden");
-      });
+
+  document.getElementById("recropBtn").addEventListener("click", () => {
+    if (lastImageURL) {
+      document.getElementById("cropImage").src = lastImageURL;
+      document.getElementById("cropModal").classList.remove("hidden");
+
+      setTimeout(() => {
+        cropper = new Cropper(document.getElementById("cropImage"), {
+          aspectRatio: NaN,
+          viewMode: 1,
+          autoCropArea: 1,
+          background: false
+        });
+      }, 200);
     }
-  })
-
-  const toggleFormBtn = document.getElementById("toggleFormBtn");
-  const toggleFormText = document.getElementById("toggleFormText");
-  const uploadForm = document.getElementById("uploadForm");
-
-  toggleFormBtn.addEventListener("click", () => {
-    const isFormVisible = !uploadForm.classList.contains("hidden");
-    uploadForm.classList.toggle("hidden");
-
-    toggleFormText.textContent = isFormVisible ? "Buat Postingan" : "Batalkan";
-    toggleFormBtn.querySelector("i").setAttribute("data-lucide", isFormVisible ? "plus-circle" : "x-circle");
-
-    lucide.createIcons();
   });
+
+  // const toggleFormBtn = document.getElementById("toggleFormBtn");
+  // const toggleFormText = document.getElementById("toggleFormText");
+  // const uploadForm = document.getElementById("uploadForm");
+
+  // toggleFormBtn.addEventListener("click", () => {
+  //   const isFormVisible = !uploadForm.classList.contains("hidden");
+  //   uploadForm.classList.toggle("hidden");
+
+  //   toggleFormText.textContent = isFormVisible ? "Buat Postingan" : "Batalkan";
+  //   toggleFormBtn.querySelector("i").setAttribute("data-lucide", isFormVisible ? "plus-circle" : "x-circle");
+
+  //   lucide.createIcons();
+  // });
 
   document.getElementById("uploadForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -141,9 +186,13 @@ if (document.getElementById("fileInput")) {
 
         if (res.ok) {
           statusText.textContent = "✅ Berhasil upload!, Postingan kamu akan muncul 15-30 detik kemudian di karenakan proses pembuatan cdn ke server";
-          document.getElementById("uploadForm").reset();
-          croppedBlob = null;
           setTimeout(() => {
+            document.getElementById("formModal").classList.add("hidden");
+            document.body.classList.remove("overflow-hidden");
+            document.getElementById("uploadForm").reset();
+            document.getElementById("previewImage").classList.add("hidden");
+            document.getElementById("previewImage").src = "";
+            croppedBlob = null;
             statusText.textContent = "";
             fetchFreepostGallery();
           }, 5000);

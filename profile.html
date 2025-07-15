@@ -123,6 +123,8 @@
     .then(res => res.json())
     .then(async res => {
       if (res.status && res.data) {
+        console.log(res.data);
+
         const { profileUrl, money, coin, limit, lastclaim, isAdmin } = res.data;
         alreadyClaimed = !(new Date - lastclaim > 3600000 * 12);
         moneyNow = money ?? 0;
