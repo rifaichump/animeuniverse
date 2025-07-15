@@ -84,6 +84,16 @@ if (document.getElementById("fileInput")) {
       });
     }
   });
+  
+  document.getElementById("fileInput").addEventListener("click", () => {
+    if (cropper) {
+      cropper.getCroppedCanvas().toBlob(blob => {
+        croppedBlob = blob;
+        cropper.destroy();
+        document.getElementById("cropModal").classList.add("hidden");
+      });
+    }
+  })
 
   const toggleFormBtn = document.getElementById("toggleFormBtn");
   const toggleFormText = document.getElementById("toggleFormText");
@@ -133,7 +143,6 @@ if (document.getElementById("fileInput")) {
           statusText.textContent = "✅ Berhasil upload!, Postingan kamu akan muncul 15-30 detik kemudian di karenakan proses pembuatan cdn ke server";
           document.getElementById("uploadForm").reset();
           croppedBlob = null;
-          document.getElementById("uploadForm").classList.add("hidden");
           setTimeout(() => {
             statusText.textContent = "";
             fetchFreepostGallery();
