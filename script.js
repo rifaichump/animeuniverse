@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const img = document.createElement("img");
         img.src = res?.data?.profileUrl ?? './none.png';
         img.alt = "Profile";
-        img.className = "w-7 h-7 rounded-full object-cover border border-gray-600"
+        img.className = "w-5 h-5 rounded-full object-cover border border-gray-600"
 
         const username = snap.val().nama;
 
