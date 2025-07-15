@@ -22,9 +22,20 @@
     .animated-border {
       animation: borderColorChange 5s infinite;
     }
+    #loadingBar {
+      width: 0%;
+      height: 4px;
+      background-color: #3b82f6;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+      transition: width 0.5s ease, opacity 0.3s ease;
+    }
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans min-h-screen flex flex-col items-center">
+  <div id="loadingBar"></div>
 
   <nav class="w-full px-4 py-2 flex justify-between items-center bg-[#1a1a1a] shadow-md text-base">
     <div class="flex items-center text-sm text-gray-300">
@@ -177,4 +188,5 @@
 
   <script src="script.js"></script>
 </body>
+<div id="loadingBar" class="fixed top-0 left-0 h-1 bg-blue-500 z-50 animate-loading-bar"></div>
 </html>

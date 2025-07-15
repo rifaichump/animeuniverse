@@ -1,5 +1,23 @@
 lucide.createIcons();
 
+const loadingBar = document.getElementById("loadingBar");
+let loadingProgress = 0;
+let totalTasks = 5;
+
+function updateLoadingProgress() {
+  loadingProgress++;
+  const progressPercentage = Math.min((loadingProgress / totalTasks) * 100, 100);
+  loadingBar.style.width = `${progressPercentage}%`;
+
+  if (progressPercentage >= 100) {
+    setTimeout(() => {
+      loadingBar.style.opacity = 0;
+      setTimeout(() => loadingBar.remove(), 300);
+    }, 500);
+  }
+}
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
   authDomain: "visitorwebauv4.firebaseapp.com",
@@ -223,7 +241,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
     });
 
     lazyLoadImages();
-
+    updateLoadingProgress();
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
   }
@@ -388,6 +406,7 @@ async function fetchMCStatsStatus() {
   } catch (err) {
     statusBox.innerHTML = `<p class="text-red-400">Gagal mengambil data</p>`;
   }
+  updateLoadingProgress();
 }
 
 fetchMCStatsStatus();
@@ -409,6 +428,7 @@ async function loadProfileData() {
     document.getElementById("profileTitle").textContent = "Anime Universe";
     document.getElementById("profileDesc").textContent = "Grup sosial";
   }
+  updateLoadingProgress();
 }
 
 async function fetchGalleryImages(id, folderPath) {
@@ -439,6 +459,7 @@ async function fetchGalleryImages(id, folderPath) {
 
         container.appendChild(slide);
       });
+    updateLoadingProgress();
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar. Upload terlebih dahulu</p>`;
   }
