@@ -27,9 +27,10 @@
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
 
   <div class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4">
-    <img id="profileImage" src="./profile.jpg" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4 animated-border" />
+    <img id="profileImage" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4 animated-border" />
 
     <h1 id="profileTitle" class="text-2xl font-bold text-gray-100">...</h1>
+    <p id="creationDate" class="text-xs text-gray-400">...</p>
     <p class="text-sm text-gray-400">
       Selamat datang di Anime Universe Season 4!<br />
       Komunitas pecinta anime, manga, dan game. Di sini kamu bisa:
@@ -42,18 +43,22 @@
     </p>
 
     <div class="flex flex-col gap-3">
-      <a href="https://chat.whatsapp.com/FMFBe4kJwao4xJIBWYzdy0" target="_blank" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 py-2 rounded-lg transition">
+      <a href="https://chat.whatsapp.com/FMFBe4kJwao4xJIBWYzdy0" target="_blank"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="message-circle" class="w-4 h-4"></i> Grup WhatsApp
       </a>
-      <a href="https://whatsapp.com/channel/0029VaWaUrD1XquPeK01cf2c" target="_blank" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 py-2 rounded-lg transition">
+      <a href="https://whatsapp.com/channel/0029VaWaUrD1XquPeK01cf2c" target="_blank"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
         <i data-lucide="send" class="w-4 h-4"></i> Channel WhatsApp
       </a>
-      <a href="https://tiktok.com/@animeuniverseeee" target="_blank" class="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 py-2 rounded-lg transition">
-        <i data-lucide="Music2" class="w-4 h-4"></i> Tiktok
+      <a href="https://tiktok.com/@animeuniverseeee" target="_blank"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
+        <i data-lucide="music-2" class="w-4 h-4"></i> Tiktok
       </a>
     </div>
 
-    <a href="index.html" class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition mt-4">
+    <a href="index.html"
+      class="inline-flex items-center justify-center gap-1.5 px-4 py-1 text-sm text-white rounded border border-gray-600 hover:bg-gray-700 transition mt-4">
       <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
     </a>
   </div>
@@ -61,14 +66,33 @@
   <script>
     async function loadProfileData() {
       try {
-        const res = await fetch(`https://raw.githubusercontent.com/rifaichump/database/main/infogrup/data.json`);
-        const { profileUrl, subject, size } = await res.json();
+        const res = await fetch(`https://apianimeuniverse-production.up.railway.app/info-group`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: "120363043559522563@g.us" })
+        });
+        
+        const { data: { profileUrl, subject, size, creation }} = await res.json();
 
         document.getElementById("profileImage").src = profileUrl;
         document.getElementById("profileTitle").textContent = subject;
+
+        const date = new Date(Number(creation + '000'));
+        const formatted = date.toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        document.getElementById("creationDate").textContent = `Dibuat pada ${formatted}`;
+
       } catch (error) {
         document.getElementById("profileImage").src = "./profile.jpg";
         document.getElementById("profileTitle").textContent = "Anime Universe";
+        document.getElementById("creationDate").textContent = "";
       }
     }
     loadProfileData();
