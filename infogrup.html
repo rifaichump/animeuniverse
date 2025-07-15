@@ -10,7 +10,6 @@
     ::-webkit-scrollbar {
       display: none;
     }
-
     @keyframes borderColorChange {
       0% { border-color: #3b82f6; }
       25% { border-color: #10b981; }
@@ -21,12 +20,21 @@
     .animated-border {
       animation: borderColorChange 5s infinite;
     }
-
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
 
-  <div class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4">
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="absolute inset-0 bg-[#0e0e0e] flex flex-col items-center justify-center z-50">
+    <svg class="animate-spin h-10 w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+    <p class="text-sm text-gray-300">Loading data group...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4 hidden">
     <img id="profileImage" alt="Foto Profil Grup" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4 animated-border" />
 
     <h1 id="profileTitle" class="text-2xl font-bold text-gray-100">...</h1>
@@ -88,15 +96,18 @@
         });
 
         document.getElementById("creationDate").textContent = `Dibuat pada ${formatted}`;
-
       } catch (error) {
         document.getElementById("profileImage").src = "./profile.jpg";
         document.getElementById("profileTitle").textContent = "Anime Universe";
         document.getElementById("creationDate").textContent = "";
+      } finally {
+        document.getElementById("loadingScreen").style.display = 'none';
+        document.getElementById("mainContent").classList.remove("hidden");
+        lucide.createIcons();
       }
     }
-    loadProfileData();
-    lucide.createIcons();
+
+    window.addEventListener("DOMContentLoaded", loadProfileData);
   </script>
 </body>
 </html>
