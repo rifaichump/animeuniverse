@@ -87,6 +87,11 @@
       statusMessage.textContent = pesan;
       statusMessage.className = "text-center text-sm";
       statusMessage.classList.add(warna, "block");
+
+      setTimeout(() => {
+        statusMessage.classList.add("hidden");
+        statusMessage.textContent = "";
+      }, 2000);
     }
 
     toggleBtn.addEventListener("click", () => {
