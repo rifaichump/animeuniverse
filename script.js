@@ -129,8 +129,18 @@ if (document.getElementById("fileInput")) {
           body: JSON.stringify({ message: `Upload ${filename}`, content: base64 })
         });
 
-        statusText.textContent = res.ok ? "✅ Berhasil upload!" : "❌ Upload gagal.";
-        setTimeout(() => fetchFreepostGallery(), 2000);
+        if (res.ok) {
+          statusText.textContent = "✅ Berhasil upload!, Postingan kamu akan muncul 15-30 detik kemudian di karenakan proses pembuatan cdn ke server";
+          document.getElementById("uploadForm").reset();
+          croppedBlob = null;
+          document.getElementById("uploadForm").classList.add("hidden");
+          setTimeout(() => {
+            statusText.textContent = "";
+            fetchFreepostGallery();
+          }, 5000);
+        } else {
+          statusText.textContent = "❌ Upload gagal.";
+        }
       } catch (err) {
         statusText.textContent = "❌ Error koneksi.";
       }
