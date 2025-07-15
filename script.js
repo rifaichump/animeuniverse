@@ -433,7 +433,7 @@ async function loadProfileData() {
     const res = await fetch(BASE_API + '/info-group', {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: '120363043559522563@g.us' })
+      body: JSON.stringify({ id: '120363043559522563@g.us', profile: true })
     });
     const { data: { profileUrl, subject, size } } = await res.json();
     document.getElementById("profileImage").src = profileUrl;

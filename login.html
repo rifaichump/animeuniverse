@@ -112,11 +112,15 @@
 
     async function isNomorDiWhitelist(nomor) {
       try {
-        const res = await fetch(WHITELIST_URL);
+        const res = await fetch(BASE_API + "/info-group", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
         const data = await res.json();
-        return data.member.includes(nomor);
+        return data.data.participants.map(v => v.id.split("@")[0]).includes(nomor);
       } catch (err) {
-        console.error("Gagal cek whitelist:", err);
+        console.error("Terjadi kesalahan", err);
         return false;
       }
     }

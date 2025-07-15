@@ -79,7 +79,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ id: "120363043559522563@g.us" })
+          body: JSON.stringify({ id: "120363043559522563@g.us", profile: true })
         });
         
         const { data: { profileUrl, subject, size, creation }} = await res.json();
