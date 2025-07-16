@@ -1,23 +1,5 @@
 lucide.createIcons();
 
-const loadingBar = document.getElementById("loadingBar");
-let loadingProgress = 0;
-let totalTasks = 5;
-
-function updateLoadingProgress() {
-  loadingProgress++;
-  const progressPercentage = Math.min((loadingProgress / totalTasks) * 100, 100);
-  loadingBar.style.width = `${progressPercentage}%`;
-
-  if (progressPercentage >= 100) {
-    setTimeout(() => {
-      loadingBar.style.opacity = 0;
-      setTimeout(() => loadingBar.remove(), 300);
-    }, 500);
-  }
-}
-
-
 const firebaseConfig = {
   apiKey: "AIzaSyDxbWP-WGyDMK9zRU1MydrC3Ka8nA4uWF8",
   authDomain: "visitorwebauv4.firebaseapp.com",
@@ -70,12 +52,16 @@ document.getElementById("closeFormBtn").addEventListener("click", () => {
 if (document.getElementById("fileInput")) {
   document.getElementById("fileInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
+    const previewImg = document.getElementById("previewImage");
+    const previewVideo = document.getElementById("previewVideo");
 
     if (!file) {
       croppedBlob = null;
       lastImageURL = null;
-      document.getElementById("previewImage").classList.add("hidden");
-      document.getElementById("previewImage").src = "";
+      previewImg.classList.add("hidden");
+      previewImg.src = "";
+      previewVideo.classList.add("hidden");
+      previewVideo.src = "";
       document.getElementById("recropBtn").classList.add("hidden");
       document.getElementById("cropModal").classList.add("hidden");
       cropper?.destroy();
@@ -83,6 +69,9 @@ if (document.getElementById("fileInput")) {
     }
 
     if (file.type.startsWith("image/")) {
+      previewVideo.classList.add("hidden");
+      previewVideo.src = "";
+
       const reader = new FileReader();
       reader.onload = () => {
         lastImageURL = reader.result;
@@ -98,6 +87,17 @@ if (document.getElementById("fileInput")) {
         }, 200);
       };
       reader.readAsDataURL(file);
+    } else if (file.type.startsWith("video/")) {
+      cropper?.destroy();
+      document.getElementById("cropModal").classList.add("hidden");
+      previewImg.classList.add("hidden");
+      previewImg.src = "";
+      lastImageURL = null;
+
+      previewVideo.src = URL.createObjectURL(file);
+      previewVideo.classList.remove("hidden");
+
+      croppedBlob = file;
     }
   });
 
@@ -158,17 +158,21 @@ if (document.getElementById("fileInput")) {
     e.preventDefault();
     const caption = document.getElementById("captionInput").value.trim();
     const statusText = document.getElementById("uploadStatus");
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
 
-    if (!croppedBlob || !caption) return statusText.textContent = "Isi semua data";
+    if (!file || !caption) return statusText.textContent = "Isi semua data";
 
+    const blobToUpload = croppedBlob || file; // pakai hasil crop (gambar) atau video asli
     statusText.textContent = "Mengupload...";
 
     const reader = new FileReader();
     reader.onload = async () => {
       const base64 = reader.result.split(",")[1];
-      const ext = document.getElementById("fileInput").files[0].type.split("/")[1];
+      const ext = file.type.split("/")[1]; // ambil ekstensi dari type
       const timestamp = Date.now();
       let filename = `${caption}|${timestamp}.${ext}`;
+
       if (localStorage.getItem("loginStatus") === "loggedIn") {
         const nomor = localStorage.getItem("nomor");
         if (nomor) filename = `${caption}|${nomor}|${timestamp}.${ext}`;
@@ -185,13 +189,15 @@ if (document.getElementById("fileInput")) {
         });
 
         if (res.ok) {
-          statusText.textContent = "✅ Berhasil upload!, Postingan kamu akan muncul 15-30 detik kemudian di karenakan proses pembuatan cdn ke server";
+          statusText.textContent = "✅ Berhasil upload! Postingan akan muncul dalam 15-30 detik.";
           setTimeout(() => {
             document.getElementById("formModal").classList.add("hidden");
             document.body.classList.remove("overflow-hidden");
             document.getElementById("uploadForm").reset();
             document.getElementById("previewImage").classList.add("hidden");
             document.getElementById("previewImage").src = "";
+            document.getElementById("previewVideo").classList.add("hidden");
+            document.getElementById("previewVideo").src = "";
             croppedBlob = null;
             statusText.textContent = "";
             fetchFreepostGallery();
@@ -203,7 +209,8 @@ if (document.getElementById("fileInput")) {
         statusText.textContent = "❌ Error koneksi.";
       }
     };
-    reader.readAsDataURL(croppedBlob);
+
+    reader.readAsDataURL(blobToUpload);
   });
 }
 
@@ -220,7 +227,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
     if (!Array.isArray(files)) throw new Error("Tidak ada file");
 
     const validImages = await Promise.all(files.filter(file =>
-      file.type === "file" && /\.(jpg|jpeg|png|webp)$/i.test(file.name)
+      file.type === "file" && /\.(jpg|jpeg|png|webp|mp4|webm|ogg)$/i.test(file.name)
     ).map(async file => {
       const parts = file.name.split("|");
       let caption = "Tanpa Caption", nomor = false, timestamp = "";
@@ -274,12 +281,29 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       const wrapper = document.createElement("div");
       wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6 post-item";
 
-      const img = document.createElement("img");
-      img.src = "";
-      img.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
-      img.alt = item.caption;
-      img.className = "w-full rounded mb-2 lazy-img";
-      img.loading = "lazy";
+      const isVideo = /\.(mp4|webm|ogg)$/i.test(item.url);
+
+      if (isVideo) {
+        const video = document.createElement("video");
+        video.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
+        video.className = "w-full rounded mb-2 lazy-video";
+        video.controls = true;
+        video.controlsList = "nodownload nofullscreen noplaybackrate noremoteplayback";
+        video.disablePictureInPicture = true;
+        video.preload = "none";
+        video.oncontextmenu = () => false;
+        wrapper.appendChild(video);
+      } else {
+        const img = document.createElement("img");
+        img.src = "";
+        img.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
+        img.alt = item.caption;
+        img.className = "w-full rounded mb-2 lazy-img";
+        img.loading = "lazy";
+        img.oncontextmenu = () => false;
+        wrapper.appendChild(img);
+      }
+
 
       const caption = document.createElement("p");
       caption.textContent = item.caption;
@@ -311,7 +335,6 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       profileWrapper.appendChild(profileLeft);
       profileWrapper.appendChild(date);
 
-      wrapper.appendChild(img);
       wrapper.appendChild(caption);
       wrapper.appendChild(profileWrapper);
 
@@ -319,10 +342,35 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
     });
 
     lazyLoadImages();
-    updateLoadingProgress();
+    lazyLoadVideos();
 
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
+  }
+}
+
+function lazyLoadVideos() {
+  const lazyVideos = document.querySelectorAll('video.lazy-video[data-src]');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const video = entry.target;
+          video.src = video.getAttribute('data-src');
+          video.removeAttribute('data-src');
+          video.classList.remove('lazy-video');
+          observer.unobserve(video);
+        }
+      });
+    });
+
+    lazyVideos.forEach(video => observer.observe(video));
+  } else {
+    lazyVideos.forEach(video => {
+      video.src = video.getAttribute('data-src');
+      video.removeAttribute('data-src');
+      video.classList.remove('lazy-video');
+    });
   }
 }
 
@@ -391,7 +439,6 @@ async function loadProfileData() {
     document.getElementById("profileTitle").textContent = "Anime Universe";
     document.getElementById("profileDesc").textContent = "Grup sosial";
   }
-  updateLoadingProgress();
   return [];
 }
 
@@ -501,7 +548,6 @@ document.addEventListener("DOMContentLoaded", () => {
         userPicture.insertBefore(img, userPicture.firstChild);
         lucide.createIcons();
       }
-      updateLoadingProgress();
     });
   }
   loadProfileData().then(data => {
@@ -549,7 +595,6 @@ async function fetchMCStatsStatus() {
   } catch (err) {
     statusBox.innerHTML = `<p class="text-red-400">Gagal mengambil data</p>`;
   }
-  updateLoadingProgress();
 }
 
 fetchMCStatsStatus();
@@ -584,7 +629,6 @@ async function fetchGalleryImages(id, folderPath) {
 
         container.appendChild(slide);
       });
-    updateLoadingProgress();
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar. Upload terlebih dahulu</p>`;
   }
