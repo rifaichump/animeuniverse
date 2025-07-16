@@ -375,6 +375,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
 function lazyLoadVideos() {
   const lazyVideos = document.querySelectorAll('video.lazy-video[data-src]');
+  let currentlyPlaying = null;
 
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver((entries, obs) => {
@@ -387,9 +388,19 @@ function lazyLoadVideos() {
             video.removeAttribute('data-src');
             video.classList.remove('lazy-video');
           }
+
+          if (currentlyPlaying && currentlyPlaying !== video) {
+            currentlyPlaying.pause();
+          }
+
           video.play().catch(() => {});
+          currentlyPlaying = video;
         } else {
           if (!video.paused) video.pause();
+
+          if (currentlyPlaying === video) {
+            currentlyPlaying = null;
+          }
         }
       });
     }, { threshold: 0.98 });
@@ -403,6 +414,7 @@ function lazyLoadVideos() {
     });
   }
 }
+
 
 function lazyLoadImages() {
   const lazyImages = document.querySelectorAll('img.lazy-img[data-src]');
