@@ -86,18 +86,28 @@ if (document.getElementById("fileInput")) {
           });
         }, 200);
       };
+      document.getElementById("uploadStatus").textContent = '';
+      document.getElementById("submitBtn").disabled = false;
       reader.readAsDataURL(file);
     } else if (file.type.startsWith("video/")) {
-      cropper?.destroy();
-      document.getElementById("cropModal").classList.add("hidden");
-      previewImg.classList.add("hidden");
-      previewImg.src = "";
-      lastImageURL = null;
-
-      previewVideo.src = URL.createObjectURL(file);
-      previewVideo.classList.remove("hidden");
-
-      croppedBlob = file;
+      if(localStorage.getItem("loginStatus") === "loggedIn") {
+        cropper?.destroy();
+        document.getElementById("cropModal").classList.add("hidden");
+        previewImg.classList.add("hidden");
+        previewImg.src = "";
+        lastImageURL = null;
+  
+        previewVideo.src = URL.createObjectURL(file);
+        previewVideo.classList.remove("hidden");
+        document.getElementById("uploadStatus").textContent = '';
+        document.getElementById("submitBtn").disabled = false;
+  
+        croppedBlob = file;
+      } else {
+        document.getElementById("uploadStatus").textContent = "Login agar bisa posting video!";
+        document.getElementById("submitBtn").disabled = true;
+        return;
+      }
     }
   });
 
