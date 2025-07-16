@@ -207,7 +207,6 @@ if (document.getElementById("fileInput")) {
   });
 }
 
-
 async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
   const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
   const container = document.getElementById(id);
@@ -228,9 +227,13 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       if (parts.length === 3) [caption, nomor, timestamp] = parts;
       else if (parts.length === 2) [caption, timestamp] = parts;
       timestamp = timestamp.split(".")[0];
+      timestamp = parseInt(timestamp);
+      if (isNaN(timestamp)) timestamp = Date.now();
+
       let username = "Anonymous";
       let profileUrl = "./none.png";
       let isAdmin = false;
+
       if (nomor) {
         try {
           const snap = await db.ref("users/" + nomor).once("value");
@@ -249,6 +252,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
           console.error("Gagal ambil profil:", e.message);
         }
       }
+
       return {
         url: `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`,
         caption,
@@ -271,7 +275,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6 post-item";
 
       const img = document.createElement("img");
-      img.src = ""; // atau bisa ./loading.jpg kalau punya
+      img.src = "";
       img.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
       img.alt = item.caption;
       img.className = "w-full rounded mb-2 lazy-img";
@@ -284,7 +288,6 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       const profileWrapper = document.createElement("div");
       profileWrapper.className = "flex items-center justify-between gap-2 mb-1";
 
-      // Kiri: Foto profil + nama
       const profileLeft = document.createElement("div");
       profileLeft.className = "flex items-center gap-2";
 
@@ -317,30 +320,35 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
     lazyLoadImages();
     updateLoadingProgress();
+
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
   }
 }
+
 function lazyLoadImages() {
   const lazyImages = document.querySelectorAll('img.lazy-img[data-src]');
+  if (!lazyImages.length) return;
+
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const img = entry.target;
-          img.src = img.dataset.src;
+          img.src = img.getAttribute('data-src');
           img.removeAttribute('data-src');
-          observer.unobserve(img);
+          img.classList.remove('lazy-img');
+          obs.unobserve(img);
         }
       });
     });
 
     lazyImages.forEach(img => observer.observe(img));
   } else {
-    // Browser tidak support, fallback langsung load
     lazyImages.forEach(img => {
-      img.src = img.dataset.src;
+      img.src = img.getAttribute('data-src');
       img.removeAttribute('data-src');
+      img.classList.remove('lazy-img');
     });
   }
 }
