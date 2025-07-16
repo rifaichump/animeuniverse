@@ -375,18 +375,24 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
 function lazyLoadVideos() {
   const lazyVideos = document.querySelectorAll('video.lazy-video[data-src]');
+
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
+        const video = entry.target;
+
         if (entry.isIntersecting) {
-          const video = entry.target;
-          video.src = video.getAttribute('data-src');
-          video.removeAttribute('data-src');
-          video.classList.remove('lazy-video');
-          observer.unobserve(video);
+          if (video.hasAttribute("data-src")) {
+            video.src = video.getAttribute('data-src');
+            video.removeAttribute('data-src');
+            video.classList.remove('lazy-video');
+          }
+          video.play().catch(() => {});
+        } else {
+          if (!video.paused) video.pause();
         }
       });
-    });
+    }, { threshold: 0.25 });
 
     lazyVideos.forEach(video => observer.observe(video));
   } else {
