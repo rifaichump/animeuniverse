@@ -152,7 +152,12 @@
             </button>
 
             <img id="previewImage" class="max-h-52 w-auto mx-auto rounded-lg mb-3 hidden border border-gray-700 shadow" />
-            <video id="previewVideo" class="hidden rounded w-full" controls muted></video>
+            <video id="previewVideo" class="hidden max-w-xs w-full rounded mb-2 mx-auto"
+              controls
+              controlsList="nodownload nofullscreen noplaybackrate noremoteplayback"
+              disablePictureInPicture
+              oncontextmenu="return false"
+            ></video>
 
             <h2 class="text-lg font-semibold mb-2 text-center">Buat Postingan</h2>
             <div class="flex items-center gap-2">

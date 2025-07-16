@@ -56,8 +56,6 @@ if (document.getElementById("fileInput")) {
     const previewVideo = document.getElementById("previewVideo");
 
     if (!file) {
-      croppedBlob = null;
-      lastImageURL = null;
       previewImg.classList.add("hidden");
       previewImg.src = "";
       previewVideo.classList.add("hidden");
@@ -65,6 +63,8 @@ if (document.getElementById("fileInput")) {
       document.getElementById("recropBtn").classList.add("hidden");
       document.getElementById("cropModal").classList.add("hidden");
       cropper?.destroy();
+      croppedBlob = null;
+      lastImageURL = null;
       return;
     }
 
@@ -104,18 +104,32 @@ if (document.getElementById("fileInput")) {
   
         croppedBlob = file;
       } else {
-        document.getElementById("uploadStatus").textContent = "Login agar bisa posting video!";
+        cropper?.destroy();
+        document.getElementById("cropModal").classList.add("hidden");
+        previewImg.classList.add("hidden");
+        previewImg.src = "";
+        lastImageURL = null;
+  
+        previewVideo.src = URL.createObjectURL(file);
+        previewVideo.classList.remove("hidden");
+        document.getElementById("uploadStatus").textContent = 'Login agar bisa posting video';
         document.getElementById("submitBtn").disabled = true;
-        return;
+  
+        croppedBlob = null;
       }
     }
   });
 
   document.getElementById("cancelCrop").addEventListener("click", () => {
+    previewImg.classList.add("hidden");
+    previewImg.src = "";
+    previewVideo.classList.add("hidden");
+    previewVideo.src = "";
+    document.getElementById("recropBtn").classList.add("hidden");
+    document.getElementById("cropModal").classList.add("hidden");
     cropper?.destroy();
     croppedBlob = null;
-    document.getElementById("cropModal").classList.add("hidden");
-    document.getElementById("uploadForm").reset();
+    lastImageURL = null;
   });
 
   document.getElementById("confirmCrop").addEventListener("click", () => {
