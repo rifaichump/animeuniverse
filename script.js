@@ -392,7 +392,7 @@ function lazyLoadVideos() {
           if (!video.paused) video.pause();
         }
       });
-    }, { threshold: 0.25 });
+    }, { threshold: 0.85 });
 
     lazyVideos.forEach(video => observer.observe(video));
   } else {
