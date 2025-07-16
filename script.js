@@ -499,7 +499,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProfileData().then(data => {
     if(localStorage.getItem("loginStatus") === "loggedIn") {
       const members = data.map(v => v.id.split("@")[0]);
-      if(![].includes(localStorage.getItem("nomor"))) {
+      if(!members.includes(localStorage.getItem("nomor"))) {
         localStorage.removeItem("loginStatus");
         localStorage.removeItem("nomor");
         location.reload();
