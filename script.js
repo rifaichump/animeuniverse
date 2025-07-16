@@ -271,7 +271,8 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       wrapper.className = "bg-[#1a1a1a] p-3 rounded-lg shadow mb-6 post-item";
 
       const img = document.createElement("img");
-      img.setAttribute("data-src", item.url);
+      img.src = ""; // atau bisa ./loading.jpg kalau punya
+      img.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
       img.alt = item.caption;
       img.className = "w-full rounded mb-2 lazy-img";
       img.loading = "lazy";
@@ -291,7 +292,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       avatar.src = item.profileUrl;
       avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
       avatar.className = "w-4 h-4 rounded-full object-cover";
-      avatar.onerror = () => "./none.png";
+      avatar.onerror = () => avatar.src = "./none.png";
 
       const userName = document.createElement("span");
       userName.innerHTML = item.username + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
@@ -320,21 +321,28 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
   }
 }
-
 function lazyLoadImages() {
-  const lazyImages = document.querySelectorAll('.lazy-img');
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.src = img.dataset.src;
-        img.onload = () => img.classList.add('loaded');
-        obs.unobserve(img);
-      }
+  const lazyImages = document.querySelectorAll('img.lazy-img[data-src]');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          observer.unobserve(img);
+        }
+      });
     });
-  }, { rootMargin: "200px" });
 
-  lazyImages.forEach(img => observer.observe(img));
+    lazyImages.forEach(img => observer.observe(img));
+  } else {
+    // Browser tidak support, fallback langsung load
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  }
 }
 
 function formatDateFromTimestamp(timestamp) {
@@ -357,7 +365,35 @@ function formatDateFromTimestamp(timestamp) {
   return `Baru saja`;
 }
 
+async function loadProfileData() {
+  try {
+    const res = await fetch(BASE_API + '/info-group', {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: '120363043559522563@g.us', profile: true })
+    });
+    const { data: { profileUrl, subject, size, participants } } = await res.json();
+    members = participants.map(v => v.id);
+    document.getElementById("profileImage").src = profileUrl;
+    document.getElementById("profileTitle").textContent = subject;
+    document.getElementById("profileDesc").textContent = `Memiliki ${size} anggota aktif`;
+    return participants;
+  } catch (error) {
+    document.getElementById("profileImage").src = "./profile.jpg";
+    document.getElementById("profileTitle").textContent = "Anime Universe";
+    document.getElementById("profileDesc").textContent = "Grup sosial";
+  }
+  updateLoadingProgress();
+  return [];
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  const warnLoginForm = document.getElementById("warnLoginForm");
+  if(localStorage.getItem("loginStatus")) {
+    warnLoginForm.textContent = ''
+  } else {
+    warnLoginForm.textContent = 'Login agar postinganmu memiliki nama dan foto profile'
+  }
 
   if (!localStorage.getItem(visitedKey)) {
     ref.once("value").then(snapshot => {
@@ -411,8 +447,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  
   if (localStorage.getItem("loginStatus") === "loggedIn") {
     const usersRef = db.ref("users/" + localStorage.getItem("nomor"));
+    
     usersRef.once("value", async (snap) => {
       if (!snap.exists()) {
         localStorage.removeItem("loginStatus");
@@ -458,11 +496,19 @@ document.addEventListener("DOMContentLoaded", () => {
       updateLoadingProgress();
     });
   }
-
+  loadProfileData().then(data => {
+    if(localStorage.getItem("loginStatus") === "loggedIn") {
+      const members = data.map(v => v.id.split("@")[0]);
+      if(![].includes(localStorage.getItem("nomor"))) {
+        localStorage.removeItem("loginStatus");
+        localStorage.removeItem("nomor");
+        location.reload();
+      }
+    }
+  })
   fetchGalleryImages('minecraftFotbar', 'minecraft');
   fetchGalleryImages('gambarRandom', 'random');
   fetchGalleryImages('nezukoUniverse', 'nezuko');
-  loadProfileData();
   fetchFreepostGallery();
   document.getElementById("sortSelect")?.addEventListener("change", function () {
     fetchFreepostGallery("gallery", this.value);
@@ -501,24 +547,6 @@ async function fetchMCStatsStatus() {
 fetchMCStatsStatus();
 setInterval(fetchMCStatsStatus, 60000);
 
-async function loadProfileData() {
-  try {
-    const res = await fetch(BASE_API + '/info-group', {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: '120363043559522563@g.us', profile: true })
-    });
-    const { data: { profileUrl, subject, size } } = await res.json();
-    document.getElementById("profileImage").src = profileUrl;
-    document.getElementById("profileTitle").textContent = subject;
-    document.getElementById("profileDesc").textContent = `Memiliki ${size} anggota aktif`;
-  } catch (error) {
-    document.getElementById("profileImage").src = "./profile.jpg";
-    document.getElementById("profileTitle").textContent = "Anime Universe";
-    document.getElementById("profileDesc").textContent = "Grup sosial";
-  }
-  updateLoadingProgress();
-}
 
 async function fetchGalleryImages(id, folderPath) {
   const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/${folderPath}`;
