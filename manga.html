@@ -20,6 +20,12 @@
     .animated-border {
       animation: borderColorChange 5s infinite;
     }
+
+    .disabled-link {
+      pointer-events: none;
+      text-decoration: none;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
@@ -34,16 +40,8 @@
 
     <div class="flex flex-col gap-3">
       <a href="chapter.html?ch=1"
-        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
-        Chapter 1
-      </a>
-      <a href="chapter.html?ch=2"
-        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
-        Chapter 2
-      </a>
-      <a href="chapter.html?ch=3"
-        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
-        Chapter 3
+        class="disabled-link text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
+        Chapter 1 (Coming soon)
       </a>
     </div>
 
