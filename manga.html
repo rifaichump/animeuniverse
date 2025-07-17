@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Manga - Anime Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    @keyframes borderColorChange {
+      0% { border-color: #3b82f6; }
+      25% { border-color: #10b981; }
+      50% { border-color: #f59e0b; }
+      75% { border-color: #ef4444; }
+      100% { border-color: #3b82f6; }
+    }
+    .animated-border {
+      animation: borderColorChange 5s infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#0e0e0e] text-white min-h-screen flex items-center justify-center px-4">
+
+  <div id="mainContent" class="bg-[#1a1a1a] max-w-sm w-full p-6 rounded-2xl shadow-lg text-center space-y-4">
+    <img id="profileImage" alt="Foto Profil" src="./profile.jpg" class="w-24 h-24 mx-auto rounded-full border-2 border-gray-600 mb-4 animated-border" />
+
+    <h1 id="profileTitle" class="text-2xl font-bold text-gray-100">Anime Universe - Manga</h1>
+    <p class="text-sm text-gray-400">
+      Sinopsi
+    </p>
+
+    <div class="flex flex-col gap-3">
+      <a href="chapter.html?ch=1"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
+        Chapter 1
+      </a>
+      <a href="chapter.html?ch=2"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
+        Chapter 2
+      </a>
+      <a href="chapter.html?ch=3"
+        class="text-sm text-white py-1 rounded border border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-1.5 transition">
+        Chapter 3
+      </a>
+    </div>
+
+    <a href="index.html"
+      class="inline-flex items-center justify-center gap-1.5 px-4 py-1 text-sm text-white rounded border border-gray-600 hover:bg-gray-700 transition mt-4">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+    </a>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

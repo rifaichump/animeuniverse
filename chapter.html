@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manga AU</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white overflow-y-scroll scroll-smooth scroll-snap-y-mandatory">
+
+  <header class="fixed top-0 w-full bg-black text-center py-3 z-50 shadow-md">
+    <h1 id="chapterTitle" class="text-lg font-semibold">Chapter</h1>
+    <a href="manga.html" class="text-sm text-blue-400 hover:underline">&larr; Kembali</a>
+  </header>
+
+  <div id="imageContainer" class="pt-20"></div>
+
+  <div id="scrollArrow" class="fixed bottom-6 left-1/2 -translate-x-1/2 text-white animate-bounce z-50">
+    <i data-lucide="chevron-down" class="w-8 h-8"></i>
+  </div>
+
+
+  <script>
+    lucide.createIcons();
+    let anus = [];
+    for(let i = 0; i < 30; i++) {
+      anus.push("./profile.jpg")
+    }
+    const chapters = {
+      1: anus,
+      2: [
+        "https://i.imgur.com/oU2V7Ls.jpg"
+      ]
+    };
+
+    function getChapterFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return parseInt(params.get("ch")) || 1;
+    }
+
+    function loadChapter(chapter) {
+      const container = document.getElementById("imageContainer");
+      const title = document.getElementById("chapterTitle");
+
+      const pages = chapters[chapter];
+      if (!pages) {
+        container.innerHTML = `<div class="text-center text-red-500 mt-10">Chapter tidak ditemukan.</div>`;
+        title.textContent = "Chapter Tidak Ditemukan";
+        return;
+      }
+
+      title.textContent = `Chapter ${chapter}`;
+
+      pages.forEach(src => {
+        const page = document.createElement("div");
+        page.className = "h-screen flex justify-center items-center scroll-snap-start";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "relative w-[90%] max-w-[800px] aspect-[3/4]";
+
+        const img = document.createElement("img");
+        img.src = src;
+        img.loading = "lazy";
+        img.className = "absolute inset-0 w-full h-full object-contain rounded-md shadow-md";
+
+        wrapper.appendChild(img);
+        page.appendChild(wrapper);
+        container.appendChild(page);
+      });
+    }
+    window.addEventListener("scroll", () => {
+      const scrollArrow = document.getElementById("scrollArrow");
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const docHeight = document.body.offsetHeight;
+
+      if (scrollTop + windowHeight >= docHeight - 5) {
+        onEndOfChapter();
+        scrollArrow.style.display = "none";
+      } else {
+        scrollArrow.style.display = "block";
+      }
+    });
+
+    function onEndOfChapter() {
+      console.log("Sudah sampai halaman terakhir!");
+      // if (!document.getElementById("endMessage")) {
+      //   const msg = document.createElement("div");
+      //   msg.id = "endMessage";
+      //   msg.className = "fixed bottom-16 left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded shadow";
+      //   msg.innerText = "Kamu sudah sampai akhir chapter!";
+      //   document.body.appendChild(msg);
+
+      //   setTimeout(() => msg.remove(), 4000);
+      // }
+    }
+
+
+    const chapterNumber = getChapterFromURL();
+    loadChapter(chapterNumber);
+  </script>
+</body>
+</html>
