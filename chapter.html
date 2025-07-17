@@ -1,51 +1,50 @@
+<!-- chapter.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manga AU</title>
+  <title>Baca Manga</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-black text-white overflow-y-scroll scroll-smooth scroll-snap-y-mandatory">
+<body class="bg-[#0e0e0e] text-white flex flex-col items-center min-h-screen">
 
-  <header class="fixed top-0 w-full bg-black text-center py-3 z-50 shadow-md">
-    <h1 id="chapterTitle" class="text-lg font-semibold">Chapter</h1>
+  <div class="w-full max-w-md text-center p-4">
+    <h1 id="chapterTitle" class="text-xl font-bold mb-2">Chapter</h1>
     <a href="manga.html" class="text-sm text-blue-400 hover:underline">&larr; Kembali</a>
-  </header>
+  </div>
 
-  <div id="imageContainer" class="pt-20"></div>
+  <div id="imageContainer" class="w-full max-w-md"></div>
 
   <div id="scrollArrow" class="fixed bottom-6 left-1/2 -translate-x-1/2 text-white animate-bounce z-50">
     <i data-lucide="chevron-down" class="w-8 h-8"></i>
   </div>
 
-
   <script>
     lucide.createIcons();
+
     let anus = [];
     for(let i = 0; i < 30; i++) {
-      anus.push("./profile.jpg")
+      anus.push("./contoh.jpg")
     }
+
     const chapters = {
-      1: anus,
-      2: [
-        "https://i.imgur.com/oU2V7Ls.jpg"
-      ]
+      1: anus
     };
 
     function getChapterFromURL() {
       const params = new URLSearchParams(window.location.search);
-      return parseInt(params.get("ch")) || 1;
+      return parseInt(params.get("ch"));
     }
 
     function loadChapter(chapter) {
       const container = document.getElementById("imageContainer");
       const title = document.getElementById("chapterTitle");
-
       const pages = chapters[chapter];
+
       if (!pages) {
-        container.innerHTML = `<div class="text-center text-red-500 mt-10">Chapter tidak ditemukan.</div>`;
+        container.innerHTML = `<p class="text-red-400 text-sm">Chapter tidak ditemukan.</p>`;
         title.textContent = "Chapter Tidak Ditemukan";
         return;
       }
@@ -53,52 +52,42 @@
       title.textContent = `Chapter ${chapter}`;
 
       pages.forEach(src => {
-        const page = document.createElement("div");
-        page.className = "h-screen flex justify-center items-center scroll-snap-start";
-
         const wrapper = document.createElement("div");
-        wrapper.className = "relative w-[90%] max-w-[800px] aspect-[3/4]";
+        wrapper.className = "aspect-[3/4] w-full overflow-hidden border-b border-white/20";
 
         const img = document.createElement("img");
         img.src = src;
         img.loading = "lazy";
-        img.className = "absolute inset-0 w-full h-full object-contain rounded-md shadow-md";
+        img.className = "w-full h-full object-contain block";
 
         wrapper.appendChild(img);
-        page.appendChild(wrapper);
-        container.appendChild(page);
+        container.appendChild(wrapper);
       });
     }
-    window.addEventListener("scroll", () => {
-      const scrollArrow = document.getElementById("scrollArrow");
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const docHeight = document.body.offsetHeight;
-
-      if (scrollTop + windowHeight >= docHeight - 5) {
-        onEndOfChapter();
-        scrollArrow.style.display = "none";
-      } else {
-        scrollArrow.style.display = "block";
-      }
-    });
 
     function onEndOfChapter() {
-      console.log("Sudah sampai halaman terakhir!");
-      // if (!document.getElementById("endMessage")) {
-      //   const msg = document.createElement("div");
-      //   msg.id = "endMessage";
-      //   msg.className = "fixed bottom-16 left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded shadow";
-      //   msg.innerText = "Kamu sudah sampai akhir chapter!";
-      //   document.body.appendChild(msg);
-
-      //   setTimeout(() => msg.remove(), 4000);
-      // }
+      console.log("✅ Sampai akhir chapter!");
     }
-
 
     const chapterNumber = getChapterFromURL();
     loadChapter(chapterNumber);
+
+    window.addEventListener("scroll", () => {
+      const scrollTop = window.scrollY;
+      const arrow = document.getElementById("scrollArrow");
+      const windowHeight = window.innerHeight;
+      const docHeight = document.body.offsetHeight;
+
+      if (scrollTop > 100) {
+        arrow.style.display = "none";
+      } else {
+        arrow.style.display = "block";
+      }
+
+      if (scrollTop + windowHeight >= docHeight - 1) {
+        onEndOfChapter();
+      }
+    });
   </script>
 </body>
 </html>
