@@ -49,11 +49,12 @@ document.getElementById("closeFormBtn").addEventListener("click", () => {
   cropper?.destroy();
 });
 
+const previewImg = document.getElementById("previewImage");
+const previewVideo = document.getElementById("previewVideo");
+
 if (document.getElementById("fileInput")) {
   document.getElementById("fileInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
-    const previewImg = document.getElementById("previewImage");
-    const previewVideo = document.getElementById("previewVideo");
 
     if (!file) {
       previewImg.classList.add("hidden");
@@ -67,7 +68,7 @@ if (document.getElementById("fileInput")) {
       lastImageURL = null;
       return;
     }
-
+    
     if (file.type.startsWith("image/")) {
       previewVideo.classList.add("hidden");
       previewVideo.src = "";
@@ -96,12 +97,13 @@ if (document.getElementById("fileInput")) {
         previewImg.classList.add("hidden");
         previewImg.src = "";
         lastImageURL = null;
-  
+        
         previewVideo.src = URL.createObjectURL(file);
         previewVideo.classList.remove("hidden");
+        document.getElementById("recropBtn").classList.add("hidden");
         document.getElementById("uploadStatus").textContent = '';
         document.getElementById("submitBtn").disabled = false;
-  
+        
         croppedBlob = file;
       } else {
         cropper?.destroy();
@@ -109,12 +111,13 @@ if (document.getElementById("fileInput")) {
         previewImg.classList.add("hidden");
         previewImg.src = "";
         lastImageURL = null;
-  
+        
         previewVideo.src = URL.createObjectURL(file);
         previewVideo.classList.remove("hidden");
+        document.getElementById("recropBtn").classList.add("hidden");
         document.getElementById("uploadStatus").textContent = 'Login agar bisa posting video';
         document.getElementById("submitBtn").disabled = true;
-  
+        
         croppedBlob = null;
       }
     }
@@ -128,6 +131,7 @@ if (document.getElementById("fileInput")) {
     document.getElementById("recropBtn").classList.add("hidden");
     document.getElementById("cropModal").classList.add("hidden");
     cropper?.destroy();
+    document.getElementById("uploadForm").reset();
     croppedBlob = null;
     lastImageURL = null;
   });
