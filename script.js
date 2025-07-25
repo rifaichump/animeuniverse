@@ -30,6 +30,31 @@ const gallery = document.getElementById("gallery");
 let croppedBlob, cropper;
 let lastImageURL = null;
 
+function startLoadingBar() {
+  const bar = document.getElementById("loadingBar");
+  bar.style.width = "0%";
+  bar.style.opacity = "1";
+  let width = 0;
+  const interval = setInterval(() => {
+    if (width < 90) {
+      width += Math.random() * 5;
+      bar.style.width = `${width}%`;
+    } else {
+      clearInterval(interval);
+    }
+  }, 200);
+  bar._interval = interval;
+}
+
+function finishLoadingBar() {
+  const bar = document.getElementById("loadingBar");
+  clearInterval(bar._interval);
+  bar.style.width = "100%";
+  setTimeout(() => {
+    bar.style.opacity = "0";
+  }, 300);
+}
+
 document.getElementById("toggleFormBtn").addEventListener("click", () => {
   document.getElementById("formModal").classList.remove("hidden");
   document.body.classList.add("overflow-hidden");
@@ -246,7 +271,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
   const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/freepost`;
   const container = document.getElementById(id);
   container.innerHTML = "⏳ Memuat...";
-
+  startLoadingBar();
   try {
     const response = await fetch(apiUrl, {
       headers: { "Authorization": `Bearer ${githubToken}` }
@@ -369,80 +394,59 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       container.appendChild(wrapper);
     });
 
-    lazyLoadImages();
-    lazyLoadVideos();
+    lazyLoadMedia();
+    finishLoadingBar();
 
   } catch (err) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat: ${err.message}</p>`;
   }
 }
 
-function lazyLoadVideos() {
-  const lazyVideos = document.querySelectorAll('video.lazy-video[data-src]');
-  let currentlyPlaying = null;
-
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        const video = entry.target;
-
-        if (entry.isIntersecting) {
-          if (video.hasAttribute("data-src")) {
-            video.src = video.getAttribute('data-src');
-            video.removeAttribute('data-src');
-            video.classList.remove('lazy-video');
-          }
-
-          if (currentlyPlaying && currentlyPlaying !== video) {
-            currentlyPlaying.pause();
-          }
-
-          video.play().catch(() => {});
-          currentlyPlaying = video;
-        } else {
-          if (!video.paused) video.pause();
-
-          if (currentlyPlaying === video) {
-            currentlyPlaying = null;
-          }
-        }
-      });
-    }, { threshold: 0.98 });
-
-    lazyVideos.forEach(video => observer.observe(video));
-  } else {
-    lazyVideos.forEach(video => {
-      video.src = video.getAttribute('data-src');
-      video.removeAttribute('data-src');
-      video.classList.remove('lazy-video');
-    });
-  }
-}
-
-
-function lazyLoadImages() {
+function lazyLoadMedia() {
   const lazyImages = document.querySelectorAll('img.lazy-img[data-src]');
-  if (!lazyImages.length) return;
+  const lazyVideos = document.querySelectorAll('video.lazy-video source[data-src]');
 
   if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries, obs) => {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const img = entry.target;
           img.src = img.getAttribute('data-src');
+          img.onload = () => img.classList.add('loaded');
           img.removeAttribute('data-src');
-          img.classList.remove('lazy-img');
-          obs.unobserve(img);
+          observer.unobserve(img);
         }
       });
     });
 
-    lazyImages.forEach(img => observer.observe(img));
+    lazyImages.forEach(img => imageObserver.observe(img));
+
+    const videoObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const source = entry.target;
+          source.src = source.getAttribute('data-src');
+          source.removeAttribute('data-src');
+          const video = source.parentElement;
+          video.load();
+          observer.unobserve(source);
+        }
+      });
+    });
+
+    lazyVideos.forEach(video => videoObserver.observe(video));
   } else {
+    // Fallback: load semua langsung
     lazyImages.forEach(img => {
       img.src = img.getAttribute('data-src');
+      img.onload = () => img.classList.add('loaded');
       img.removeAttribute('data-src');
-      img.classList.remove('lazy-img');
+    });
+
+    lazyVideos.forEach(source => {
+      source.src = source.getAttribute('data-src');
+      source.removeAttribute('data-src');
+      source.parentElement.load();
     });
   }
 }
