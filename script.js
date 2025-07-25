@@ -299,14 +299,14 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
           const snap = await db.ref("users/" + nomor).once("value");
           if (snap.exists()) {
             username = snap.val()?.nama || "Anonymous";
-            const res = await fetch(BASE_API + "/info-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nomor, profile: true })
-            });
-            const data = await res.json();
-            if (data?.data?.profileUrl) profileUrl = data.data.profileUrl;
-            if (data?.data?.isAdmin) isAdmin = data.data.isAdmin;
+            // const res = await fetch(BASE_API + "/info-user", {
+            //   method: "POST",
+            //   headers: { "Content-Type": "application/json" },
+            //   body: JSON.stringify({ nomor, profile: true })
+            // });
+            // const data = await res.json();
+            // if (data?.data?.profileUrl) profileUrl = data.data.profileUrl;
+            // if (data?.data?.isAdmin) isAdmin = data.data.isAdmin;
           }
         } catch (e) {
           console.error("Gagal ambil profil:", e.message);
@@ -317,9 +317,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
         url: `https://raw.githubusercontent.com/rifaichump/database/main/freepost/${file.name}`,
         caption,
         timestamp,
-        username,
-        profileUrl,
-        isAdmin
+        username
       };
     }));
 
@@ -338,17 +336,24 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
       if (isVideo) {
         const video = document.createElement("video");
-        video.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
         video.className = "w-full rounded mb-2 lazy-video";
         video.controls = true;
         video.controlsList = "nodownload nofullscreen noplaybackrate noremoteplayback";
         video.disablePictureInPicture = true;
         video.preload = "none";
+        video.playsInline = true;
+        video.loop = true;
         video.oncontextmenu = () => false;
+
+        const source = document.createElement("source");
+        source.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
+        source.type = "video/mp4";
+
+        video.appendChild(source);
         wrapper.appendChild(video);
       } else {
         const img = document.createElement("img");
-        img.src = "";
+        img.src = "./profile.jpg";
         img.setAttribute("data-src", item.url + `?t=${item.timestamp}`);
         img.alt = item.caption;
         img.className = "w-full rounded mb-2 lazy-img";
@@ -356,7 +361,6 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
         img.oncontextmenu = () => false;
         wrapper.appendChild(img);
       }
-
 
       const caption = document.createElement("p");
       caption.textContent = item.caption;
@@ -368,17 +372,17 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       const profileLeft = document.createElement("div");
       profileLeft.className = "flex items-center gap-2";
 
-      const avatar = document.createElement("img");
-      avatar.src = item.profileUrl;
-      avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
-      avatar.className = "w-4 h-4 rounded-full object-cover";
-      avatar.onerror = () => avatar.src = "./none.png";
+      // const avatar = document.createElement("img");
+      // avatar.src = item.profileUrl;
+      // avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
+      // avatar.className = "w-4 h-4 rounded-full object-cover";
+      // avatar.onerror = () => avatar.src = "./none.png";
 
       const userName = document.createElement("span");
-      userName.innerHTML = item.username + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
+      userName.innerHTML = item.username // + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
       userName.className = "text-xs text-gray-400";
 
-      profileLeft.appendChild(avatar);
+      // profileLeft.appendChild(avatar);
       profileLeft.appendChild(userName);
 
       const date = document.createElement("span");
@@ -404,7 +408,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
 function lazyLoadMedia() {
   const lazyImages = document.querySelectorAll('img.lazy-img[data-src]');
-  const lazyVideos = document.querySelectorAll('video.lazy-video source[data-src]');
+  const lazyVideos = document.querySelectorAll('video.lazy-video');
 
   if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -421,32 +425,41 @@ function lazyLoadMedia() {
 
     lazyImages.forEach(img => imageObserver.observe(img));
 
-    const videoObserver = new IntersectionObserver((entries, observer) => {
+    const videoObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        const video = entry.target;
+
         if (entry.isIntersecting) {
-          const source = entry.target;
-          source.src = source.getAttribute('data-src');
-          source.removeAttribute('data-src');
-          const video = source.parentElement;
-          video.load();
-          observer.unobserve(source);
+          const source = video.querySelector('source[data-src]');
+          if (source) {
+            source.src = source.getAttribute('data-src');
+            source.removeAttribute('data-src');
+            video.load();
+          }
+          video.play().catch(e => console.log("Autoplay failed:", e));
+        } else {
+          video.pause();
         }
       });
+    }, {
+      threshold: 0.98
     });
 
     lazyVideos.forEach(video => videoObserver.observe(video));
   } else {
-    // Fallback: load semua langsung
     lazyImages.forEach(img => {
       img.src = img.getAttribute('data-src');
       img.onload = () => img.classList.add('loaded');
       img.removeAttribute('data-src');
     });
 
-    lazyVideos.forEach(source => {
-      source.src = source.getAttribute('data-src');
-      source.removeAttribute('data-src');
-      source.parentElement.load();
+    lazyVideos.forEach(video => {
+      const source = video.querySelector('source[data-src]');
+      if (source) {
+        source.src = source.getAttribute('data-src');
+        source.removeAttribute('data-src');
+        video.load();
+      }
     });
   }
 }
