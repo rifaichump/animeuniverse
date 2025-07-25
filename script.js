@@ -696,3 +696,23 @@ async function fetchGalleryImages(id, folderPath) {
     container.innerHTML = `<p class="text-red-400 text-center">Gagal memuat gambar. Upload terlebih dahulu</p>`;
   }
 }
+
+
+const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    scrollToTopBtn.classList.remove("hidden");
+    scrollToTopBtn.classList.add("opacity-100");
+  } else {
+    scrollToTopBtn.classList.add("hidden");
+    scrollToTopBtn.classList.remove("opacity-100");
+  }
+});
+
+scrollToTopBtn.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
