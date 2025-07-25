@@ -55,6 +55,9 @@ function finishLoadingBar() {
   }, 300);
 }
 
+const previewImg = document.getElementById("previewImage");
+const previewVideo = document.getElementById("previewVideo");
+
 document.getElementById("toggleFormBtn").addEventListener("click", () => {
   document.getElementById("formModal").classList.remove("hidden");
   document.body.classList.add("overflow-hidden");
@@ -65,17 +68,17 @@ document.getElementById("closeFormBtn").addEventListener("click", () => {
   document.body.classList.remove("overflow-hidden");
   document.getElementById("uploadForm").reset();
   
-  croppedBlob = null;
-  lastImageURL = null;
-  document.getElementById("previewImage").classList.add("hidden");
-  document.getElementById("previewImage").src = "";
+  previewImg.classList.add("hidden");
+  previewImg.src = "";
+  previewVideo.classList.add("hidden");
+  previewVideo.src = "";
   document.getElementById("recropBtn").classList.add("hidden");
   document.getElementById("cropModal").classList.add("hidden");
   cropper?.destroy();
+  croppedBlob = null;
+  lastImageURL = null;
 });
 
-const previewImg = document.getElementById("previewImage");
-const previewVideo = document.getElementById("previewVideo");
 
 if (document.getElementById("fileInput")) {
   document.getElementById("fileInput").addEventListener("change", (e) => {
@@ -151,8 +154,6 @@ if (document.getElementById("fileInput")) {
   document.getElementById("cancelCrop").addEventListener("click", () => {
     previewImg.classList.add("hidden");
     previewImg.src = "";
-    previewVideo.classList.add("hidden");
-    previewVideo.src = "";
     document.getElementById("recropBtn").classList.add("hidden");
     document.getElementById("cropModal").classList.add("hidden");
     cropper?.destroy();
