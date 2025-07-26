@@ -557,6 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tabFreepost.classList.remove("bg-blue-600");
     berandaSection.classList.remove("hidden");
     freepostSection.classList.add("hidden");
+    document.getElementById("toggleFormBtn").classList.add('hidden');
   });
 
   tabFreepost.addEventListener("click", () => {
@@ -564,6 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tabBeranda.classList.remove("bg-blue-600");
     freepostSection.classList.remove("hidden");
     berandaSection.classList.add("hidden");
+    document.getElementById("toggleFormBtn").classList.remove('hidden');
   });
 
 
@@ -716,14 +718,19 @@ async function fetchGalleryImages(id, folderPath) {
 
 
 const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+const anuBtn = document.getElementById("toggleFormBtn");
 
 window.addEventListener("scroll", () => {
   if (window.scrollY > 300) {
     scrollToTopBtn.classList.remove("hidden");
     scrollToTopBtn.classList.add("opacity-100");
+
+    anuBtn.style.transform = "translateY(-50px)";
   } else {
     scrollToTopBtn.classList.add("hidden");
     scrollToTopBtn.classList.remove("opacity-100");
+
+    anuBtn.style.transform = "translateY(0)";
   }
 });
 
