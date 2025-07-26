@@ -335,6 +335,40 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
 
       const isVideo = /\.(mp4|webm|ogg)$/i.test(item.url);
 
+      
+      const caption = document.createElement("p");
+      caption.textContent = item.caption;
+      caption.className = "text-sm text-gray-300";
+
+      const profileWrapper = document.createElement("div");
+      profileWrapper.className = "flex items-center justify-between gap-2 mb-1";
+
+      const profileLeft = document.createElement("div");
+      profileLeft.className = "flex items-center gap-2";
+
+      // const avatar = document.createElement("img");
+      // avatar.src = item.profileUrl;
+      // avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
+      // avatar.className = "w-4 h-4 rounded-full object-cover";
+      // avatar.onerror = () => avatar.src = "./none.png";
+
+      const userName = document.createElement("span");
+      userName.innerHTML = "Dari " + `<span class="font-semibold">${item.username}</span> • ${formatDateFromTimestamp(item.timestamp)}`;
+      userName.className = "text-xs text-gray-400";
+      
+      // profileLeft.appendChild(avatar);
+      profileLeft.appendChild(userName);
+
+      // const date = document.createElement("span");
+      // date.textContent = formatDateFromTimestamp(item.timestamp);
+      // date.className = "text-xs text-gray-500 ml-auto";
+
+      profileWrapper.appendChild(profileLeft);
+      // profileWrapper.appendChild(date);
+
+      wrapper.appendChild(profileWrapper);
+      wrapper.appendChild(caption);
+
       if (isVideo) {
         const video = document.createElement("video");
         video.className = "w-full rounded mb-2 lazy-video";
@@ -362,39 +396,6 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
         img.oncontextmenu = () => false;
         wrapper.appendChild(img);
       }
-
-      const caption = document.createElement("p");
-      caption.textContent = item.caption;
-      caption.className = "text-sm text-gray-300";
-
-      const profileWrapper = document.createElement("div");
-      profileWrapper.className = "flex items-center justify-between gap-2 mb-1";
-
-      const profileLeft = document.createElement("div");
-      profileLeft.className = "flex items-center gap-2";
-
-      // const avatar = document.createElement("img");
-      // avatar.src = item.profileUrl;
-      // avatar.alt = item.username + ` ${item.isAdmin ? '(Admin)' : ''}`;
-      // avatar.className = "w-4 h-4 rounded-full object-cover";
-      // avatar.onerror = () => avatar.src = "./none.png";
-
-      const userName = document.createElement("span");
-      userName.innerHTML = item.username // + (item.isAdmin ? ' <span class="text-yellow-200 font-semibold">(Admin)</span>' : '');
-      userName.className = "text-xs text-gray-400";
-
-      // profileLeft.appendChild(avatar);
-      profileLeft.appendChild(userName);
-
-      const date = document.createElement("span");
-      date.textContent = formatDateFromTimestamp(item.timestamp);
-      date.className = "text-xs text-gray-500 ml-auto";
-
-      profileWrapper.appendChild(profileLeft);
-      profileWrapper.appendChild(date);
-
-      wrapper.appendChild(caption);
-      wrapper.appendChild(profileWrapper);
 
       container.appendChild(wrapper);
     });
