@@ -427,6 +427,8 @@ function lazyLoadMedia() {
 
     lazyImages.forEach(img => imageObserver.observe(img));
 
+    let currentlyPlaying = null;
+
     const videoObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const video = entry.target;
@@ -438,13 +440,26 @@ function lazyLoadMedia() {
             source.removeAttribute('data-src');
             video.load();
           }
-          video.play().catch(e => console.log("Autoplay failed:", e));
+
+          if (currentlyPlaying && currentlyPlaying !== video) {
+            currentlyPlaying.pause();
+          }
+
+          video.play()
+            .then(() => {
+              currentlyPlaying = video;
+            })
+            .catch(e => {
+              console.log("Autoplay failed:", e);
+            });
         } else {
-          video.pause();
+          if (!video.paused) {
+            video.pause();
+          }
         }
       });
     }, {
-      threshold: 0.98
+      threshold: 0.9
     });
 
     lazyVideos.forEach(video => videoObserver.observe(video));
