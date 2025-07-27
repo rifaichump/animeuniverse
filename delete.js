@@ -1,10 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("deleteForm");
   const folderInput = document.getElementById("folderPath");
-  const fileNameSelect = document.getElementById("fileName");
   const passwordInput = document.getElementById("password");
   const statusText = document.getElementById("statusText");
   const deleteBtn = document.getElementById("deleteBtn");
+
+  const selectedFileBtn = document.getElementById("selectedFileBtn");
+  const selectedFileLabel = document.getElementById("selectedFileLabel");
+  const fileDropdown = document.getElementById("fileDropdown");
+
+  let selectedFileValue = "";
 
   const allT = {
     a: "ghp_qwQtP",
@@ -17,7 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   folderInput.addEventListener("change", async () => {
     const folder = folderInput.value;
-    fileNameSelect.innerHTML = `<option value="">Memuat file...</option>`;
+    fileDropdown.innerHTML = `<li class="px-4 py-2 text-sm text-gray-500">Memuat file...</li>`;
+    fileDropdown.classList.remove("hidden");
 
     const url = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${folder}`;
     try {
@@ -28,16 +34,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!Array.isArray(files)) throw new Error("Gagal memuat file");
 
-      fileNameSelect.innerHTML = files
+      if (files.length === 0) {
+        fileDropdown.innerHTML = `<li class="px-4 py-2 text-sm text-gray-500">Tidak ada file</li>`;
+        return;
+      }
+
+      fileDropdown.innerHTML = files
         .filter(file => file.type === "file")
-        .map(file => `<option value="${file.name}">${file.name}</option>`)
-        .join("") || `<option value="">Tidak ada file</option>`;
+        .map(
+          file => `
+            <li class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-3" data-name="${file.name}">
+              <img src="https://raw.githubusercontent.com/${githubUsername}/${githubRepo}/main/${folder}${file.name}" class="w-6 h-6 rounded-full" />
+              <span class="truncate">${file.name}</span>
+            </li>`
+        )
+        .join("");
+
+      fileDropdown.querySelectorAll("li").forEach(item => {
+        item.addEventListener("click", () => {
+          selectedFileValue = item.dataset.name;
+          selectedFileLabel.textContent = selectedFileValue;
+          fileDropdown.classList.add("hidden");
+        });
+      });
+
     } catch (err) {
-      fileNameSelect.innerHTML = `<option value="">Gagal memuat</option>`;
+      fileDropdown.innerHTML = `<li class="px-4 py-2 text-sm text-red-500">Gagal memuat</li>`;
     }
   });
-  folderInput.dispatchEvent(new Event("change"));
 
+  selectedFileBtn.addEventListener("click", () => {
+    fileDropdown.classList.toggle("hidden");
+  });
+
+  folderInput.dispatchEvent(new Event("change"));
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -52,11 +82,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const folder = folderInput.value;
-    const fileName = fileNameSelect.value;
-    if (!fileName) return alert("Pilih file yang ingin dihapus");
+    if (!selectedFileValue) return alert("Pilih file yang ingin dihapus");
 
-    const filePath = `${folder}${fileName}`;
+    const folder = folderInput.value;
+    const filePath = `${folder}${selectedFileValue}`;
     const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${filePath}`;
 
     statusText.textContent = "Menghapus file...";
@@ -72,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!fileData.sha) throw new Error("File tidak ditemukan.");
 
       const payload = {
-        message: `Hapus ${fileName}`,
+        message: `Hapus ${selectedFileValue}`,
         sha: fileData.sha
       };
 
@@ -88,16 +117,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok) {
         statusText.textContent = "Berhasil dihapus";
-        folderInput.dispatchEvent(new Event("change"));
         form.reset();
-        fileNameSelect.innerHTML = `<option value="">Pilih folder terlebih dahulu</option>`;
+        selectedFileValue = "";
+        selectedFileLabel.textContent = "Pilih file";
+        folderInput.dispatchEvent(new Event("change"));
       } else {
         const result = await response.json();
-        folderInput.dispatchEvent(new Event("change"));
         throw new Error(result.message || "Gagal menghapus.");
       }
     } catch (err) {
-      statusText.textContent = "Gagal" + err.message;
+      statusText.textContent = "Gagal: " + err.message;
     }
 
     deleteBtn.disabled = false;
