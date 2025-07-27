@@ -353,7 +353,7 @@ async function fetchFreepostGallery(id = 'gallery', sortBy = "baru") {
       // avatar.onerror = () => avatar.src = "./none.png";
 
       const userName = document.createElement("span");
-      userName.innerHTML = "Dari " + `<span class="font-semibold">${item.username}</span> • ${formatDateFromTimestamp(item.timestamp)}`;
+      userName.innerHTML = "Dari " + `<span class="font-bold">${item.username}</span> • ${formatDateFromTimestamp(item.timestamp)}`;
       userName.className = "text-xs text-gray-400";
       
       // profileLeft.appendChild(avatar);
@@ -491,8 +491,7 @@ function formatDateFromTimestamp(timestamp) {
     { label: "minggu", seconds: 604800 },
     { label: "hari", seconds: 86400 },
     { label: "jam", seconds: 3600 },
-    { label: "menit", seconds: 60 },
-    { label: "detik", seconds: 1 }
+    { label: "menit", seconds: 60 }
   ];
   for (const unit of timeUnits) {
     const count = Math.floor(secondsAgo / unit.seconds);
@@ -686,7 +685,6 @@ setInterval(fetchMCStatsStatus, 60000);
 async function fetchGalleryImages(id, folderPath) {
   const apiUrl = `https://api.github.com/repos/rifaichump/database/contents/${folderPath}`;
   const container = document.getElementById(id);
-  container.innerHTML = `<p id="loading" class="text-yellow-200 text-center">Memuat gambar...</p>`;
 
   try {
     const response = await fetch(apiUrl, {
