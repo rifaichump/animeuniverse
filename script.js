@@ -653,7 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function fetchMCStatsStatus() {
   const statusBox = document.getElementById("mcStatus");
   try {
-    const response = await fetch(`https://api.mcsrvstat.us/bedrock/2/AnimeUnicraft.aternos.me:12698`);
+    const response = await fetch(`https://api.mcsrvstat.us/bedrock/2/animeunicraft.ddns.net:25544`);
     const data = await response.json();
 
     const online = data?.online;
@@ -738,3 +738,4 @@ scrollToTopBtn.addEventListener("click", () => {
     behavior: "smooth"
   });
 });
+
