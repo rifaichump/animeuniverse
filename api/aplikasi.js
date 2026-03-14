@@ -1,5 +1,5 @@
 export default function handler(req, res) {
-    let url = `https://github.com/rifaichump/animeuniverse/releases/download/Update/app-debug.apk`
+    let url = `https://github.com/rifaichump/animeuniverse/releases/download/Update/AnimeUniverseGroup.apk`
     
     res.setHeader("Content-Type", "text/html")
     res.status(200).send(`
