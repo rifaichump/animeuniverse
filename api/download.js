@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         data: idd
       });
     }
-    res.redirect(url);
+    res.redirect(idd);
   } catch (e) {
     res.status(404).json({
       status: false,
