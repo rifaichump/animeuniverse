@@ -19,7 +19,10 @@ export default async function handler(req, res) {
         data: idd
       });
     }
-    res.redirect(idd);
+    res.writeHead(302, {
+      Location: idd
+    });
+    res.end();
   } catch (e) {
     res.status(404).json({
       status: false,
