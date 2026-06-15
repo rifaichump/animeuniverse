@@ -6,7 +6,8 @@ export default async function handler(req, res) {
   if (!id) {
     res.status(404).json({
       status: false,
-      msg: "No url directed"
+      msg: "No url directed",
+      data: id
     });
   }
   try {
@@ -14,14 +15,16 @@ export default async function handler(req, res) {
     if (!/animeunicraft/.test(idd)) {
       res.status(404).json({
         status: false,
-        msg: "No url directed"
+        msg: "No url directed",
+        data: idd
       });
     }
     res.redirect(url);
   } catch (e) {
     res.status(404).json({
       status: false,
-      msg: "No url directed"
+      msg: "No url directed",
+      data: e.message
     });
   }
 }
