@@ -1,33 +1,41 @@
-function decode(text) {
-  return Buffer.from(text, "base64url").toString();
-}
 export default async function handler(req, res) {
-  const { id } = req.query;
-  if (!id) {
-    res.status(404).json({
-      status: false,
-      msg: "No url directed",
-      data: id
-    });
-  }
   try {
-    const idd = decode(id);
-    if (!/animeunicraft/.test(idd)) {
-      res.status(404).json({
-        status: false,
-        msg: "No url directed",
-        data: idd
+    const url = Buffer
+      .from(req.query.id, "base64url")
+      .toString("utf8");
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      return res.status(404).json({
+        success: false,
+        msg: "File not found"
       });
     }
-    res.writeHead(302, {
-      Location: idd
-    });
-    res.end();
+
+    const buffer = Buffer.from(
+      await response.arrayBuffer()
+    );
+
+    res.setHeader(
+      "Content-Type",
+      response.headers.get("content-type") ||
+      "application/octet-stream"
+    );
+
+    const filename = url.split("/").pop();
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${filename}"`
+    );
+
+    res.send(buffer);
+
   } catch (e) {
-    res.status(404).json({
-      status: false,
-      msg: "No url directed",
-      data: e.message
+    res.status(500).json({
+      success: false,
+      error: e.message
     });
   }
 }
