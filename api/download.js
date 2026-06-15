@@ -135,7 +135,7 @@ function sendDownloadPage(res, { fileName, downloadUrl }) {
   <body>
     <div class="box">
       <div class="filename">${fileName}</div>
-      <a class="btn" href="${downloadUrl}" download>Unduh</a>
+      <a class="btn" href="${downloadUrl}">Unduh</a>
     </div>
   </body>
   </html>
