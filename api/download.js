@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const json = JSON.parse(data);
     sendDownloadPage(res, {
       fileName: json.name,
-      downloadUrl: json.url
+      downloadUrl: 'http://animeunicraft.duckdns.org:'+json.port+json.url
     });
   } catch (e) {
     sendErrorPage(res, { message: e.message });
@@ -92,7 +92,7 @@ function sendDownloadPage(res, { fileName, downloadUrl }) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Download File</title>
+    <title>${fileName}</title>
     <style>
       body {
         margin: 0;
@@ -135,7 +135,7 @@ function sendDownloadPage(res, { fileName, downloadUrl }) {
   <body>
     <div class="box">
       <div class="filename">${fileName}</div>
-      <a class="btn" href="${downloadUrl}">Unduh</a>
+      <a class="btn" onclick="window.location.href='${downloadUrl}'">Unduh</a>
     </div>
   </body>
   </html>
