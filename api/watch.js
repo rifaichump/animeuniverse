@@ -1,14 +1,20 @@
 export default async function handler(req, res) {
+  const json1 = decode(req.query.video)
+  const json2 = decode(req.query.anime)
+  res.send(showHTML(json1, json2));
+}
+
+function decode(data) {
   const data = Buffer
     .from(req.query.id, "base64url")
     .toString("utf8")      
   const json = JSON.parse(data);
-  res.send(showHTML(json));
+  return json
 }
 
-function showHTML(json) {
-    const jsonString = JSON.stringify(json);
-
+function showHTML(video, animeData) {
+    const jsonString = JSON.stringify(video);
+    
     return `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -374,7 +380,7 @@ video{
 <div class="container">
 
     <div class="title">
-        Anime - Watch
+        ${animeData.judul}
     </div>
 
     <div class="player controls-visible" id="player">
