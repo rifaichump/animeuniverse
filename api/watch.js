@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const json1 = decode(req.query.video)
   const json2 = decode(req.query.anime)
   res.send(showHTML(json1, json2));
