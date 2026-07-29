@@ -1,14 +1,14 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   const json1 = decode(req.query.video)
   const json2 = decode(req.query.anime)
   res.send(showHTML(json1, json2));
 }
 
 function decode(data) {
-  const data = Buffer
-    .from(req.query.id, "base64url")
+  const ngen = Buffer
+    .from(data, "base64url")
     .toString("utf8")      
-  const json = JSON.parse(data);
+  const json = JSON.parse(ngen);
   return json
 }
 
