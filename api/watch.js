@@ -527,7 +527,7 @@ function changeResolution(reso){
         e.classList.toggle("active", e.dataset.reso === reso);
     });
 
-    video.src = data.streams[reso][0].link;
+    video.src = data.streams[reso][data.streams[reso].length - 1].link;
     video.load();
 
     video.addEventListener("loadedmetadata", function onLoaded(){
