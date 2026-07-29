@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     .from(req.query.id, "base64url")
     .toString("utf8")      
   const json = JSON.parse(data);
-  showHTML(json);
+  res.send(showHTML(json));
 }
 
 function showHTML(json) {
