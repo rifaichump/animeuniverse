@@ -447,10 +447,6 @@ video{
     border-color:#c084fc;
 }
 
-#chatUsername{
-    width:30%;
-}
-
 #chatText{
     flex:1;
 }
@@ -568,7 +564,6 @@ video{
         </div>
         <div class="chat-box" id="chatBox"></div>
         <div class="chat-input-area">
-            <input type="text" id="chatUsername" placeholder="Nama..." value="User_${Math.floor(Math.random()*1000)}">
             <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
             <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
         </div>
@@ -837,9 +832,9 @@ const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
 // Sesuaikan URL WebSocket (ubah jika ws server hosted di domain lain/port lain)
-const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-const wsHost = window.location.hostname || "localhost";
-const wsUrl = \`\${wsProtocol}//\${wsHost}:8080\`;
+const wsProtocol = "ws:";
+const wsHost = "185.211.103.141";
+const wsUrl = \`\${wsProtocol}//\${wsHost}:9755\`;
 
 let ws;
 
@@ -894,10 +889,9 @@ function initChatWebSocket() {
 }
 
 function sendChatMessage() {
-    const usernameInput = document.getElementById("chatUsername");
     const textInput = document.getElementById("chatText");
 
-    const sender = usernameInput.value.trim() || "Anonim";
+    const sender = "Random Kid";
     const message = textInput.value.trim();
 
     if (!message) return;
