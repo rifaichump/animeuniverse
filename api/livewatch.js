@@ -384,9 +384,10 @@ const ICON_VOL_MUTE = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.0
 const ICON_FS_EXPAND = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
 const ICON_FS_COMPRESS = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
 
-video.src = ${video};
+video.src = ${JSON.stringify(video)};
 
 muteBtn.onclick = () => {
+    video.muted = !video.muted;
     volIcon.innerHTML = video.muted ? ICON_VOL_MUTE : ICON_VOL_ON;
     volumeSlider.value = video.muted ? 0 : (video.volume || 0.5);
 };
@@ -573,4 +574,3 @@ initWebSocket();
 </body>
 </html>`;
 }
-
