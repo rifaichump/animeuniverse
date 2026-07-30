@@ -1,20 +1,20 @@
 export default async function handler(req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
   if (isWhatsApp) {
-    const json1 = decode(req.query.video)
-    const json2 = decode(req.query.anime)
-    res.send(showHTML(json1, json2));
+    let video = decode(req.query.video);
+    let dataAnime = decode(req.query.anime);
+    res.send(showHTML(video, dataAnime));
   } else {
-    res.json({ status: false })
+    res.json({ status: false });
   }
 }
 
 function decode(data) {
   const ngen = Buffer
     .from(data, "base64url")
-    .toString("utf8")
+    .toString("utf8");
   const json = JSON.parse(ngen);
-  return json
+  return json;
 }
 
 function showHTML(video, animeData) {
@@ -26,7 +26,7 @@ function showHTML(video, animeData) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Anime Live Stream - Watch</title>
+<title>Anime Universe Watch</title>
 
 <style>
 *{
@@ -52,19 +52,6 @@ body{
     font-weight:bold;
     margin-bottom:20px;
     color:#d8b4fe;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.live-badge{
-    background:#e11d48;
-    color:#fff;
-    font-size:12px;
-    padding:3px 8px;
-    border-radius:4px;
-    text-transform:uppercase;
-    letter-spacing:1px;
 }
 
 /* ===== Player wrapper ===== */
@@ -90,7 +77,6 @@ video{
     display:block;
     background:#000;
     max-height:80vh;
-    pointer-events:none; /* Nonaktifkan interaksi klik pada video */
 }
 
 .player.fullscreen-active video{
@@ -99,14 +85,120 @@ video{
     object-fit: contain;
 }
 
-/* Overlay Transparan untuk mencegah event klik kanan / klik pada video */
-.video-overlay-layer{
+/* ===== Klik area buat toggle play/pause ===== */
+.video-click-layer{
     position:absolute;
     inset:0;
     z-index:2;
 }
 
-/* ===== Custom controls bar (Minimalis: Hanya Volume & Fullscreen) ===== */
+/* ===== Resolusi - pojok kanan atas ===== */
+.reso-wrapper{
+    position:absolute;
+    top:14px;
+    right:14px;
+    z-index:20;
+    opacity:0;
+    transform:translateY(-6px);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none;
+}
+
+/* Tampilkan resolusi jika ada kelas aktif */
+.player.controls-visible .reso-wrapper,
+.reso-wrapper.force-visible{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+}
+
+/* Hover hanya untuk perangkat non-touch screen */
+@media (hover: hover) {
+    .player:hover:not(.user-inactive) .reso-wrapper {
+        opacity:1;
+        transform:translateY(0);
+        pointer-events:auto;
+    }
+}
+
+.reso-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(30,10,50,.75);
+    border:1px solid rgba(139,92,246,.6);
+    color:#e9d5ff;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    backdrop-filter:blur(6px);
+    transition:.2s;
+}
+
+.reso-btn:hover{
+    background:rgba(124,58,237,.85);
+    border-color:#c084fc;
+}
+
+.reso-btn svg{
+    width:14px;
+    height:14px;
+    fill:#e9d5ff;
+}
+
+.reso-menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    background:rgba(20,8,38,.95);
+    border:1px solid rgba(139,92,246,.5);
+    border-radius:12px;
+    padding:8px;
+    min-width:150px;
+    display:none;
+    flex-direction:column;
+    gap:4px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+
+.reso-menu.open{
+    display:flex;
+}
+
+.reso-option{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border:none;
+    background:transparent;
+    color:#ddd;
+    padding:9px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    transition:.15s;
+}
+
+.reso-option:hover{
+    background:rgba(139,92,246,.25);
+}
+
+.reso-option.active{
+    background:#7c3aed;
+    color:#fff;
+    box-shadow:0 0 12px rgba(147,51,234,.6);
+}
+
+.reso-option .size{
+    font-size:11px;
+    opacity:.7;
+    margin-left:10px;
+}
+
+/* ===== Custom controls bar ===== */
 .controls{
     position:absolute;
     left:0;
@@ -116,15 +208,81 @@ video{
     padding:10px 14px 12px;
     background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0));
     display:flex;
-    align-items:center;
-    gap:14px;
+    flex-direction:column;
+    gap:8px;
     opacity:0;
-    transition:opacity .25s ease;
+    transform:translateY(6px);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events: none;
 }
 
-.player:hover .controls,
+.controls * {
+    pointer-events: auto;
+}
+
 .player.controls-visible .controls{
     opacity:1;
+    transform:translateY(0);
+}
+
+@media (hover: hover) {
+    .player:hover:not(.user-inactive) .controls {
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.player.fullscreen-active.user-inactive {
+    cursor: none;
+}
+
+.progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.progress-bar{
+    flex:1;
+    height:6px;
+    border-radius:6px;
+    background:rgba(255,255,255,.2);
+    position:relative;
+    cursor:pointer;
+    overflow:hidden;
+}
+
+.progress-fill{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#8b5cf6,#c084fc);
+    border-radius:6px;
+}
+
+.progress-buffer{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:0%;
+    background:rgba(255,255,255,.15);
+}
+
+.time{
+    font-size:12px;
+    color:#e9d5ff;
+    min-width:88px;
+    text-align:center;
+    font-variant-numeric:tabular-nums;
+}
+
+.buttons-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
 }
 
 .ctrl-btn{
@@ -158,7 +316,7 @@ video{
 }
 
 .volume-slider{
-    width:80px;
+    width:70px;
     accent-color:#9333ea;
     cursor:pointer;
 }
@@ -167,19 +325,35 @@ video{
     flex:1;
 }
 
-.sync-status{
-    font-size:12px;
-    color:#a78bfa;
+.big-play{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:rgba(124,58,237,.55);
+    border:2px solid rgba(216,180,254,.7);
     display:flex;
     align-items:center;
-    gap:6px;
+    justify-content:center;
+    z-index:4;
+    backdrop-filter:blur(3px);
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .2s;
 }
 
-.sync-dot{
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#10b981;
+.big-play svg{
+    width:26px;
+    height:26px;
+    fill:#f3e8ff;
+    margin-left:3px;
+}
+
+.big-play.show{
+    opacity:1;
 }
 
 .info{
@@ -190,106 +364,6 @@ video{
     color:#c4b5fd;
     font-weight:600;
     margin-bottom:12px;
-}
-
-/* ===== Live Chat Styles ===== */
-.chat-container{
-    margin-top:20px;
-    background:#190b2b;
-    border:1px solid rgba(139,92,246,.4);
-    border-radius:14px;
-    overflow:hidden;
-    box-shadow:0 4px 16px rgba(0,0,0,.3);
-}
-
-.chat-header{
-    background:rgba(139,92,246,.2);
-    padding:12px 18px;
-    font-weight:bold;
-    color:#e9d5ff;
-    border-bottom:1px solid rgba(139,92,246,.3);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.status-badge{
-    font-size:11px;
-    padding:4px 8px;
-    border-radius:20px;
-    background:#e11d48;
-    color:#fff;
-}
-
-.status-badge.online{
-    background:#10b981;
-}
-
-.chat-box{
-    height:250px;
-    overflow-y:auto;
-    padding:14px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    background:rgba(0,0,0,.2);
-}
-
-.chat-msg{
-    background:rgba(139,92,246,.15);
-    border-left:3px solid #8b5cf6;
-    padding:8px 12px;
-    border-radius:0 8px 8px 0;
-    word-break:break-word;
-    font-size:14px;
-}
-
-.chat-msg .sender{
-    font-size:11px;
-    font-weight:bold;
-    color:#c084fc;
-    margin-bottom:2px;
-}
-
-.chat-input-area{
-    display:flex;
-    padding:10px;
-    gap:8px;
-    background:rgba(18,9,31,.6);
-    border-top:1px solid rgba(139,92,246,.2);
-}
-
-.chat-input-area input{
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(139,92,246,.4);
-    padding:10px 14px;
-    border-radius:8px;
-    color:#fff;
-    outline:none;
-    font-size:14px;
-}
-
-.chat-input-area input:focus{
-    border-color:#c084fc;
-}
-
-#chatText{
-    flex:1;
-}
-
-.chat-btn{
-    background:#7c3aed;
-    color:#fff;
-    border:none;
-    padding:0 18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    transition:.2s;
-}
-
-.chat-btn:hover{
-    background:#9333ea;
 }
 
 .footer{
@@ -307,35 +381,65 @@ video{
 <div class="container">
 
     <div class="title">
-        <span>Anime Stream Party</span>
-        <span class="live-badge">Live</span>
+        Anime Universe Video Play
     </div>
 
-    <div class="player" id="player">
+    <div class="player controls-visible" id="player">
 
-        <video id="video" autoplay playsinline muted></video>
+        <video id="video"></video>
 
-        <div class="video-overlay-layer"></div>
+        <div class="video-click-layer" id="clickLayer"></div>
 
+        <div class="big-play" id="bigPlay">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+
+        <!-- Resolusi pojok kanan atas -->
+        <div class="reso-wrapper">
+            <button class="reso-btn" id="resoBtn">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+                <span id="resoLabel">Auto</span>
+            </button>
+            <div class="reso-menu" id="resoMenu"></div>
+        </div>
+
+        <!-- Custom controls -->
         <div class="controls" id="controls">
 
-            <div class="volume-row">
-                <button class="ctrl-btn" id="muteBtn" title="Mute/Unmute">
-                    <svg id="volIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <div class="progress-row">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-buffer" id="progressBuffer"></div>
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time" id="timeLabel">00:00 / 00:00</div>
+            </div>
+
+            <div class="buttons-row">
+                <button class="ctrl-btn" id="playBtn" title="Play/Pause">
+                    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0">
+
+                <button class="ctrl-btn" id="rewindBtn" title="Mundur 10 detik">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                </button>
+
+                <button class="ctrl-btn" id="forwardBtn" title="Maju 10 detik">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+                </button>
+
+                <div class="volume-row">
+                    <button class="ctrl-btn" id="muteBtn" title="Mute/Unmute">
+                        <svg id="volIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    </button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+                </div>
+
+                <div class="spacer"></div>
+
+                <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen">
+                    <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
             </div>
-
-            <div class="sync-status">
-                <div class="sync-dot"></div>
-                <span id="syncText">Mencari Sinyal Stream...</span>
-            </div>
-
-            <div class="spacer"></div>
-
-            <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen">
-                <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            </button>
 
         </div>
 
@@ -346,60 +450,143 @@ video{
             Judul: ${animeData.judul}
         </div>
         <div style="font-size:13px;color:#a78bda;">
-            Anda sedang dalam mode bersama (Stream Sync). Video disinkronkan secara realtime dari Server WebSocket.
-            <br><br>Dibuat oleh Rifai
-        </div>
-    </div>
-
-    <div class="chat-container">
-        <div class="chat-header">
-            <span>Live Chat</span>
-            <span class="status-badge" id="chatStatus">Disconnected</span>
-        </div>
-        <div class="chat-box" id="chatBox"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-            <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
+            Web ini hanya untuk menampilkan video anime, Selamat menonton!
+            
+            <br><br>Di buat oleh Rifai
         </div>
     </div>
 
     <div class="footer">
         Penting:
-        Jika audio tidak terdengar saat pertama masuk, aktifkan suara melalui slider/tombol volume di pojok kiri bawah video.
+        Beberapa video mungkin tidak bisa di putar karna kendala source video yang udah hilang
     </div>
 
 </div>
 
 <script>
 
-// Data API
 const api = ${jsonString};
+
 const data = api.data[0];
 
 const video = document.getElementById("video");
 const player = document.getElementById("player");
+const clickLayer = document.getElementById("clickLayer");
+const bigPlay = document.getElementById("bigPlay");
+
+const resoBtn = document.getElementById("resoBtn");
+const resoMenu = document.getElementById("resoMenu");
+const resoLabel = document.getElementById("resoLabel");
+
+const playBtn = document.getElementById("playBtn");
+const playIcon = document.getElementById("playIcon");
+const rewindBtn = document.getElementById("rewindBtn");
+const forwardBtn = document.getElementById("forwardBtn");
 
 const muteBtn = document.getElementById("muteBtn");
 const volIcon = document.getElementById("volIcon");
 const volumeSlider = document.getElementById("volumeSlider");
 
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-const syncText = document.getElementById("syncText");
+const progressBar = document.getElementById("progressBar");
+const progressFill = document.getElementById("progressFill");
+const progressBuffer = document.getElementById("progressBuffer");
+const timeLabel = document.getElementById("timeLabel");
 
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const controls = document.getElementById("controls");
+
+const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+const ICON_PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
 const ICON_VOL_ON = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const ICON_VOL_MUTE = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.42.05-.63zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.94 8.94 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const ICON_FS_EXPAND = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
 const ICON_FS_COMPRESS = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
 
-// Standard resolusi pertama
-const defaultReso = data.reso[data.reso.length - 1];
-video.src = data.streams[defaultReso][0].link;
+let currentReso = null;
+let savedTime = 0;
 
-// ===== Volume Controls =====
+function buildResoMenu(){
+    resoMenu.innerHTML = "";
+    data.reso.forEach((reso)=>{
+        const opt = document.createElement("button");
+        opt.className = "reso-option";
+        opt.dataset.reso = reso;
+        opt.innerHTML = \`<span>\${reso}</span><span class="size">\${data.resoSize[reso] || "-"}</span>\`;
+        opt.onclick = (e)=>{
+            e.stopPropagation();
+            changeResolution(reso);
+            resoMenu.classList.remove("open");
+        };
+        resoMenu.appendChild(opt);
+    });
+}
+
+function changeResolution(reso){
+    if(reso === currentReso) return;
+
+    savedTime = video.currentTime || 0;
+    const wasPaused = video.paused;
+
+    currentReso = reso;
+    resoLabel.textContent = reso;
+
+    document.querySelectorAll(".reso-option").forEach(e=>{
+        e.classList.toggle("active", e.dataset.reso === reso);
+    });
+
+    video.src = data.streams[reso][0].link;
+    video.load();
+
+    video.addEventListener("loadedmetadata", function onLoaded(){
+        video.currentTime = savedTime;
+        if(!wasPaused) video.play();
+        video.removeEventListener("loadedmetadata", onLoaded);
+    });
+}
+
+resoBtn.onclick = (e)=>{
+    e.stopPropagation();
+    resoMenu.classList.toggle("open");
+    document.querySelector(".reso-wrapper").classList.toggle("force-visible", resoMenu.classList.contains("open"));
+};
+
+document.addEventListener("click", ()=>{
+    resoMenu.classList.remove("open");
+    document.querySelector(".reso-wrapper").classList.remove("force-visible");
+});
+
+function togglePlay(){
+    if(video.paused){
+        video.play();
+    }else{
+        video.pause();
+    }
+}
+
+playBtn.onclick = togglePlay;
+clickLayer.onclick = togglePlay;
+
+video.addEventListener("play", ()=>{
+    playIcon.innerHTML = ICON_PAUSE;
+    bigPlay.classList.remove("show");
+    showControlsTemporarily();
+});
+
+video.addEventListener("pause", ()=>{
+    playIcon.innerHTML = ICON_PLAY;
+    bigPlay.classList.add("show");
+    player.classList.add("controls-visible");
+    player.classList.remove("user-inactive");
+    clearTimeout(hideTimeout);
+});
+
+rewindBtn.onclick = ()=>{ video.currentTime = Math.max(0, video.currentTime - 10); };
+forwardBtn.onclick = ()=>{ video.currentTime = Math.min(video.duration || 0, video.currentTime + 10); };
+
 muteBtn.onclick = ()=>{
     video.muted = !video.muted;
     volIcon.innerHTML = video.muted ? ICON_VOL_MUTE : ICON_VOL_ON;
-    volumeSlider.value = video.muted ? 0 : (video.volume || 0.5);
+    volumeSlider.value = video.muted ? 0 : video.volume;
 };
 
 volumeSlider.oninput = ()=>{
@@ -408,7 +595,33 @@ volumeSlider.oninput = ()=>{
     volIcon.innerHTML = video.muted ? ICON_VOL_MUTE : ICON_VOL_ON;
 };
 
-// ===== Fullscreen (cross-browser) =====
+function formatTime(sec){
+    if(!isFinite(sec)) return "00:00";
+    const m = Math.floor(sec/60).toString().padStart(2,"0");
+    const s = Math.floor(sec%60).toString().padStart(2,"0");
+    return \`\${m}:\${s}\`;
+}
+
+video.addEventListener("timeupdate", ()=>{
+    const pct = (video.currentTime / (video.duration || 1)) * 100;
+    progressFill.style.width = pct + "%";
+    timeLabel.textContent = \`\${formatTime(video.currentTime)} / \${formatTime(video.duration)}\`;
+});
+
+video.addEventListener("progress", ()=>{
+    if(video.buffered.length){
+        const end = video.buffered.end(video.buffered.length - 1);
+        const pct = (end / (video.duration || 1)) * 100;
+        progressBuffer.style.width = pct + "%";
+    }
+});
+
+progressBar.onclick = (e)=>{
+    const rect = progressBar.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    video.currentTime = pct * (video.duration || 0);
+};
+
 function getFsElement(){
     return document.fullscreenElement ||
            document.webkitFullscreenElement ||
@@ -423,7 +636,9 @@ function requestFs(el){
                 el.webkitEnterFullscreen ||
                 el.mozRequestFullScreen ||
                 el.msRequestFullscreen;
-    if(req) return req.call(el);
+    if(req){
+        return req.call(el);
+    }
     return Promise.reject(new Error("Fullscreen tidak didukung"));
 }
 
@@ -432,7 +647,9 @@ function exitFs(){
                  document.webkitExitFullscreen ||
                  document.mozCancelFullScreen ||
                  document.msExitFullscreen;
-    if(exit) return exit.call(document);
+    if(exit){
+        return exit.call(document);
+    }
     return Promise.resolve();
 }
 
@@ -452,143 +669,49 @@ function onFsChange(){
     const isFs = !!getFsElement();
     player.classList.toggle("fullscreen-active", isFs);
     document.getElementById("fsIcon").innerHTML = isFs ? ICON_FS_COMPRESS : ICON_FS_EXPAND;
+
+    if(isFs){
+        if(screen.orientation && screen.orientation.lock){
+            screen.orientation.lock("landscape").catch(()=>{});
+        }
+    }else{
+        if(screen.orientation && screen.orientation.unlock){
+            try{ screen.orientation.unlock(); }catch(e){}
+        }
+    }
 }
 
 ["fullscreenchange","webkitfullscreenchange","mozfullscreenchange","MSFullscreenChange"].forEach(evt=>{
     document.addEventListener(evt, onFsChange);
 });
 
-// ===== WebSocket Connection (Live Chat + Stream Video Sync) =====
-const currentRoomId = "anime-" + ${JSON.stringify(animeData.judul)}.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
-const chatBox = document.getElementById("chatBox");
-const chatStatus = document.getElementById("chatStatus");
-
-const wsUrl = "wss://ws.animeunicraft.my.id";
-
-let ws;
-
-function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, 
-        tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag] || tag)
-    );
-}
-
-function initWebSocket() {
-    ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-        chatStatus.textContent = "Online";
-        chatStatus.classList.add("online");
-
-        // Join room otomatis
-        ws.send(JSON.stringify({
-            type: "join",
-            roomId: currentRoomId
-        }));
-    };
+let hideTimeout;
+function showControlsTemporarily(){
+    player.classList.add("controls-visible");
+    player.classList.remove("user-inactive");
     
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            
-            if (data.type === "chat_history") {
-                chatBox.innerHTML = ""; // Bersihkan box chat
-                if (Array.isArray(data.messages)) {
-                    data.messages.forEach(msg => {
-                        appendChatMessage(msg.sender, msg.message);
-                    });
-                }
-            }
-            
-            if (data.type === "message") {
-                appendChatMessage(data.sender, data.message);
-            }
-            
-            if (data.type === "stream_sync" || data.type === "sync_state") {
-                handleVideoSync(data.currentTime, data.isPaused);
-            }
-
-        } catch (e) {
-            console.error("Gagal membaca pesan WebSocket:", e);
-        }
-    };
-
-
-    ws.onclose = () => {
-        chatStatus.textContent = "Disconnected";
-        chatStatus.classList.remove("online");
-        syncText.textContent = "Koneksi Terputus...";
-        setTimeout(initWebSocket, 3000);
-    };
-
-    ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        ws.close();
-    };
-}
-
-// Fungsi Utama Sinkronisasi Video dari WS
-function handleVideoSync(serverTime, isPaused) {
-    if (serverTime === undefined) return;
-
-    syncText.textContent = "Terhubung dengan Server Stream";
-
-    // Play/Pause Sync
-    if (isPaused && !video.paused) {
-        video.pause();
-    } else if (!isPaused && video.paused) {
-        video.play().catch(()=>{});
-    }
-
-    // Delay/Time Shift Sync Check (Toleransi 1.5 detik)
-    const timeDifference = Math.abs(video.currentTime - serverTime);
-    if (timeDifference > 1.5) {
-        video.currentTime = serverTime;
-    }
-}
-
-function sendChatMessage() {
-    const textInput = document.getElementById("chatText");
-
-    const sender = "Ini siapa njir?";
-    const message = textInput.value.trim();
-
-    if (!message) return;
-
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-            type: "message",
-            roomId: currentRoomId,
-            sender: sender,
-            message: message
-        }));
-        textInput.value = "";
-    } else {
-        alert("Koneksi chat terputus. Menghubungkan ulang...");
-    }
-}
-
-function appendChatMessage(sender, message) {
-    const msgDiv = document.createElement("div");
-    msgDiv.className = "chat-msg";
-    msgDiv.innerHTML = \`<div class="sender">\${escapeHTML(sender)}</div><div>\${escapeHTML(message)}</div>\`;
+    clearTimeout(hideTimeout);
     
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if(!video.paused){
+        hideTimeout = setTimeout(()=>{
+            if (!resoMenu.classList.contains("open")) {
+                player.classList.remove("controls-visible");
+                player.classList.add("user-inactive");
+            }
+        }, 2500);
+    }
 }
 
-// ===== Init =====
-initWebSocket();
+player.addEventListener("mousemove", showControlsTemporarily);
+player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
+player.addEventListener("click", showControlsTemporarily);
+
+buildResoMenu();
+changeResolution(data.reso[0]);
+bigPlay.classList.add("show");
 
 </script>
 
 </body>
 </html>`;
 }
-
