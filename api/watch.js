@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 function decode(data) {
   const ngen = Buffer
     .from(data, "base64url")
-    .toString("utf8")      
+    .toString("utf8")
   const json = JSON.parse(ngen);
   return json
 }
@@ -227,12 +227,10 @@ video{
     }
 }
 
-/* Sembunyikan cursor mouse saat idle di fullscreen */
 .player.fullscreen-active.user-inactive {
     cursor: none;
 }
 
-/* progress bar */
 .progress-row{
     display:flex;
     align-items:center;
@@ -276,7 +274,6 @@ video{
     font-variant-numeric:tabular-nums;
 }
 
-/* buttons row */
 .buttons-row{
     display:flex;
     align-items:center;
@@ -323,7 +320,6 @@ video{
     flex:1;
 }
 
-/* center big play icon when paused */
 .big-play{
     position:absolute;
     top:50%;
@@ -380,7 +376,7 @@ video{
 <div class="container">
 
     <div class="title">
-        ${animeData.judul}
+        Anime Universe - Video Play
     </div>
 
     <div class="player controls-visible" id="player">
@@ -446,17 +442,20 @@ video{
 
     <div class="info">
         <div class="label">
-            Pilih Resolusi
+            ${animeData.judul}
+            
+            Web ini hanya untuk menampilkan video anime
+            
+            Di buat oleh Rifai
         </div>
         <div style="font-size:13px;color:#a78bda;">
-            Gunakan tombol resolusi di pojok kanan atas video untuk mengganti kualitas.
+            Selamat menonton!
         </div>
     </div>
 
     <div class="footer">
-        ✔ Pilih resolusi lewat tombol di pojok kanan atas video.<br>
-        ✔ Video akan berganti otomatis dan melanjutkan dari posisi terakhir.<br>
-        ✔ Tidak semua anime memiliki seluruh resolusi.
+        Penting:
+        Beberapa video mungkin tidak bisa di putar karna kendala source video yang udah hilang
     </div>
 
 </div>
