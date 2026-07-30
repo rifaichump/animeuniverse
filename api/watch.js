@@ -1,9 +1,12 @@
 export default async function handler(req, res) {
-  console.log(req.rawHeaders)
-  console.log(req.headers)
-  const json1 = decode(req.query.video)
-  const json2 = decode(req.query.anime)
-  res.send(showHTML(json1, json2));
+  const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
+  if (isWhatsApp) {
+    const json1 = decode(req.query.video)
+    const json2 = decode(req.query.anime)
+    res.send(showHTML(json1, json2));
+  } else {
+    res.json({ status: false })
+  }
 }
 
 function decode(data) {
@@ -532,7 +535,7 @@ function changeResolution(reso){
         e.classList.toggle("active", e.dataset.reso === reso);
     });
 
-    video.src = data.streams[reso][data.streams[reso].length - 1].link;
+    video.src = data.streams[reso][0].link;
     video.load();
 
     video.addEventListener("loadedmetadata", function onLoaded(){
