@@ -442,14 +442,12 @@ video{
 
     <div class="info">
         <div class="label">
-            ${animeData.judul}
-            
-            Web ini hanya untuk menampilkan video anime
-            
-            Di buat oleh Rifai
+            Judul: ${animeData.judul}
         </div>
         <div style="font-size:13px;color:#a78bda;">
-            Selamat menonton!
+            Web ini hanya untuk menampilkan video anime, Selamat menonton!
+            
+            \n\nDi buat oleh Rifai
         </div>
     </div>
 
