@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  console.log(req)
   const json1 = decode(req.query.video)
   const json2 = decode(req.query.anime)
   res.send(showHTML(json1, json2));
