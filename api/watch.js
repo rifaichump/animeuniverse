@@ -492,17 +492,24 @@ function initWebSocket() {
             roomId: currentRoomId
         }));
     };
-
+    
     ws.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-
-            // Handle pesan chat
+            
+            if (data.type === "chat_history") {
+                chatBox.innerHTML = ""; // Bersihkan box chat
+                if (Array.isArray(data.messages)) {
+                    data.messages.forEach(msg => {
+                        appendChatMessage(msg.sender, msg.message);
+                    });
+                }
+            }
+            
             if (data.type === "message") {
                 appendChatMessage(data.sender, data.message);
             }
-
-            // Handle sinkronisasi video/stream dari server WebSocket
+            
             if (data.type === "stream_sync" || data.type === "sync_state") {
                 handleVideoSync(data.currentTime, data.isPaused);
             }
@@ -511,6 +518,7 @@ function initWebSocket() {
             console.error("Gagal membaca pesan WebSocket:", e);
         }
     };
+
 
     ws.onclose = () => {
         chatStatus.textContent = "Disconnected";
