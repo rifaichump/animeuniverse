@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
+  console.log(req.headers)
   if (isWhatsApp) {
     const json1 = decode(req.query.video)
     const json2 = decode(req.query.anime)
