@@ -905,7 +905,7 @@ function sendChatMessage() {
         }));
         textInput.value = "";
     } else {
-        alert("Koneksi chat terputus. Menghubungkan ulang...");
+        alert("Koneksi chat terputus. Menghubungkan ulang..., ", wsUrl);
     }
 }
 
