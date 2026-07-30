@@ -18,9 +18,9 @@ function decode(data) {
 }
 
 function showHTML(video, animeData) {
-    const jsonString = JSON.stringify(video);
-    
-    return `<!DOCTYPE html>
+  const jsonString = JSON.stringify(video);
+  
+  return `<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -366,6 +366,110 @@ video{
     margin-bottom:12px;
 }
 
+/* ===== Live Chat Styles ===== */
+.chat-container{
+    margin-top:20px;
+    background:#190b2b;
+    border:1px solid rgba(139,92,246,.4);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+
+.chat-header{
+    background:rgba(139,92,246,.2);
+    padding:12px 18px;
+    font-weight:bold;
+    color:#e9d5ff;
+    border-bottom:1px solid rgba(139,92,246,.3);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.status-badge{
+    font-size:11px;
+    padding:4px 8px;
+    border-radius:20px;
+    background:#e11d48;
+    color:#fff;
+}
+
+.status-badge.online{
+    background:#10b981;
+}
+
+.chat-box{
+    height:250px;
+    overflow-y:auto;
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:rgba(0,0,0,.2);
+}
+
+.chat-msg{
+    background:rgba(139,92,246,.15);
+    border-left:3px solid #8b5cf6;
+    padding:8px 12px;
+    border-radius:0 8px 8px 0;
+    word-break:break-word;
+    font-size:14px;
+}
+
+.chat-msg .sender{
+    font-size:11px;
+    font-weight:bold;
+    color:#c084fc;
+    margin-bottom:2px;
+}
+
+.chat-input-area{
+    display:flex;
+    padding:10px;
+    gap:8px;
+    background:rgba(18,9,31,.6);
+    border-top:1px solid rgba(139,92,246,.2);
+}
+
+.chat-input-area input{
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(139,92,246,.4);
+    padding:10px 14px;
+    border-radius:8px;
+    color:#fff;
+    outline:none;
+    font-size:14px;
+}
+
+.chat-input-area input:focus{
+    border-color:#c084fc;
+}
+
+#chatUsername{
+    width:30%;
+}
+
+#chatText{
+    flex:1;
+}
+
+.chat-btn{
+    background:#7c3aed;
+    color:#fff;
+    border:none;
+    padding:0 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.2s;
+}
+
+.chat-btn:hover{
+    background:#9333ea;
+}
+
 .footer{
     margin-top:25px;
     color:#b8a9d9;
@@ -453,6 +557,20 @@ video{
             Web ini hanya untuk menampilkan video anime, Selamat menonton!
             
             \n\nDi buat oleh Rifai
+        </div>
+    </div>
+
+    <!-- Live Chat Section -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <span>Live Chat</span>
+            <span class="status-badge" id="chatStatus">Disconnected</span>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatUsername" placeholder="Nama..." value="User_${Math.floor(Math.random()*1000)}">
+            <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
         </div>
     </div>
 
@@ -713,10 +831,104 @@ player.addEventListener("mousemove", showControlsTemporarily);
 player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
 player.addEventListener("click", showControlsTemporarily);
 
+// ===== WebSocket Chat Integration =====
+const currentRoomId = "anime-" + ${JSON.stringify(animeData.judul)}.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+const chatBox = document.getElementById("chatBox");
+const chatStatus = document.getElementById("chatStatus");
+
+// Sesuaikan URL WebSocket (ubah jika ws server hosted di domain lain/port lain)
+const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+const wsHost = window.location.hostname || "localhost";
+const wsUrl = \`\${wsProtocol}//\${wsHost}:8080\`;
+
+let ws;
+
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
+function initChatWebSocket() {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+        chatStatus.textContent = "Online";
+        chatStatus.classList.add("online");
+
+        // Join room otomatis sesuai judul anime
+        ws.send(JSON.stringify({
+            type: "join",
+            roomId: currentRoomId
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.type === "message") {
+                appendChatMessage(data.sender, data.message);
+            }
+        } catch (e) {
+            console.error("Failed to parse websocket message", e);
+        }
+    };
+
+    ws.onclose = () => {
+        chatStatus.textContent = "Disconnected";
+        chatStatus.classList.remove("online");
+        // Reconnect otomatis tiap 3 detik jika terputus
+        setTimeout(initChatWebSocket, 3000);
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket error:", err);
+        ws.close();
+    };
+}
+
+function sendChatMessage() {
+    const usernameInput = document.getElementById("chatUsername");
+    const textInput = document.getElementById("chatText");
+
+    const sender = usernameInput.value.trim() || "Anonim";
+    const message = textInput.value.trim();
+
+    if (!message) return;
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            type: "message",
+            roomId: currentRoomId,
+            sender: sender,
+            message: message
+        }));
+        textInput.value = "";
+    } else {
+        alert("Koneksi chat terputus. Menghubungkan ulang...");
+    }
+}
+
+function appendChatMessage(sender, message) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "chat-msg";
+    msgDiv.innerHTML = \`<div class="sender">\${escapeHTML(sender)}</div><div>\${escapeHTML(message)}</div>\`;
+    
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 // ===== Init =====
 buildResoMenu();
 changeResolution(data.reso[0]);
 bigPlay.classList.add("show");
+initChatWebSocket();
 
 </script>
 
