@@ -832,7 +832,7 @@ const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
 // Sesuaikan URL WebSocket (ubah jika ws server hosted di domain lain/port lain)
-const wsUrl = "ws://185.211.103.141:9755";
+const wsUrl = "wss://channels-recommends-acquisition-tender.trycloudflare.com";
 
 let ws;
 
