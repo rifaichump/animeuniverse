@@ -463,7 +463,7 @@ const currentRoomId = "anime-" + ${JSON.stringify(animeData.judul)}.replace(/[^a
 const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
-const wsUrl = "wss://ws.animeunicraft.my.id;
+const wsUrl = "wss://ws.animeunicraft.my.id";
 
 let ws;
 
