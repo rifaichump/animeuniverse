@@ -832,9 +832,7 @@ const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
 // Sesuaikan URL WebSocket (ubah jika ws server hosted di domain lain/port lain)
-const wsProtocol = "ws:";
-const wsHost = "185.211.103.141";
-const wsUrl = \`\${wsProtocol}//\${wsHost}:9755\`;
+const wsUrl = "ws://185.211.103.141:9755";
 
 let ws;
 
@@ -905,7 +903,7 @@ function sendChatMessage() {
         }));
         textInput.value = "";
     } else {
-        alert("Koneksi chat terputus. Menghubungkan ulang..., ", wsUrl);
+        alert(wsUrl);
     }
 }
 
