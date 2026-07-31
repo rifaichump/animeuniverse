@@ -234,25 +234,24 @@ video{
 .online-count{
     display:flex;
     align-items:center;
-    gap:6px;
-    margin-left:4px;
-    padding:5px 10px;
+    gap:5px;
+    padding:4px 8px;
     background:rgba(139,92,246,.15);
     border:1px solid rgba(139,92,246,.3);
     border-radius:20px;
     color:#d8b4fe;
-    font-size:13px;
+    font-size:12px;
     font-weight:600;
 }
 
 .online-count svg{
-    width:17px;
-    height:17px;
+    width:16px;
+    height:16px;
     fill:currentColor;
 }
 
 .online-number{
-    min-width:14px;
+    min-width:12px;
     text-align:center;
 }
 
@@ -383,16 +382,7 @@ video{
 
     <div class="title">
         <span>Anime Universe Party</span>
-    
         <span class="live-badge">Live</span>
-    
-        <span class="online-count">
-            <svg viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-    
-            <span class="online-number" id="onlineCount">0</span>
-        </span>
     </div>
     
     <div class="player" id="player">
@@ -438,7 +428,19 @@ video{
     <div class="chat-container">
         <div class="chat-header">
             <span>Live Chat</span>
-            <span class="status-badge" id="chatStatus">Disconnected</span>
+        
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="online-count">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="online-number" id="onlineCount">0</span>
+                </span>
+        
+                <span class="status-badge" id="chatStatus">
+                    Disconnected
+                </span>
+            </div>
         </div>
         <div class="chat-box" id="chatBox"></div>
         <div class="chat-input-area">
