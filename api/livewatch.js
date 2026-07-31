@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
     let idRoom = req.query.room_id;
-    let idHost = req.query.as_host == 'true';
+    let isHost = req.query.as_host == 'true';
     res.send(showHTML(link, JSON.parse(dataAnime), idRoom, isHost));
   } else {
     res.json({ status: false });
