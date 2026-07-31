@@ -4,7 +4,8 @@ export default async function handler(req, res) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
     let idRoom = req.query.room_id;
-    res.send(showHTML(link, JSON.parse(dataAnime), idRoom));
+    let idHost = req.query.as_host == 'true';
+    res.send(showHTML(link, JSON.parse(dataAnime), idRoom, isHost));
   } else {
     res.json({ status: false });
   }
@@ -17,7 +18,7 @@ function decode(data) {
   return ngen;
 }
 
-function showHTML(video, animeData, idRoom) {
+function showHTML(video, animeData, idRoom, isHost) {
     return `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -136,6 +137,33 @@ video{
 .player:hover .controls,
 .player.controls-visible .controls{
     opacity:1;
+}
+
+.host-controls{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.host-btn{
+    background:rgba(139,92,246,.25);
+    border:1px solid rgba(139,92,246,.45);
+    color:#fff;
+    padding:7px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+    transition:.2s;
+}
+
+.host-btn:hover{
+    background:#7c3aed;
+    border-color:#a78bfa;
+}
+
+.host-btn.pause{
+    min-width:70px;
 }
 
 .ctrl-btn{
@@ -404,6 +432,24 @@ video{
                 <div class="sync-dot"></div>
                 <span id="syncText">Mencari Sinyal Stream...</span>
             </div>
+            
+            ${isHost ? `
+            <div class="host-controls">
+            
+                <button class="host-btn" id="back10Btn" title="Mundur 10 detik">
+                    -10s
+                </button>
+            
+                <button class="host-btn pause" id="pauseBtn" title="Pause">
+                    Pause
+                </button>
+            
+                <button class="host-btn" id="forward10Btn" title="Maju 10 detik">
+                    +10s
+                </button>
+            
+            </div>
+            ` : ""}
 
             <div class="spacer"></div>
 
@@ -484,8 +530,14 @@ video{
 
 const video = document.getElementById("video");
 video.addEventListener("play", () => {
-    if (!wsConnected) {
-        video.pause();
+    if (isHost && pauseBtn) {
+        pauseBtn.textContent = "Pause";
+    }
+});
+
+video.addEventListener("pause", () => {
+    if (isHost && pauseBtn) {
+        pauseBtn.textContent = "Play";
     }
 });
 const player = document.getElementById("player");
@@ -497,6 +549,12 @@ const volumeSlider = document.getElementById("volumeSlider");
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const syncText = document.getElementById("syncText");
 const onlineCount = document.getElementById("onlineCount");
+
+const isHost = ${JSON.stringify(isHost)};
+
+const back10Btn = document.getElementById("back10Btn");
+const pauseBtn = document.getElementById("pauseBtn");
+const forward10Btn = document.getElementById("forward10Btn");
 
 const chatNameInput = document.getElementById("chatName");
 
@@ -600,7 +658,8 @@ function initWebSocket() {
 
         ws.send(JSON.stringify({
             type: "join",
-            roomId: currentRoomId
+            roomId: currentRoomId,
+            isHost: ${JSON.stringify(isHost)}
         }));
     };
     
@@ -677,6 +736,24 @@ function handleVideoSync(serverTime, isPaused) {
     if (timeDifference > 1.5) {
         video.currentTime = serverTime;
     }
+}
+
+function sendHostControl(action, value = 0) {
+    if (!isHost) return;
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert("Koneksi server terputus.");
+        return;
+    }
+
+    ws.send(JSON.stringify({
+        type: "host_control",
+        roomId: currentRoomId,
+        action: action,
+        value: value,
+        currentTime: video.currentTime,
+        isPaused: video.paused
+    }));
 }
 
 function sendChatMessage() {
