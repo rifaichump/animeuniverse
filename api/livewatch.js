@@ -190,7 +190,6 @@ video{
     margin-bottom:12px;
 }
 
-/* ===== Live Chat Styles ===== */
 .chat-container{
     margin-top:20px;
     background:#190b2b;
@@ -290,6 +289,29 @@ video{
     background:#9333ea;
 }
 
+.name-input-area{
+    display:flex;
+    padding:10px;
+    gap:8px;
+    background:rgba(18,9,31,.8);
+    border-top:1px solid rgba(139,92,246,.2);
+}
+
+.name-input-area input{
+    flex:1;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(139,92,246,.4);
+    padding:10px 14px;
+    border-radius:8px;
+    color:#fff;
+    outline:none;
+    font-size:14px;
+}
+
+.name-input-area input:focus{
+    border-color:#c084fc;
+}
+
 .footer{
     margin-top:25px;
     color:#b8a9d9;
@@ -345,6 +367,7 @@ video{
         </div>
         <div style="font-size:13px;color:#a78bda;">
             Ini adalah mode nobar atau live, Kalian bisa berbagi chat di kolom live chat. Video di putar dengan durasi yang sama untuk semua orang. Selamat menonton!
+            <br><br>Ganti nama ada di bwah kolom live chat ya.
             <br><br>Dibuat oleh Rifai
         </div>
     </div>
@@ -359,6 +382,15 @@ video{
             <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
             <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
         </div>
+        <div class="name-input-area">
+          <input
+              type="text"
+              id="chatName"
+              placeholder="Masukkan nama..."
+              maxlength="30"
+          >
+          <button class="chat-btn" onclick="saveChatName()">Simpan</button>
+      </div>
     </div>
 
     <div class="footer">
@@ -379,6 +411,8 @@ const volumeSlider = document.getElementById("volumeSlider");
 
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const syncText = document.getElementById("syncText");
+
+const chatNameInput = document.getElementById("chatName");
 
 const ICON_VOL_ON = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const ICON_VOL_MUTE = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.42.05-.63zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.94 8.94 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
@@ -540,8 +574,8 @@ function handleVideoSync(serverTime, isPaused) {
 
 function sendChatMessage() {
     const textInput = document.getElementById("chatText");
-
-    const sender = "Ini siapa njir?";
+    
+    const sender = localStorage.getItem("chatName") || "Ini siapa njir?";
     const message = textInput.value.trim();
 
     if (!message) return;
@@ -566,6 +600,26 @@ function appendChatMessage(sender, message) {
     
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function loadChatName() {
+    const savedName = localStorage.getItem("chatName");
+
+    if (savedName) {
+        chatNameInput.value = savedName;
+    }
+}
+
+function saveChatName() {
+    const name = chatNameInput.value.trim();
+
+    if (!name) {
+        alert("Nama tidak boleh kosong.");
+        return;
+    }
+
+    localStorage.setItem("chatName", name);
+    alert("Nama berhasil disimpan.");
 }
 
 initWebSocket();
