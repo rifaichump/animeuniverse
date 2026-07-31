@@ -707,7 +707,7 @@ player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
 player.addEventListener("click", showControlsTemporarily);
 
 buildResoMenu();
-changeResolution(data.reso[0]);
+changeResolution('720p');
 bigPlay.classList.add("show");
 
 </script>
