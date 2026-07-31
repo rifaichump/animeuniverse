@@ -384,7 +384,6 @@ video{
         </div>
         <div style="font-size:13px;color:#a78bda;">
             Ini adalah mode nobar atau live, Kalian bisa berbagi chat di kolom live chat. Video di putar dengan durasi yang sama untuk semua orang. Selamat menonton!
-            <br><br>Ganti nama ada di bwah kolom live chat ya.
             <br><br>Dibuat oleh Rifai
         </div>
     </div>
@@ -649,6 +648,7 @@ function saveChatName() {
 }
 
 initWebSocket();
+loadChatName();
 
 </script>
 
