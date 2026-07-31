@@ -63,9 +63,24 @@ body{
     border-radius:4px;
     text-transform:uppercase;
     letter-spacing:1px;
+
+    animation: livePulse 1.5s infinite;
 }
 
-/* ===== Player wrapper ===== */
+@keyframes livePulse{
+    0%{
+        box-shadow:0 0 0 0 rgba(225,29,72,.7);
+    }
+
+    70%{
+        box-shadow:0 0 0 8px rgba(225,29,72,0);
+    }
+
+    100%{
+        box-shadow:0 0 0 0 rgba(225,29,72,0);
+    }
+}
+
 .player{
     position:relative;
     width:100%;
@@ -88,7 +103,7 @@ video{
     display:block;
     background:#000;
     max-height:80vh;
-    pointer-events:none; /* Nonaktifkan interaksi klik pada video */
+    pointer-events:none;
 }
 
 .player.fullscreen-active video{
@@ -97,14 +112,12 @@ video{
     object-fit: contain;
 }
 
-/* Overlay Transparan untuk mencegah event klik kanan / klik pada video */
 .video-overlay-layer{
     position:absolute;
     inset:0;
     z-index:2;
 }
 
-/* ===== Custom controls bar (Minimalis: Hanya Volume & Fullscreen) ===== */
 .controls{
     position:absolute;
     left:0;
@@ -216,6 +229,31 @@ video{
     border-radius:20px;
     background:#e11d48;
     color:#fff;
+}
+
+.online-count{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-left:4px;
+    padding:5px 10px;
+    background:rgba(139,92,246,.15);
+    border:1px solid rgba(139,92,246,.3);
+    border-radius:20px;
+    color:#d8b4fe;
+    font-size:13px;
+    font-weight:600;
+}
+
+.online-count svg{
+    width:17px;
+    height:17px;
+    fill:currentColor;
+}
+
+.online-number{
+    min-width:14px;
+    text-align:center;
 }
 
 .status-badge.online{
@@ -345,9 +383,18 @@ video{
 
     <div class="title">
         <span>Anime Universe Party</span>
+    
         <span class="live-badge">Live</span>
+    
+        <span class="online-count">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+    
+            <span class="online-number" id="onlineCount">0</span>
+        </span>
     </div>
-
+    
     <div class="player" id="player">
 
         <video id="video" autoplay playsinline muted></video>
@@ -395,7 +442,13 @@ video{
         </div>
         <div class="chat-box" id="chatBox"></div>
         <div class="chat-input-area">
-            <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <input 
+              type="text" 
+              id="chatText" 
+              placeholder="Ketik pesan..."
+              maxlength="200"
+              onkeypress="if(event.key==='Enter') sendChatMessage()"
+            >
             <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
         </div>
     </div>
@@ -436,6 +489,7 @@ const volumeSlider = document.getElementById("volumeSlider");
 
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const syncText = document.getElementById("syncText");
+const onlineCount = document.getElementById("onlineCount");
 
 const chatNameInput = document.getElementById("chatName");
 
@@ -559,6 +613,10 @@ function initWebSocket() {
             
             if (data.type === "stream_sync" || data.type === "sync_state") {
                 handleVideoSync(data.currentTime, data.isPaused);
+                
+                if (data.online !== undefined) {
+                    onlineCount.textContent = Number(data.online) || 0;
+                }
             }
 
         } catch (e) {
