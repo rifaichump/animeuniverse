@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  console.log(req.headers['x-requested-with'])
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
   if (isWhatsApp) {
     let link = decode(req.query.video);
@@ -149,15 +150,6 @@ video{
     flex-direction: column;
     gap: 10px;
     box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
-}
-
-.host-controls-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: #d8b4fe;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .host-btn-group {
@@ -471,9 +463,6 @@ video{
     ${isHost ? `
     <!-- Host Controls Panel -->
     <div class="host-controls-panel">
-        <div class="host-controls-title">
-            👑 Panel Kontrol Host
-        </div>
         <div class="host-btn-group">
             <button class="host-btn" onclick="hostRewind10()">
                 <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -763,7 +752,6 @@ function handleVideoSync(serverTime, isPaused) {
     }
 }
 
-// Handler Kirim Sinkronisasi dari Host ke Server
 function sendHostAction() {
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
