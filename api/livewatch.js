@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
     let idRoom = req.query.room_id;
-    let isHost = req.query.as_host == 'true';
+    let isHost = req.query.as_host === 'true';
     res.send(showHTML(link, JSON.parse(dataAnime), idRoom, isHost));
   } else {
     res.json({ status: false });
@@ -18,7 +18,7 @@ function decode(data) {
   return ngen;
 }
 
-function showHTML(video, animeData, idRoom, isHost) {
+function showHTML(video, animeData, idRoom, isHost = false) {
     return `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -139,31 +139,56 @@ video{
     opacity:1;
 }
 
-.host-controls{
-    display:flex;
-    align-items:center;
-    gap:6px;
+.host-controls-panel {
+    margin-top: 15px;
+    background: #190b2b;
+    border: 1px solid #8b5cf6;
+    border-radius: 14px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
 }
 
-.host-btn{
-    background:rgba(139,92,246,.25);
-    border:1px solid rgba(139,92,246,.45);
-    color:#fff;
-    padding:7px 10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:12px;
-    font-weight:600;
-    transition:.2s;
+.host-controls-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #d8b4fe;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.host-btn:hover{
-    background:#7c3aed;
-    border-color:#a78bfa;
+.host-btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
-.host-btn.pause{
-    min-width:70px;
+.host-btn {
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.host-btn:hover {
+    background: #9333ea;
+}
+
+.host-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
 }
 
 .ctrl-btn{
@@ -432,24 +457,6 @@ video{
                 <div class="sync-dot"></div>
                 <span id="syncText">Mencari Sinyal Stream...</span>
             </div>
-            
-            ${isHost ? `
-            <div class="host-controls">
-            
-                <button class="host-btn" id="back10Btn" title="Mundur 10 detik">
-                    -10s
-                </button>
-            
-                <button class="host-btn pause" id="pauseBtn" title="Pause">
-                    Pause
-                </button>
-            
-                <button class="host-btn" id="forward10Btn" title="Maju 10 detik">
-                    +10s
-                </button>
-            
-            </div>
-            ` : ""}
 
             <div class="spacer"></div>
 
@@ -460,6 +467,29 @@ video{
         </div>
 
     </div>
+
+    ${isHost ? `
+    <!-- Host Controls Panel -->
+    <div class="host-controls-panel">
+        <div class="host-controls-title">
+            👑 Panel Kontrol Host
+        </div>
+        <div class="host-btn-group">
+            <button class="host-btn" onclick="hostRewind10()">
+                <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                -10s
+            </button>
+            <button class="host-btn" id="hostPlayPauseBtn" onclick="hostTogglePlay()">
+                <svg id="hostPlayIcon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <span id="hostPlayText">Pause</span>
+            </button>
+            <button class="host-btn" onclick="hostForward10()">
+                +10s
+                <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+            </button>
+        </div>
+    </div>
+    ` : ''}
 
     <div class="info">
         <div class="label">
@@ -528,18 +558,18 @@ video{
 
 <script>
 
+const isHost = ${JSON.stringify(isHost)};
 const video = document.getElementById("video");
+
 video.addEventListener("play", () => {
-    if (isHost && pauseBtn) {
-        pauseBtn.textContent = "Pause";
+    if (!wsConnected) {
+        video.pause();
     }
 });
 
-video.addEventListener("pause", () => {
-    if (isHost && pauseBtn) {
-        pauseBtn.textContent = "Play";
-    }
-});
+video.addEventListener("play", updateHostPlayBtnState);
+video.addEventListener("pause", updateHostPlayBtnState);
+
 const player = document.getElementById("player");
 
 const muteBtn = document.getElementById("muteBtn");
@@ -550,18 +580,15 @@ const fullscreenBtn = document.getElementById("fullscreenBtn");
 const syncText = document.getElementById("syncText");
 const onlineCount = document.getElementById("onlineCount");
 
-const isHost = ${JSON.stringify(isHost)};
-
-const back10Btn = document.getElementById("back10Btn");
-const pauseBtn = document.getElementById("pauseBtn");
-const forward10Btn = document.getElementById("forward10Btn");
-
 const chatNameInput = document.getElementById("chatName");
 
 const ICON_VOL_ON = '<path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const ICON_VOL_MUTE = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.42.05-.63zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.94 8.94 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
 const ICON_FS_EXPAND = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
 const ICON_FS_COMPRESS = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
+
+const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+const ICON_PAUSE = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
 video.src = ${JSON.stringify(video)};
 
@@ -658,8 +685,7 @@ function initWebSocket() {
 
         ws.send(JSON.stringify({
             type: "join",
-            roomId: currentRoomId,
-            isHost: ${JSON.stringify(isHost)}
+            roomId: currentRoomId
         }));
     };
     
@@ -692,7 +718,6 @@ function initWebSocket() {
             console.error("Gagal membaca pesan WebSocket:", e);
         }
     };
-
 
     ws.onclose = () => {
         wsConnected = false;
@@ -738,22 +763,55 @@ function handleVideoSync(serverTime, isPaused) {
     }
 }
 
-function sendHostControl(action, value = 0) {
-    if (!isHost) return;
-
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-        alert("Koneksi server terputus.");
-        return;
+// Handler Kirim Sinkronisasi dari Host ke Server
+function sendHostAction() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            type: "control_sync",
+            roomId: currentRoomId,
+            currentTime: video.currentTime,
+            isPaused: video.paused
+        }));
     }
+}
 
-    ws.send(JSON.stringify({
-        type: "host_control",
-        roomId: currentRoomId,
-        action: action,
-        value: value,
-        currentTime: video.currentTime,
-        isPaused: video.paused
-    }));
+function hostTogglePlay() {
+    if (!isHost) return;
+    if (video.paused) {
+        video.play().then(() => {
+            sendHostAction();
+        }).catch(() => {});
+    } else {
+        video.pause();
+        sendHostAction();
+    }
+}
+
+function hostRewind10() {
+    if (!isHost) return;
+    video.currentTime = Math.max(0, video.currentTime - 10);
+    sendHostAction();
+}
+
+function hostForward10() {
+    if (!isHost) return;
+    video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+    sendHostAction();
+}
+
+function updateHostPlayBtnState() {
+    if (!isHost) return;
+    const playIcon = document.getElementById("hostPlayIcon");
+    const playText = document.getElementById("hostPlayText");
+    if (playIcon && playText) {
+        if (video.paused) {
+            playIcon.innerHTML = ICON_PLAY;
+            playText.textContent = "Play";
+        } else {
+            playIcon.innerHTML = ICON_PAUSE;
+            playText.textContent = "Pause";
+        }
+    }
 }
 
 function sendChatMessage() {
