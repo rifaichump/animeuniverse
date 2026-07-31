@@ -3,7 +3,8 @@ export default async function handler(req, res) {
   if (isWhatsApp) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
-    res.send(showHTML(link, JSON.parse(dataAnime)));
+    let idRoom = decode(req.query.room_id);
+    res.send(showHTML(link, JSON.parse(dataAnime), idRoom));
   } else {
     res.json({ status: false });
   }
@@ -16,7 +17,7 @@ function decode(data) {
   return ngen;
 }
 
-function showHTML(video, animeData) {
+function showHTML(video, animeData, idRoom) {
     return `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -447,7 +448,7 @@ function onFsChange(){
     document.addEventListener(evt, onFsChange);
 });
 
-const currentRoomId = "anime-" + ${JSON.stringify(animeData.judul)}.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+const currentRoomId = ${JSON.stringify(idRoom)};
 const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
