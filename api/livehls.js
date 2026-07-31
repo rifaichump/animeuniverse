@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
   if (isWhatsApp) {
-    res.send(showHTML(link, JSON.parse(dataAnime), idRoom));
+    res.send();
   } else {
     res.json({ status: false });
   }
