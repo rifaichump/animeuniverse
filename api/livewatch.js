@@ -483,6 +483,11 @@ video{
 <script>
 
 const video = document.getElementById("video");
+video.addEventListener("play", () => {
+    if (!wsConnected) {
+        video.pause();
+    }
+});
 const player = document.getElementById("player");
 
 const muteBtn = document.getElementById("muteBtn");
@@ -570,6 +575,7 @@ const chatStatus = document.getElementById("chatStatus");
 const wsUrl = "wss://ws.animeunicraft.my.id";
 
 let ws;
+let wsConnected = false;
 
 function escapeHTML(str) {
     return str.replace(/[&<>'"]/g, 
@@ -587,6 +593,8 @@ function initWebSocket() {
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
+        wsConnected = true;
+        
         chatStatus.textContent = "Online";
         chatStatus.classList.add("online");
 
@@ -628,9 +636,14 @@ function initWebSocket() {
 
 
     ws.onclose = () => {
+        wsConnected = false;
+        
         chatStatus.textContent = "Disconnected";
         chatStatus.classList.remove("online");
         syncText.textContent = "Koneksi Terputus...";
+        
+        video.pause();
+        
         setTimeout(initWebSocket, 3000);
     };
 
@@ -642,13 +655,22 @@ function initWebSocket() {
 
 function handleVideoSync(serverTime, isPaused) {
     if (serverTime === undefined) return;
+    
+    if (!wsConnected) {
+        video.pause();
+        return;
+    }
 
     syncText.textContent = "Terhubung dengan Server Stream";
 
-    if (isPaused && !video.paused) {
-        video.pause();
-    } else if (!isPaused && video.paused) {
-        video.play().catch(()=>{});
+    if (isPaused) {
+        if (!video.paused) {
+            video.pause();
+        }
+    } else {
+        if (video.paused) {
+            video.play().catch(() => {});
+        }
     }
 
     const timeDifference = Math.abs(video.currentTime - serverTime);
