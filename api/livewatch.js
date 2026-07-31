@@ -483,6 +483,7 @@ video{
     <div class="info">
         <div class="label">
             Judul: ${animeData.judul}
+            <br>Episode: ${animeData.ch}
         </div>
         <div style="font-size:13px;color:#a78bda;">
             Ini adalah mode nobar atau live, Kalian bisa berbagi chat di kolom live chat. Video di putar dengan durasi yang sama untuk semua orang. Selamat menonton!
