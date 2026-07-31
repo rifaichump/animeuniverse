@@ -289,16 +289,33 @@ video{
     background:#9333ea;
 }
 
+.name-container{
+    margin-top:14px;
+    background:#190b2b;
+    border:1px solid rgba(139,92,246,.4);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+
+.name-header{
+    background:rgba(139,92,246,.2);
+    padding:12px 18px;
+    font-weight:bold;
+    color:#e9d5ff;
+    border-bottom:1px solid rgba(139,92,246,.3);
+}
+
 .name-input-area{
     display:flex;
-    padding:10px;
     gap:8px;
-    background:rgba(18,9,31,.8);
-    border-top:1px solid rgba(139,92,246,.2);
+    padding:10px;
+    background:rgba(18,9,31,.6);
 }
 
 .name-input-area input{
     flex:1;
+    min-width:0;
     background:rgba(255,255,255,.07);
     border:1px solid rgba(139,92,246,.4);
     padding:10px 14px;
@@ -382,15 +399,24 @@ video{
             <input type="text" id="chatText" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatMessage()">
             <button class="chat-btn" onclick="sendChatMessage()">Kirim</button>
         </div>
+    </div>
+    <div class="name-container">
+        <div class="name-header">
+            Ganti Nama
+        </div>
+    
         <div class="name-input-area">
-          <input
-              type="text"
-              id="chatName"
-              placeholder="Masukkan nama..."
-              maxlength="30"
-          >
-          <button class="chat-btn" onclick="saveChatName()">Simpan</button>
-      </div>
+            <input
+                type="text"
+                id="chatName"
+                placeholder="Masukan nama..."
+                maxlength="30"
+            >
+    
+            <button class="chat-btn" onclick="saveChatName()">
+                Simpan
+            </button>
+        </div>
     </div>
 
     <div class="footer">
