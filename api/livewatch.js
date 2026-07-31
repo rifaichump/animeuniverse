@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   if (isWhatsApp) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
-    let idRoom = decode(req.query.room_id);
+    let idRoom = req.query.room_id;
     res.send(showHTML(link, JSON.parse(dataAnime), idRoom));
   } else {
     res.json({ status: false });
