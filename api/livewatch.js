@@ -647,7 +647,7 @@ const currentRoomId = ${JSON.stringify(idRoom)};
 const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
-const wsUrl = "wss://ws.animeunicraft.my.id";
+const wsUrl = "wss://api.animeunicraft.my.id/websocket";
 
 let ws;
 let wsConnected = false;
