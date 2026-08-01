@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+const handler = function (req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp' || req.headers['x-requested-with'] === 'com.whatsapp.w4b'
   
   if (isWhatsApp) {
@@ -16,6 +16,8 @@ export default async function handler(req, res) {
     res.json({ status: false });
   }
 }
+
+module.exports = handler
 
 async function checkRoom(roomId) {
   try {
