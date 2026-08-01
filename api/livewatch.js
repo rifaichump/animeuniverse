@@ -1,4 +1,4 @@
-const handler = async function (req, res) {
+export default async function handler(req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp' || req.headers['x-requested-with'] === 'com.whatsapp.w4b'
   
   if (isWhatsApp) {
@@ -16,7 +16,6 @@ const handler = async function (req, res) {
     res.json({ status: false });
   }
 }
-module.exports = handler
 
 async function checkRoom(roomId) {
   try {
@@ -27,7 +26,7 @@ async function checkRoom(roomId) {
       },
       body: JSON.stringify({
         roomId: roomId
-      });
+      })
     });
     const res = await response.json();
     return {
