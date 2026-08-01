@@ -19,7 +19,15 @@ export default async function handler(req, res) {
 
 async function checkRoom(roomId) {
   try {
-    const response = await fetch('https://animeuniverse.dpdns.org/api/room/check');
+    const response = await fetch('https://animeuniverse.dpdns.org/api/room/check', {
+      method: "POST",
+      headers: {
+        'Content-Type': "application/json"
+      }
+      body: JSON.stringify({
+        roomId
+      })
+    });
     const res = await response.json();
     return {
       a: res.success,
