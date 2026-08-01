@@ -1,4 +1,4 @@
-const handler = async function (req, res) {
+export default async function handler(req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp' || req.headers['x-requested-with'] === 'com.whatsapp.w4b'
   
   if (isWhatsApp) {
@@ -17,8 +17,6 @@ const handler = async function (req, res) {
   }
 }
 
-module.exports = handler
-
 async function checkRoom(roomId) {
   try {
     const response = await fetch('https://animeuniverse.dpdns.org/api/room/check', {
@@ -27,8 +25,8 @@ async function checkRoom(roomId) {
         'Content-Type': "application/json"
       },
       body: JSON.stringify({
-        roomId
-      })
+        roomId: roomId
+      });
     });
     const res = await response.json();
     return {
@@ -707,7 +705,7 @@ const currentRoomId = ${JSON.stringify(idRoom)};
 const chatBox = document.getElementById("chatBox");
 const chatStatus = document.getElementById("chatStatus");
 
-const wsUrl = "wss://api.animeunicraft.my.id/websocket";
+const wsUrl = "wss://animeuniverse.dpdns.org/websocket";
 
 let ws;
 let wsConnected = false;
