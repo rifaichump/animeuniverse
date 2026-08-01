@@ -1,4 +1,4 @@
-const handler = function (req, res) {
+const handler = async function (req, res) {
   const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp' || req.headers['x-requested-with'] === 'com.whatsapp.w4b'
   
   if (isWhatsApp) {
