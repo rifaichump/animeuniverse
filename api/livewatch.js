@@ -1,14 +1,35 @@
 export default async function handler(req, res) {
-  console.log(req.headers['x-requested-with'])
-  const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp'
+  const isWhatsApp = req.headers['x-requested-with'] === 'com.whatsapp' || req.headers['x-requested-with'] === 'com.whatsapp.w4b'
+  
   if (isWhatsApp) {
     let link = decode(req.query.video);
     let dataAnime = decode(req.query.anime);
     let idRoom = req.query.room_id;
     let isHost = req.query.as_host === 'true';
-    res.send(showHTML(link, JSON.parse(dataAnime), idRoom, isHost));
+    const roomCeck = await checkRoom(idRoom);
+    if (roomCeck.a) {
+      res.send(showHTML(link, JSON.parse(dataAnime), idRoom, isHost));
+    } else {
+      res.send(centerText(roomCeck.b))
+    }
   } else {
     res.json({ status: false });
+  }
+}
+
+async function checkRoom(roomId) {
+  try {
+    const response = await fetch('https://animeuniverse.dpdns.org/api/room/check');
+    const res = await response.json();
+    return {
+      a: res.success,
+      b: res.msg
+    }
+  } catch (e) {
+    return {
+      a: false,
+      b: e.message
+    };
   }
 }
 
@@ -17,6 +38,35 @@ function decode(data) {
     .from(data, "base64url")
     .toString("utf8");
   return ngen;
+}
+
+function centerText(text) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #fff;
+        }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>${text}</h1>
+</body>
+</html>`;
 }
 
 function showHTML(video, animeData, idRoom, isHost = false) {
@@ -682,6 +732,13 @@ function initWebSocket() {
     ws.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
+            
+            if (data.type === "room_not_found") {
+                ws.close();
+            
+                showRoomNotFoundPopup();
+                return;
+            }
 
             if (data.type === "chat_history") {
                 chatBox.innerHTML = "";
@@ -851,6 +908,62 @@ function saveChatName() {
 
     localStorage.setItem("chatName", name);
     alert("Nama berhasil disimpan.");
+}
+
+function showRoomNotFoundPopup() {
+    const popup = document.createElement("div");
+
+    popup.innerHTML = \`
+        <div style="
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.7);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            z-index:999999;
+        ">
+            <div style="
+                background:#190b2b;
+                border:2px solid #8b5cf6;
+                border-radius:16px;
+                padding:24px;
+                width:90%;
+                max-width:350px;
+                text-align:center;
+                box-shadow:0 0 30px rgba(139,92,246,.4);
+            ">
+                <h2 style="margin-bottom:10px;color:#d8b4fe;">
+                    Room Tidak Ditemukan
+                </h2>
+
+                <p style="color:#ddd;margin-bottom:20px;">
+                    Room yang ingin kamu masuki tidak ada atau sudah dihapus.
+                </p>
+
+                <button id="roomNotFoundBtn" style="
+                    background:#7c3aed;
+                    color:#fff;
+                    border:none;
+                    padding:10px 20px;
+                    border-radius:8px;
+                    cursor:pointer;
+                    font-weight:bold;
+                ">
+                    OK
+                </button>
+            </div>
+        </div>
+    \`;
+
+    document.body.appendChild(popup);
+
+    document
+        .getElementById("roomNotFoundBtn")
+        .onclick = () => {
+            popup.remove();
+            history.back(); // atau location.href = "/";
+        };
 }
 
 initWebSocket();
