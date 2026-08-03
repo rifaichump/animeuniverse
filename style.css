@@ -43,7 +43,6 @@ body::before {
   z-index: 0;
 }
 
-/* ---------- Topbar ---------- */
 .topbar {
   position: fixed;
   top: 0;
@@ -72,7 +71,6 @@ body::before {
   color: var(--violet-100);
 }
 
-/* ---------- Hamburger menu ---------- */
 .menu-toggle {
   position: relative;
   z-index: 1000;
@@ -153,7 +151,6 @@ body::before {
   color: var(--white);
 }
 
-/* ---------- Layout ---------- */
 .container {
   position: relative;
   z-index: 1;
@@ -175,7 +172,6 @@ section {
   margin-bottom: 24px;
 }
 
-/* ---------- Profile hero ---------- */
 .hero {
   display: flex;
   align-items: center;
@@ -236,7 +232,6 @@ section {
   color: var(--violet-200);
 }
 
-/* ---------- Section titles ---------- */
 .section-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -255,7 +250,6 @@ section {
   box-shadow: 0 0 10px rgba(157, 92, 245, 0.9);
 }
 
-/* ---------- Social buttons ---------- */
 .socials {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -298,7 +292,6 @@ section {
   background: linear-gradient(135deg, #25f4ee, #fe2c55, #111);
 }
 
-/* ---------- Minecraft status ---------- */
 .status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -344,7 +337,6 @@ section {
   box-shadow: 0 0 10px #f87171;
 }
 
-/* ---------- App download ---------- */
 .app-card {
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid var(--glass-border);
@@ -412,7 +404,6 @@ section {
   box-shadow: 0 8px 20px rgba(157, 92, 245, 0.45);
 }
 
-/* ---------- Gallery button ---------- */
 .gallery-btn {
   display: inline-flex;
   align-items: center;
@@ -439,7 +430,6 @@ section {
   box-shadow: 0 8px 20px rgba(157, 92, 245, 0.45);
 }
 
-/* ---------- Lightbox gallery ---------- */
 .lightbox {
   position: fixed;
   inset: 0;
@@ -535,7 +525,6 @@ section {
   font-size: 0.9rem;
 }
 
-/* ---------- Footer ---------- */
 footer {
   position: relative;
   z-index: 1;
