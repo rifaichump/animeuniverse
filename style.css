@@ -43,11 +43,33 @@ body::before {
   z-index: 0;
 }
 
+/* ---------- Topbar ---------- */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  background: rgba(30, 17, 69, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.topbar-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--violet-100);
+}
+
 /* ---------- Hamburger menu ---------- */
 .menu-toggle {
-  position: fixed;
-  top: 20px;
-  left: 20px;
+  position: relative;
   z-index: 1000;
   width: 44px;
   height: 44px;
@@ -91,17 +113,17 @@ body::before {
 
 .menu {
   position: fixed;
-  top: 0;
+  top: 64px;
   left: 0;
   z-index: 999;
   width: 260px;
-  height: 100vh;
+  height: calc(100vh - 64px);
   background: rgba(30, 17, 69, 0.95);
   backdrop-filter: blur(12px);
   border-right: 1px solid var(--glass-border);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
-  padding: 90px 24px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 8px;
