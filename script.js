@@ -182,3 +182,18 @@ function disableZoom() {
 }
 
 disableZoom();
+
+const topbar = document.querySelector(".topbar");
+let lastScrollY = window.scrollY;
+
+function handleTopbar() {
+  const currentY = window.scrollY;
+  if (currentY > lastScrollY && currentY > 64) {
+    topbar.classList.add("hidden");
+  } else {
+    topbar.classList.remove("hidden");
+  }
+  lastScrollY = currentY;
+}
+
+window.addEventListener("scroll", handleTopbar, { passive: true });
