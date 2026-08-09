@@ -199,8 +199,8 @@ video{
     pointer-events:auto;
 }
 
-.player:hover .controls,
-.player.controls-visible .controls{
+.player.is-host:hover .controls,
+.player.is-host.controls-visible .controls{
     opacity:1;
     transform:translateY(0);
 }
@@ -609,7 +609,7 @@ video{
         <span class="live-badge">Live</span>
     </div>
     
-    <div class="player" id="player">
+    <div class="player${isHost ? " is-host" : ""}" id="player">
 
         <video id="video" autoplay playsinline muted></video>
 
@@ -874,9 +874,12 @@ function showControlsTemporarily(){
 }
 
 let hideControlsTimeout;
-player.addEventListener("mousemove", showControlsTemporarily);
-player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
-player.addEventListener("click", showControlsTemporarily);
+if (isHost) {
+    player.classList.add("controls-visible");
+    player.addEventListener("mousemove", showControlsTemporarily);
+    player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
+    player.addEventListener("click", showControlsTemporarily);
+}
 
 function getFsElement() {
     return document.fullscreenElement ||
