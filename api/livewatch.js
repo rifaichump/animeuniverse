@@ -843,13 +843,13 @@ function formatTime(sec){
     if (!isFinite(sec)) return "00:00";
     const m = Math.floor(sec / 60).toString().padStart(2, "0");
     const s = Math.floor(sec % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
+    return \`\${m}:\${s}\`;
 }
 
 function updateProgress(){
     const pct = (video.currentTime / (video.duration || 1)) * 100;
     progressFill.style.width = pct + "%";
-    timeLabel.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+    timeLabel.textContent = \`\${formatTime(video.currentTime)} / \${formatTime(video.duration)}\`;
 }
 
 video.addEventListener("timeupdate", updateProgress);
@@ -1140,7 +1140,7 @@ function appendChatMessage(sender, message) {
 
     const avatar = document.createElement("div");
     avatar.className = "chat-avatar";
-    avatar.style.background = `linear-gradient(135deg, ${color}, ${color}cc)`;
+    avatar.style.background = \`linear-gradient(135deg, \${color}, \${color}cc)\`;
     avatar.textContent = senderInitial(sender);
 
     const body = document.createElement("div");
