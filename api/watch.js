@@ -42,9 +42,9 @@ body{
 }
 
 .container{
-    max-width:900px;
+    max-width:1200px;
     margin:auto;
-    padding:25px;
+    padding:12px;
 }
 
 .title{
@@ -58,7 +58,7 @@ body{
 .player{
     position:relative;
     width:100%;
-    border-radius:18px;
+    border-radius:0;
     overflow:hidden;
     background:#000;
     border:2px solid #8b5cf6;

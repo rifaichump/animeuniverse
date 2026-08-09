@@ -100,9 +100,9 @@ body{
 }
 
 .container{
-    max-width:900px;
+    max-width:1200px;
     margin:auto;
-    padding:25px;
+    padding:12px;
 }
 
 .title{
@@ -144,7 +144,7 @@ body{
 .player{
     position:relative;
     width:100%;
-    border-radius:18px;
+    border-radius:0;
     overflow:hidden;
     background:#000;
     border:2px solid #8b5cf6;
@@ -187,15 +187,71 @@ video{
     padding:10px 14px 12px;
     background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0));
     display:flex;
-    align-items:center;
-    gap:14px;
+    flex-direction:column;
+    gap:8px;
     opacity:0;
-    transition:opacity .25s ease;
+    transform:translateY(6px);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none;
+}
+
+.controls * {
+    pointer-events:auto;
 }
 
 .player:hover .controls,
 .player.controls-visible .controls{
     opacity:1;
+    transform:translateY(0);
+}
+
+.progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.progress-bar{
+    flex:1;
+    height:6px;
+    border-radius:6px;
+    background:rgba(255,255,255,.2);
+    position:relative;
+    cursor:pointer;
+    overflow:hidden;
+}
+
+.progress-fill{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#8b5cf6,#c084fc);
+    border-radius:6px;
+}
+
+.progress-buffer{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:0%;
+    background:rgba(255,255,255,.15);
+}
+
+.time{
+    font-size:12px;
+    color:#e9d5ff;
+    min-width:96px;
+    text-align:center;
+    font-variant-numeric:tabular-nums;
+}
+
+.buttons-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
 
 .host-controls-panel {
@@ -373,19 +429,84 @@ video{
 }
 
 .chat-msg{
-    background:rgba(139,92,246,.15);
-    border-left:3px solid #8b5cf6;
-    padding:8px 12px;
-    border-radius:0 8px 8px 0;
-    word-break:break-word;
-    font-size:14px;
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    animation:msgIn .25s ease;
 }
 
-.chat-msg .sender{
+@keyframes msgIn{
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.chat-avatar{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    color:#fff;
+    font-size:13px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+
+.chat-body{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    max-width:85%;
+    min-width:0;
+}
+
+.chat-sender{
     font-size:11px;
     font-weight:bold;
-    color:#c084fc;
-    margin-bottom:2px;
+    padding-left:4px;
+}
+
+.chat-bubble{
+    background:rgba(139,92,246,.15);
+    border:1px solid rgba(139,92,246,.25);
+    padding:8px 12px;
+    border-radius:14px;
+    border-top-left-radius:4px;
+    word-break:break-word;
+    font-size:14px;
+    line-height:1.4;
+    box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+
+.chat-msg.me{
+    flex-direction:row-reverse;
+}
+
+.chat-msg.me .chat-sender{
+    text-align:right;
+    padding-left:0;
+    padding-right:4px;
+}
+
+.chat-msg.me .chat-body{
+    align-items:flex-end;
+}
+
+.chat-msg.me .chat-bubble{
+    background:linear-gradient(135deg,#7c3aed,#9333ea);
+    border-color:rgba(216,180,254,.4);
+    border-top-left-radius:14px;
+    border-top-right-radius:4px;
+    margin-left:auto;
 }
 
 .chat-input-area{
@@ -496,23 +617,45 @@ video{
 
         <div class="controls" id="controls">
 
-            <div class="volume-row">
-                <button class="ctrl-btn" id="muteBtn" title="Mute/Unmute">
-                    <svg id="volIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <div class="progress-row">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-buffer" id="progressBuffer"></div>
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time" id="timeLabel">00:00 / 00:00</div>
+            </div>
+
+            <div class="buttons-row">
+                <button class="ctrl-btn" id="playBtn" title="Play/Pause">
+                    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0">
+
+                <button class="ctrl-btn" id="rewindBtn" title="Mundur 10 detik">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                </button>
+
+                <button class="ctrl-btn" id="forwardBtn" title="Maju 10 detik">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+                </button>
+
+                <div class="volume-row">
+                    <button class="ctrl-btn" id="muteBtn" title="Mute/Unmute">
+                        <svg id="volIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    </button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0">
+                </div>
+
+                <div class="sync-status">
+                    <div class="sync-dot"></div>
+                    <span id="syncText">Mencari Sinyal Stream...</span>
+                </div>
+
+                <div class="spacer"></div>
+
+                <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen">
+                    <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                </button>
             </div>
-
-            <div class="sync-status">
-                <div class="sync-dot"></div>
-                <span id="syncText">Mencari Sinyal Stream...</span>
-            </div>
-
-            <div class="spacer"></div>
-
-            <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen">
-                <svg id="fsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            </button>
 
         </div>
 
@@ -620,9 +763,19 @@ video.addEventListener("pause", updateHostPlayBtnState);
 
 const player = document.getElementById("player");
 
+const playBtn = document.getElementById("playBtn");
+const playIcon = document.getElementById("playIcon");
+const rewindBtn = document.getElementById("rewindBtn");
+const forwardBtn = document.getElementById("forwardBtn");
+
 const muteBtn = document.getElementById("muteBtn");
 const volIcon = document.getElementById("volIcon");
 const volumeSlider = document.getElementById("volumeSlider");
+
+const progressBar = document.getElementById("progressBar");
+const progressFill = document.getElementById("progressFill");
+const progressBuffer = document.getElementById("progressBuffer");
+const timeLabel = document.getElementById("timeLabel");
 
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const syncText = document.getElementById("syncText");
@@ -651,6 +804,79 @@ volumeSlider.oninput = () => {
     video.muted = (video.volume == 0);
     volIcon.innerHTML = video.muted ? ICON_VOL_MUTE : ICON_VOL_ON;
 };
+
+function togglePlay(){
+    if (video.paused) {
+        video.play().catch(() => {});
+    } else {
+        video.pause();
+    }
+    if (isHost) {
+        sendHostAction();
+    }
+}
+
+function updatePlayIcon(){
+    playIcon.innerHTML = video.paused ? ICON_PLAY : ICON_PAUSE;
+}
+
+playBtn.onclick = togglePlay;
+
+rewindBtn.onclick = () => {
+    video.currentTime = Math.max(0, video.currentTime - 10);
+    if (isHost) sendHostAction();
+};
+
+forwardBtn.onclick = () => {
+    video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+    if (isHost) sendHostAction();
+};
+
+progressBar.onclick = (e) => {
+    const rect = progressBar.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    video.currentTime = pct * (video.duration || 0);
+    if (isHost) sendHostAction();
+};
+
+function formatTime(sec){
+    if (!isFinite(sec)) return "00:00";
+    const m = Math.floor(sec / 60).toString().padStart(2, "0");
+    const s = Math.floor(sec % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+}
+
+function updateProgress(){
+    const pct = (video.currentTime / (video.duration || 1)) * 100;
+    progressFill.style.width = pct + "%";
+    timeLabel.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+}
+
+video.addEventListener("timeupdate", updateProgress);
+
+video.addEventListener("progress", () => {
+    if (video.buffered.length) {
+        const end = video.buffered.end(video.buffered.length - 1);
+        const pct = (end / (video.duration || 1)) * 100;
+        progressBuffer.style.width = pct + "%";
+    }
+});
+
+video.addEventListener("play", updatePlayIcon);
+video.addEventListener("pause", updatePlayIcon);
+
+function showControlsTemporarily(){
+    player.classList.add("controls-visible");
+    clearTimeout(hideControlsTimeout);
+    hideControlsTimeout = setTimeout(() => {
+        player.classList.remove("controls-visible");
+    }, 3000);
+}
+
+let hideControlsTimeout;
+player.addEventListener("mousemove", showControlsTemporarily);
+player.addEventListener("touchstart", showControlsTemporarily, {passive: true});
+player.addEventListener("click", showControlsTemporarily);
 
 function getFsElement() {
     return document.fullscreenElement ||
@@ -889,11 +1115,51 @@ function sendChatMessage() {
     }
 }
 
+function senderColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colors = ["#8b5cf6","#c084fc","#f472b6","#fb7185","#38bdf8","#34d399","#fbbf24","#fb923c","#a3e635","#22d3ee"];
+    return colors[Math.abs(hash) % colors.length];
+}
+
+function senderInitial(name) {
+    const clean = (name || "?").trim();
+    return clean.charAt(0).toUpperCase();
+}
+
 function appendChatMessage(sender, message) {
+    const myName = localStorage.getItem("chatName");
+    const isMe = myName && sender === myName;
+
     const msgDiv = document.createElement("div");
-    msgDiv.className = "chat-msg";
-    msgDiv.innerHTML = \`<div class="sender">\${escapeHTML(sender)}</div><div>\${escapeHTML(message)}</div>\`;
-    
+    msgDiv.className = "chat-msg" + (isMe ? " me" : "");
+
+    const color = senderColor(sender);
+
+    const avatar = document.createElement("div");
+    avatar.className = "chat-avatar";
+    avatar.style.background = `linear-gradient(135deg, ${color}, ${color}cc)`;
+    avatar.textContent = senderInitial(sender);
+
+    const body = document.createElement("div");
+    body.className = "chat-body";
+
+    const senderDiv = document.createElement("div");
+    senderDiv.className = "chat-sender";
+    senderDiv.style.color = color;
+    senderDiv.textContent = sender;
+
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble";
+    bubble.innerHTML = escapeHTML(message);
+
+    body.appendChild(senderDiv);
+    body.appendChild(bubble);
+    msgDiv.appendChild(avatar);
+    msgDiv.appendChild(body);
+
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
