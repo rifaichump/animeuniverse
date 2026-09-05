@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const link = "https://github.com/rifaichump/animeuniverse/releases/download/Update/AnimeUniverseGroup56.apk";
+  const link = "https://github.com/rifaichump/animeuniverse/releases/download/Update/AnimeUniverseGroupV56.apk";
   const html = `
 <!DOCTYPE html>
 <html lang="id">
