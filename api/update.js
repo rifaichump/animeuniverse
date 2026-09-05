@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  const link = "";
   const html = `
 <!DOCTYPE html>
 <html lang="id">
@@ -214,7 +215,7 @@ export default async function handler(req, res) {
 
         <a
             class="download"
-            href="https://github.com/rifaichump/animeuniverse/releases/download/Update/AnimeUniverseGroup.apk"
+            href="${link}"
             download
         >
             <span class="download-icon">↓</span>
